@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
         ],
       });
     } else {
-      // Server-side handling with modern options
+      // Server-side handling with correct option
       config.module.rules.push({
         test: /react-tweet\/.*\.module\.css$/,
         use: [
@@ -35,9 +35,9 @@ const nextConfig: NextConfig = {
             options: {
               modules: {
                 localIdentName: "[name]__[local]--[hash:base64:5]",
-                exportType: "locals", // Use this instead of exportOnlyLocals
               },
               importLoaders: 1,
+              exportOnlyLocals: true, // <-- move this here, not inside modules
             },
           },
         ],
