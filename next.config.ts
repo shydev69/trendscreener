@@ -35,9 +35,9 @@ const nextConfig: NextConfig = {
             options: {
               modules: {
                 localIdentName: "[name]__[local]--[hash:base64:5]",
+                exportOnlyLocals: true, // <-- move here, inside modules
               },
               importLoaders: 1,
-              exportOnlyLocals: true, // <-- move this here, not inside modules
             },
           },
         ],
