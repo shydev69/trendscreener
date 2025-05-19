@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Manrope, JetBrains_Mono, Inter } from "next/font/google";
 import "@/styles/globals.css";
 import { siteConfig } from "@/config/site.config";
 import { cn } from "@/lib/utils";
@@ -13,21 +12,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import Sidebar from "@/components/sidebar";
-
-const fontSans = Manrope({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const fontMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
-
-const fontHeading = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.origin),
@@ -79,10 +64,7 @@ export default function RootLayout({
       <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
         <body
           className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable,
-            fontHeading.variable,
-            fontMono.variable
+            "min-h-screen bg-background font-sans antialiased inter"
           )}
         >
           <RootProviders>
