@@ -1,10 +1,8 @@
 "use client";
 import { Eye, Heart, RefreshCcw, Reply } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Tweet as TweetComponent } from "react-tweet";
-import { trendLists } from "../../../drizzle/migrations/schema";
-//import returnCurrentUserId from "./returnCurrentUserId";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -19,6 +17,22 @@ type TweetStats = {
   quotes: number;
   bookmarks: number;
 };
+
+type TrendsList = {
+  trendsList: any;
+};
+
+async function fetchTrendsList(id: string): Promise<TrendsList | null> {
+  try {
+    const res = await fetch(`/api/trends/${id}`);
+    if (!res.ok) throw new Error("Failed to fetch trends list");
+
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
   try {
     const res = await fetch(
@@ -32,7 +46,6 @@ async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
     );
     if (!res.ok) throw new Error("Failed to fetch tweet data");
     const data = await res.json();
-    console.log("from x", data);
     const tweet = data?.tweets?.[0] ?? {};
     return {
       id: tweetId,
@@ -47,8 +60,6 @@ async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
     const { fetchTweet } = await import("react-tweet/api");
     const { data } = await fetchTweet(tweetId);
     const t = data as any;
-    console.log("from react tweet", error, t);
-
     return {
       id: tweetId,
       likes: t?.favorite_count ?? 0,
@@ -61,15 +72,33 @@ async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
   }
 }
 
-export default function TrendsListPage() {
+export default function TrendsListEditPage() {
+  const params = useParams();
   const router = useRouter();
-  const [input, setInput] = useState(""),
-    [links, setLinks] = useState<string[]>([]),
-    [error, setError] = useState(""),
-    [stats, setStats] = useState<TweetStats[]>([]),
-    [loading, setLoading] = useState(false),
-    [saving, setSaving] = useState(false);
+  const listId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const [input, setInput] = useState("");
+  const [links, setLinks] = useState<string[]>([]);
+  const [error, setError] = useState("");
+  const [stats, setStats] = useState<TweetStats[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
+  // Fetch trends list from server on mount
+  useEffect(() => {
+    if (!listId) return;
+    setInitialLoading(true);
+    fetchTrendsList(listId).then((list) => {
+      if (list) {
+        setLinks(list.trendsList.urls || []);
+        setStats(list.trendsList.analysis || []);
+      }
+      console.log("Fetched trends list:", list);
+      setInitialLoading(false);
+    });
+  }, [listId]);
+
+  // Update stats when links change
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -93,6 +122,7 @@ export default function TrendsListPage() {
 
   const normalize = (url: string) =>
     url.trim().replace(/\/+$/, "").toLowerCase();
+
   const handleAddLink = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = input.trim();
@@ -106,6 +136,10 @@ export default function TrendsListPage() {
     setError("");
   };
 
+  const handleRemoveLink = (idx: number) => {
+    setLinks(links.filter((_, i) => i !== idx));
+  };
+
   const total = stats.reduce(
     (a, c) => ({
       likes: a.likes + c.likes,
@@ -117,38 +151,39 @@ export default function TrendsListPage() {
     }),
     { likes: 0, views: 0, replies: 0, reposts: 0, quotes: 0, bookmarks: 0 }
   );
+
   async function saveTrendsList() {
     if (!links.length) return;
-
     setSaving(true);
     try {
-      // Call the API endpoint instead of directly using db
-      const response = await fetch("/api/trends", {
-        method: "POST",
+      const response = await fetch(`/api/trends/${listId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           urls: links.map(normalize),
           analysis: JSON.stringify(stats),
-          isPublic: false,
         }),
       });
-
       const data = await response.json();
-
       if (!data.success) {
         throw new Error(data.error || "Failed to save trends list");
       }
-
-      // Redirect to the trends list page using the ID from the response
-      router.push(`/trendslist/${data.listId}`);
+      router.refresh();
     } catch (err) {
-      console.error("Failed to save trendslist:", err);
       setError("Failed to save trends list. Please try again.");
     } finally {
       setSaving(false);
     }
+  }
+
+  if (initialLoading) {
+    return (
+      <div style={{ maxWidth: 500, margin: "2rem auto", padding: 16 }}>
+        Loading trends list...
+      </div>
+    );
   }
 
   return (
@@ -238,7 +273,24 @@ export default function TrendsListPage() {
         {links.map((link, idx) => {
           const tweetId = extractTweetId(link);
           return (
-            <li key={idx} style={{ marginBottom: 24 }}>
+            <li key={idx} style={{ marginBottom: 24, position: "relative" }}>
+              <button
+                onClick={() => handleRemoveLink(idx)}
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 0,
+                  background: "transparent",
+                  border: "none",
+                  color: "#888",
+                  cursor: "pointer",
+                  fontSize: 18,
+                }}
+                title="Remove"
+                aria-label="Remove"
+              >
+                ×
+              </button>
               {tweetId ? (
                 <TweetComponent id={tweetId} />
               ) : (

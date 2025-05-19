@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, jsonb, timestamp, uuid, unique, text } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, jsonb, timestamp, uuid, boolean, text, unique } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -8,7 +8,9 @@ export const trendLists = pgTable("trend_lists", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`),
 	id: uuid().defaultRandom().primaryKey().notNull(),
-	creatorId: uuid("creator_id").defaultRandom(),
+	analysis: jsonb().default({}),
+	isPublic: boolean("is_public").default(false).notNull(),
+	creatorId: text("creator_id").notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.creatorId],
@@ -20,14 +22,9 @@ export const trendLists = pgTable("trend_lists", {
 export const users = pgTable("users", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
-	id: uuid().defaultRandom().primaryKey().notNull(),
 	listIds: uuid("list_ids").array(),
 	bio: text(),
+	id: text().primaryKey().notNull(),
 }, (table) => [
-	foreignKey({
-			columns: [table.id],
-			foreignColumns: [table.id],
-			name: "users_id_fkey"
-		}).onUpdate("cascade").onDelete("cascade"),
 	unique("users_id_key").on(table.id),
 ]);

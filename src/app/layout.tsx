@@ -4,6 +4,15 @@ import "@/styles/globals.css";
 import { siteConfig } from "@/config/site.config";
 import { cn } from "@/lib/utils";
 import RootProviders from "@/components/providers";
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
+import Sidebar from "@/components/sidebar";
 
 const fontSans = Manrope({
   variable: "--font-sans",
@@ -60,26 +69,29 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-          fontHeading.variable,
-          fontMono.variable
-        )}
-      >
-        <RootProviders>
-          {children}
-        </RootProviders>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+        <body
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            fontSans.variable,
+            fontHeading.variable,
+            fontMono.variable
+          )}
+        >
+          <RootProviders>
+            {" "}
+            <Sidebar />
+            <div className="px-40">{children}</div>
+          </RootProviders>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
