@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm i lightningcss-linux-x64-gnu && next build",
+    "build": "bun i lightningcss-linux-x64-gnu @tailwindcss/postcss && next build",
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/lib/db/migrate.ts",
