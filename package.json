@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npm i lightningcss-linux-x64-gnu && next build",
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/lib/db/migrate.ts",
@@ -53,7 +53,6 @@
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.1.6",
     "tw-animate-css": "^1.2.9",
-    "typescript": "^5.8.3",
-    "lightningcss-linux-x64-gnu": "1.30.1"
+    "typescript": "^5.8.3"
   }
 }
