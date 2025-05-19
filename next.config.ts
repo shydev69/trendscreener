@@ -8,19 +8,35 @@ const nextConfig: NextConfig = {
       use: "null-loader",
     });
 
-    // Add a custom rule for CSS modules in react-tweet
-    config.module.rules.push({
-      test: /react-tweet\/.*\.module\.css$/,
-      use: [
-        "style-loader",
-        {
-          loader: "css-loader",
-          options: {
-            modules: true,
+    // Only use style-loader on client side
+    if (!isServer) {
+      config.module.rules.push({
+        test: /react-tweet\/.*\.module\.css$/,
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              modules: true,
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
+    } else {
+      // Server-side handling
+      config.module.rules.push({
+        test: /react-tweet\/.*\.module\.css$/,
+        use: [
+          {
+            loader: "css-loader",
+            options: {
+              modules: true,
+              exportOnlyLocals: true,
+            },
+          },
+        ],
+      });
+    }
 
     return config;
   },
