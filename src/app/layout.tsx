@@ -74,7 +74,7 @@ export default function RootLayout({
             <Sidebar />
             <Header />
             <div
-              className="ml-64 mt-10 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-scroll"
+              className="ml-64 mt-10 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-auto"
               style={{ height: "calc(100vh - 2.5rem)" }}
             >
               {children}
