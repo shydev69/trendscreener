@@ -11,6 +11,7 @@ export const trendLists = pgTable("trend_lists", {
 	analysis: jsonb().default({}),
 	isPublic: boolean("is_public").default(false).notNull(),
 	creatorId: text("creator_id").notNull(),
+	name: text(),
 }, (table) => [
 	foreignKey({
 			columns: [table.creatorId],

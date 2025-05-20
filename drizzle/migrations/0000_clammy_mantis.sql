@@ -8,7 +8,8 @@ CREATE TABLE "trend_lists" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"analysis" jsonb DEFAULT '{}'::jsonb,
 	"is_public" boolean DEFAULT false NOT NULL,
-	"creator_id" text NOT NULL
+	"creator_id" text NOT NULL,
+	"name" text
 );
 --> statement-breakpoint
 ALTER TABLE "trend_lists" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint

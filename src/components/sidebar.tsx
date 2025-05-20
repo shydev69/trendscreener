@@ -8,49 +8,130 @@ import {
   SignInButton,
   SignUpButton,
 } from "@clerk/clerk-react";
+import {
+  ArrowRight,
+  ArrowRightCircle,
+  HelpCircle,
+  Plus,
+  TriangleRight,
+} from "lucide-react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+
+const links = [
+  {
+    icon: Plus,
+    label: "Make a TrendsList",
+    href: "/trendslist",
+  },
+  {
+    icon: HelpCircle,
+    label: "FAQ",
+    href: "/faq",
+  },
+];
+
+interface userTrend {
+  id: string;
+  name: string;
+  urls: string[];
+  analysis: string;
+  creatorId: string;
+  isPublic: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
 
 const Sidebar: React.FC = () => {
+  const [activeLink, setActiveLink] = React.useState<string | null>(
+    usePathname() ? "/" + usePathname().split("/")[1] : null
+  );
+  const [userTrends, setUserTrends] = React.useState<userTrend[]>([]);
+  const handleLinkClick = (link: string) => {
+    setActiveLink(link);
+  };
+  function getUserTrends() {
+    fetch(`/api/getUserTrends`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          setUserTrends(data.trends);
+        } else {
+          console.error("Error fetching user trends:", data.error);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching user trends:", error);
+      });
+  }
+  React.useEffect(() => {
+    getUserTrends();
+  }, []);
   return (
-    <aside className="fixed top-0 left-0 h-full w-64 bg-white shadow z-50 flex flex-col">
+    <aside className="fixed top-0 left-0 h-full w-64 z-50 flex flex-col">
       {/* Logo */}
-      <div className="flex items-center h-16 px-6 border-b font-bold text-2xl text-blue-600">
-        trendscreener
+      <div
+        className="flex text-center cursor-pointer items-center justify-start w-full font-medium text-shadow-xs dark:text-shadow-white/10 mt-3 h-16 px-8 text-xl text-black dark:text-white"
+        onClick={() => (window.location.href = "/")}
+      >
+        Trendscreener
       </div>
-
       {/* Navigation Links */}
-      <nav className="flex-1 flex flex-col space-y-2 mt-6 px-4">
-        <a
-          href="/trendslist"
-          className="flex items-center px-4 py-2 rounded text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition"
-        >
-          Make a TrendsList
-        </a>
-        <a
-          href="/faq"
-          className="flex items-center px-4 py-2 rounded text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition"
-        >
-          FAQ
-        </a>
+      <nav className="flex-1 flex flex-col space-y-2 mt-2 px-4">
+        {" "}
+        {links.map((item) => (
+          <Link
+            key={item.label}
+            href={`${item.href}`}
+            onClick={() => handleLinkClick(item.href)}
+            className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition ${
+              activeLink === item.href &&
+              "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+            }`}
+          >
+            {item.icon && <item.icon className="w-4 h-4 mr-3" />}
+            <span className="text-sm">{item.label}</span>
+          </Link>
+        ))}
+        <hr className="border-t border-gray-300 dark:border-neutral-700 my-3 mx-2 opacity-0" />
+        {userTrends.map((item) => (
+          <Link
+            key={item.id}
+            href={`/trendslist/${item.id}`}
+            onClick={() => handleLinkClick(`/trendslist/${item.id}`)}
+            className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition ${
+              activeLink === `/trendslist/${item.id}` &&
+              "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+            }`}
+          >
+            <span className="text-sm w-full truncate text-ellipsis">
+              {item.name || item.urls[0]}
+            </span>
+          </Link>
+        ))}
       </nav>
-
+      <nav className="flex-1 flex flex-col space-y-2 mt-2 px-4"></nav>{" "}
       {/* Auth/Profile Section */}
-      <div className="px-4 py-6 border-t flex flex-col space-y-3">
+      {/*<div className="px-4 py-6 flex flex-col gap-y-1">
         <SignedOut>
           <SignInButton>
-            <button className="w-full px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition">
+            <button className="overflow-hidden flex items-center my-0 px-4 py-2 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:underline hover:text-black dark:hover:text-white transition justify-center text-center">
               Sign In
             </button>
           </SignInButton>
           <SignUpButton>
-            <button className="w-full px-4 py-2 rounded bg-gray-200 text-blue-600 hover:bg-gray-300 transition">
-              Sign Up
+            <button className="overflow-hidden flex items-center my-0 px-4 py-2 rounded-[8px] bg-gradient-to-br from-[#000000] to-black/90 dark:to-white/10 border text-white/80 text-sm hover:text-white transition justify-center text-center">
+              Sign Up <ArrowRightCircle className="w-4 h-4 ml-2" />
             </button>
           </SignUpButton>
         </SignedOut>
         <SignedIn>
-          <UserButton afterSignOutUrl="/" />
+          <div className="w-full flex items-center justify-end my-2 px-8">
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </SignedIn>
-      </div>
+        
+      </div>*/}
     </aside>
   );
 };

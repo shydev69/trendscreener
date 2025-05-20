@@ -1,6 +1,29 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+.geist,
+.geist * {
+  font-family: "geist", sans-serif !important;
+}
 
-.inter,
-.inter * {
-  font-family: "Inter", sans-serif !important;
+:is([data-theme="dark"], .dark) :where(.react-tweet-theme) {
+  width: 100% !important;
+  max-width: 100% !important;
+  --tweet-skeleton-gradient: black !important;
+  --tweet-border: black !important;
+  --tweet-font-family: geist !important;
+  --tweet-font-color: #f7f9f9 !important;
+  --tweet-font-color-secondary: #a2a2a3 !important;
+  --tweet-bg-color: #00000010 !important;
+  --tweet-bg-color-hover: #000000 !important;
+  --tweet-quoted-bg-color-hover: #ffffff08 !important;
+  --tweet-color-blue-primary: #efefef !important;
+  --tweet-color-blue-primary-hover: #e0e1e1 !important;
+  --tweet-color-blue-secondary: #ffffff !important;
+  --tweet-color-blue-secondary-hover: #6bc9fb1a !important;
+  --tweet-color-red-primary: #f9f7f8 !important;
+  --tweet-color-red-primary-hover: #f918801a !important;
+  --tweet-color-green-primary: #a7abaa !important;
+  --tweet-color-green-primary-hover: #00ba7c1a !important;
+  --tweet-twitter-icon-color: var(--tweet-font-color) !important;
+  --tweet-verified-old-color: #a8aaab !important;
+  --tweet-verified-blue-color: #fff !important;
 }

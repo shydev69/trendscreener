@@ -13,6 +13,7 @@ import {
 } from "@clerk/nextjs";
 import Sidebar from "@/components/sidebar";
 import "./globals.css";
+import Header from "@/components/header";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.origin),
@@ -64,13 +65,20 @@ export default function RootLayout({
       <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
         <body
           className={cn(
-            "min-h-screen bg-background font-sans antialiased inter"
+            "bg-[#F7F7F8] dark:bg-[#000000] font-sans antialiased geist"
           )}
+          style={{ minHeight: "calc(100vh - 2.5rem)" }}
         >
           <RootProviders>
             {" "}
             <Sidebar />
-            <div className="px-40">{children}</div>
+            <Header />
+            <div
+              className="ml-64 mt-10 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-scroll"
+              style={{ height: "calc(100vh - 2.5rem)" }}
+            >
+              {children}
+            </div>
           </RootProviders>
         </body>
       </html>

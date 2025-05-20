@@ -7,6 +7,7 @@ export async function POST(request: Request) {
   try {
     const {
       urls,
+      name,
       analysis,
       creatorId = await currentUser().then((user) => user?.id),
       isPublic = false,
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
       return db.insert(trendLists).values({
         id: listId,
         urls,
+        name,
         analysis,
         creatorId,
         isPublic,

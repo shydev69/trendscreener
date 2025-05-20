@@ -1,6 +1,7 @@
 "use client";
-import { Eye, Heart, RefreshCcw, Reply } from "lucide-react";
+import { Bookmark, Eye, Heart, RefreshCcw, Reply, SaveAll } from "lucide-react";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Tweet as TweetComponent } from "react-tweet";
 import { trendLists } from "../../../drizzle/migrations/schema";
 //import returnCurrentUserId from "./returnCurrentUserId";
@@ -21,15 +22,7 @@ type TweetStats = {
 };
 async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
   try {
-    const res = await fetch(
-      `https://api.twitterapi.io/twitter/tweets?tweet_ids=${tweetId}`,
-      {
-        headers: {
-          "X-API-Key": process.env
-            .NEXT_PUBLIC_TWITTERAPI_BEARER_TOKEN as string,
-        },
-      }
-    );
+    const res = await fetch(`/api/twitter/proxy?tweet_id=${tweetId}`);
     if (!res.ok) throw new Error("Failed to fetch tweet data");
     const data = await res.json();
     console.log("from x", data);
@@ -68,7 +61,8 @@ export default function TrendsListPage() {
     [error, setError] = useState(""),
     [stats, setStats] = useState<TweetStats[]>([]),
     [loading, setLoading] = useState(false),
-    [saving, setSaving] = useState(false);
+    [saving, setSaving] = useState(false),
+    [listName, setListName] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -129,6 +123,7 @@ export default function TrendsListPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          name: listName,
           urls: links.map(normalize),
           analysis: JSON.stringify(stats),
           isPublic: false,
@@ -141,8 +136,7 @@ export default function TrendsListPage() {
         throw new Error(data.error || "Failed to save trends list");
       }
 
-      // Redirect to the trends list page using the ID from the response
-      router.push(`/trendslist/${data.listId}`);
+      window.location.href = `/trendslist/${data.listId}`;
     } catch (err) {
       console.error("Failed to save trendslist:", err);
       setError("Failed to save trends list. Please try again.");
@@ -152,102 +146,128 @@ export default function TrendsListPage() {
   }
 
   return (
-    <div style={{ maxWidth: 500, margin: "2rem auto", padding: 16 }}>
-      <div
-        style={{
-          display: "flex",
-          gap: 24,
-          marginBottom: 16,
-          justifyContent: "center",
-        }}
-      >
-        <span title="Total Likes">
-          <Heart />
-          {total.likes}
-        </span>
-        <span title="Total Views">
-          <Eye />
-          {total.views}
-        </span>
-        <span title="Total Replies">
-          <Reply />
-          {total.replies}
-        </span>
-        <span title="Total Reposts">
-          <RefreshCcw />
-          {total.reposts}
-        </span>
-        <span title="Total Quotes">
-          <span>Q</span>
-          {total.quotes}
-        </span>
-        <span title="Total Bookmarks">
-          <span>B</span>
-          {total.bookmarks}
-        </span>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
-        <form
-          onSubmit={handleAddLink}
-          style={{ display: "flex", gap: 8, flex: 1 }}
-        >
-          <input
-            type="url"
-            placeholder="Enter a tweet link"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            style={{ flex: 1, padding: 8 }}
-            required
-          />
-          <button type="submit" style={{ padding: "8px 16px" }}>
-            Add
-          </button>
-        </form>
-
-        {links.length > 0 && (
-          <button
-            onClick={saveTrendsList}
-            disabled={saving || loading}
-            style={{
-              marginLeft: 8,
-              padding: "8px 16px",
-              background: "#1da1f2",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-            }}
+    <div className="w-full mx-auto flex flex-col items-center">
+      <img
+        src="https://images.pexels.com/photos/19961796/pexels-photo-19961796/free-photo-of-view-of-an-erupting-volcano.jpeg?auto=compress&cs=tinysrgb&w=600"
+        alt="Goku"
+        className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
+        style={{ filter: "blur(150px)" }}
+      />
+      <div className="w-full max-w-4xl -mt-[10vh] z-1">
+        <input
+          type="text"
+          placeholder="Secret-Goku"
+          className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none text-4xl transition"
+          value={listName}
+          onChange={(e) => setListName(e.target.value)}
+          required
+        />
+        <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
+          <span
+            className="flex justify-center opacity-70 items-center gap-2"
+            title="Total Views"
           >
-            {saving ? "Saving..." : "Save List"}
-          </button>
-        )}
-      </div>
+            <Eye className="w-5 h-5" />
+            {total.views}
+          </span>
+          <span
+            className="flex justify-center opacity-70 items-center gap-2"
+            title="Total Likes"
+          >
+            <Heart className="w-5 h-5" />
+            {total.likes}
+          </span>
+          <span
+            className="flex justify-center opacity-70 items-center gap-2"
+            title="Total Replies"
+          >
+            <Reply className="w-5 h-5" />
+            {total.replies}
+          </span>
+          <span
+            className="flex justify-center opacity-70 items-center gap-2"
+            title="Total Reposts"
+          >
+            <RefreshCcw className="w-5 h-5" />
+            {total.reposts + total.quotes}
+          </span>
+          <span
+            className="flex justify-center opacity-70 items-center gap-2"
+            title="Total Bookmarks"
+          >
+            <Bookmark className="w-5 h-5" />
+            {total.bookmarks}
+          </span>{" "}
+          <div className="flex-1" />
+          {links.length > 0 && (
+            <button
+              onClick={saveTrendsList}
+              disabled={saving || loading}
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
+            >
+              <SaveAll className="w-5 h-5" />
+              {saving ? "Saving..." : "Save"}
+            </button>
+          )}
+        </div>
 
-      {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-      {loading && (
-        <div style={{ color: "#888", marginTop: 8 }}>Loading stats...</div>
-      )}
-      <ul style={{ marginTop: 24, listStyle: "none", padding: 0 }}>
-        {links.map((link, idx) => {
-          const tweetId = extractTweetId(link);
-          return (
-            <li key={idx} style={{ marginBottom: 24 }}>
-              {tweetId ? (
-                <TweetComponent id={tweetId} />
-              ) : (
-                <span>Invalid Tweet Link</span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 16,
+          }}
+        >
+          <form
+            onSubmit={handleAddLink}
+            style={{ display: "flex", gap: 8, flex: 1 }}
+          >
+            <input
+              type="url"
+              placeholder="Paste a link and hit enter"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
+              required
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleAddLink(e as any);
+                }
+              }}
+            />
+          </form>
+        </div>
+
+        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+        {loading && (
+          <div style={{ color: "#888", marginTop: 8 }}>Loading stats...</div>
+        )}
+        <ul
+          style={{
+            marginTop: 24,
+            listStyle: "none",
+            padding: 0,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 24,
+          }}
+          className="customTweets"
+        >
+          {links.map((link, idx) => {
+            const tweetId = extractTweetId(link);
+            return (
+              <li key={idx}>
+                {tweetId ? (
+                  <TweetComponent id={tweetId} />
+                ) : (
+                  <span>Invalid Tweet Link</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 }
