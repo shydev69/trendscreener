@@ -20,8 +20,6 @@ export async function GET(
 
     const user = await currentUser();
     const userId = user?.id;
-    console.log("userId", userId);
-
     const trendsList = await queryDb(async (db) => {
       return db
         .select()

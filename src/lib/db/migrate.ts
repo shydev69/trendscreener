@@ -10,15 +10,12 @@ export const db: NeonHttpDatabase<typeof schema> = drizzle(connectionString, {
 
 const main = async () => {
   const startTime = Date.now();
-  console.log(`[${new Date().toISOString()}] Starting database migration...`);
 
   try {
     await migrate(db, { migrationsFolder: "drizzle/migrations" });
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(
-      `[${new Date().toISOString()}] ✅ Migration completed successfully in ${duration}s`
-    );
+    
   } catch (error: unknown) {
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.error(

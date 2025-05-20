@@ -5,12 +5,9 @@ import { eq } from "drizzle-orm";
 
 export default async function Home() {
   const user = await currentUser();
-  console.log("User ID:", user?.id);
-  console.log("DATABASE_URL:", process.env.DATABASE_URL);
   let allusers = [];
   try {
     allusers = await db.select().from(users);
-    console.log("allusers", allusers);
   } catch (error) {
     console.error("Database error:", error);
     // Handle the error appropriately

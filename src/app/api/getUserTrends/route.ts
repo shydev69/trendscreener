@@ -8,7 +8,6 @@ export async function GET(request: Request) {
   try {
     const userId = (await currentUser())?.id;
 
-    console.log("Fetching trends for userId:", userId);
     if (!userId) {
       return NextResponse.json(
         { success: false, error: "Missing userId parameter" },

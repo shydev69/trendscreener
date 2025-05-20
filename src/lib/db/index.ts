@@ -16,6 +16,6 @@ export async function queryDb(
     const result = await query(db);
     return result;
   } catch (error) {
-    console.log("Database error:", error);
+    console.error("Database error:", error);
   }
 }

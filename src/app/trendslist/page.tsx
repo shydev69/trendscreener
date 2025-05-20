@@ -25,7 +25,6 @@ async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
     const res = await fetch(`/api/twitter/proxy?tweet_id=${tweetId}`);
     if (!res.ok) throw new Error("Failed to fetch tweet data");
     const data = await res.json();
-    console.log("from x", data);
     const tweet = data?.tweets?.[0] ?? {};
     return {
       id: tweetId,
@@ -40,7 +39,6 @@ async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
     const { fetchTweet } = await import("react-tweet/api");
     const { data } = await fetchTweet(tweetId);
     const t = data as any;
-    console.log("from react tweet", error, t);
 
     return {
       id: tweetId,
@@ -146,14 +144,32 @@ export default function TrendsListPage() {
   }
 
   return (
-    <div className="w-full mx-auto flex flex-col items-center">
+    <div className="w-full mx-auto relative flex flex-col items-center">
+      <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
+        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+        {loading && (
+          <div style={{ color: "#ffffff55", marginTop: 8 }}>
+            Loading stats...
+          </div>
+        )}
+      </div>
+      <div className="absolute top-0 right-0 flex gap-5 items-center px-7 py-5 z-10 text-center text-sm">
+        <button
+          onClick={saveTrendsList}
+          disabled={saving || loading}
+          className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
+        >
+          <SaveAll className="w-5 h-5" />
+          {saving ? "Saving..." : ""}
+        </button>
+      </div>
       <img
         src="https://images.pexels.com/photos/19961796/pexels-photo-19961796/free-photo-of-view-of-an-erupting-volcano.jpeg?auto=compress&cs=tinysrgb&w=600"
         alt="Goku"
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
         style={{ filter: "blur(150px)" }}
       />
-      <div className="w-full max-w-4xl -mt-[10vh] z-1">
+      <div className="w-full max-w-2xl -mt-[10vh] z-1">
         <input
           type="text"
           placeholder="Secret-Goku"
@@ -198,17 +214,6 @@ export default function TrendsListPage() {
             <Bookmark className="w-5 h-5" />
             {total.bookmarks}
           </span>{" "}
-          <div className="flex-1" />
-          {links.length > 0 && (
-            <button
-              onClick={saveTrendsList}
-              disabled={saving || loading}
-              className="flex items-center justify-center gap-2 px-4 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
-            >
-              <SaveAll className="w-5 h-5" />
-              {saving ? "Saving..." : "Save"}
-            </button>
-          )}
         </div>
 
         <div
@@ -239,21 +244,7 @@ export default function TrendsListPage() {
           </form>
         </div>
 
-        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-        {loading && (
-          <div style={{ color: "#888", marginTop: 8 }}>Loading stats...</div>
-        )}
-        <ul
-          style={{
-            marginTop: 24,
-            listStyle: "none",
-            padding: 0,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 24,
-          }}
-          className="customTweets"
-        >
+        <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
           {links.map((link, idx) => {
             const tweetId = extractTweetId(link);
             return (
