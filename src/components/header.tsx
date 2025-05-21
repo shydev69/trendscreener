@@ -27,15 +27,31 @@ const Header: React.FC = () => {
         />
       </div>
       {/* Centered input */}
-      <div className="w-full md:w-1/3 lg:w-3/4 flex justify-center">
-        <input
-          type="text"
-          placeholder="Search trends..."
-          className="w-full rounded-[8px] max-w-xl px-4 py-1.5 bg-white dark:bg-neutral-900 text-black text-center dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition"
-        />
+      <div className="w-full lg:w-3/4 flex justify-center">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const input = e.currentTarget.elements.namedItem(
+              "search"
+            ) as HTMLInputElement;
+            if (input.value.trim()) {
+              window.location.href = `/search?q=${encodeURIComponent(
+                input.value.trim()
+              )}`;
+            }
+          }}
+          className="w-full max-w-xl"
+        >
+          <input
+            type="text"
+            name="search"
+            placeholder="Search trends..."
+            className="hidden lg:block w-full rounded-[8px] max-w-xl px-4 py-1.5 bg-white dark:bg-neutral-900 text-black text-center dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition"
+          />
+        </form>
       </div>
       {/* User profile on right */}
-      <div className="w-1/4 flex justify-end items-center p-2">
+      <div className="w-full md:w-2/4 lg:w-1/4 flex justify-end items-center p-2">
         <SignedOut>
           <SignInButton>
             <button className="ml-2 px-4 py-1 rounded-[8px] bg-gradient-to-br from-[#34353C] to-black/90 dark:to-white/10 border text-white/80 text-sm hover:text-white transition">

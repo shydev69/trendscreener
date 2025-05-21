@@ -109,7 +109,19 @@ export default function TrendsListIdPage() {
   const [listName, setListName] = useState("");
   const [initialLoading, setInitialLoading] = useState(true);
   const [isPublic, setIsPublic] = useState(false); // 1. Add state
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const res = await fetch("/api/auth/currentUser");
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUser(data);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
   // Fetch trends list from server on mount
   useEffect(() => {
     if (!listId) return;
@@ -121,6 +133,7 @@ export default function TrendsListIdPage() {
           setLinks(list.trendlist.urls || []);
           setStats([list.trendlist.analysis]);
           setListName(list.trendlist.name || "");
+          setUserId(list.trendlist.creatorId);
           setIsPublic(!!list.trendlist.isPublic); // 2. Set from DB
         }
         setInitialLoading(false);
@@ -252,14 +265,16 @@ export default function TrendsListIdPage() {
         )}
       </div>
       <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
-        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
-          <Switch
-            id="is-public"
-            checked={isPublic} // 4. Bind to state
-            onCheckedChange={setIsPublic} // 5. Update state
-          />
-          <Label htmlFor="is-public">{isPublic ? "Public" : "Private"}</Label>
-        </div>
+        {currentUser?.id === userId && (
+          <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
+            <Switch
+              id="is-public"
+              checked={isPublic} // 4. Bind to state
+              onCheckedChange={setIsPublic} // 5. Update state
+            />
+            <Label htmlFor="is-public">{isPublic ? "Public" : "Private"}</Label>
+          </div>
+        )}
         <button
           onClick={() => {
             const url =
@@ -296,22 +311,26 @@ export default function TrendsListIdPage() {
           </svg>
           Share
         </button>
-        <button
-          onClick={saveTrendsList}
-          disabled={saving || updating}
-          className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
-        >
-          <SaveAll className="w-5 h-5" />
-          {saving ? "Saving..." : ""}
-        </button>
-        <button
-          onClick={deleteTrendsList}
-          disabled={deleting || updating}
-          className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
-        >
-          <Trash className="w-5 h-5" />
-          {deleting ? "Deleting..." : ""}
-        </button>
+        {currentUser?.id === userId && (
+          <>
+            <button
+              onClick={saveTrendsList}
+              disabled={saving || updating}
+              className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
+            >
+              <SaveAll className="w-5 h-5" />
+              {saving ? "Saving..." : ""}
+            </button>
+            <button
+              onClick={deleteTrendsList}
+              disabled={deleting || updating}
+              className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
+            >
+              <Trash className="w-5 h-5" />
+              {deleting ? "Deleting..." : ""}
+            </button>
+          </>
+        )}
       </div>
       <img
         src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
@@ -325,39 +344,43 @@ export default function TrendsListIdPage() {
           placeholder="List name"
           className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none text-4xl transition"
           value={listName}
+          disabled={currentUser?.id !== userId}
+          required
           onChange={(e) => setListName(e.target.value)}
         />
         <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
           <Analysis total={total} />
           <div className="flex-1" />
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 16,
-          }}
-        >
-          <form
-            onSubmit={handleAddLink}
-            style={{ display: "flex", gap: 8, flex: 1 }}
+        {currentUser?.id === userId && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 16,
+            }}
           >
-            <input
-              type="url"
-              placeholder="Paste a link and hit enter"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
-              required
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleAddLink(e as any);
-                }
-              }}
-            />
-          </form>
-        </div>
+            <form
+              onSubmit={handleAddLink}
+              style={{ display: "flex", gap: 8, flex: 1 }}
+            >
+              <input
+                type="url"
+                placeholder="Paste a link and hit enter"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
+                required
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddLink(e as any);
+                  }
+                }}
+              />
+            </form>
+          </div>
+        )}
 
         <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
           {links.map((link, idx) => {

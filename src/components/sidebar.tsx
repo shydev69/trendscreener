@@ -80,6 +80,29 @@ const Sidebar: React.FC = () => {
           className="w-10 h-10 mr-1 rounded-full"
         />
         Trendscreen
+      </div>{" "}
+      <div className="w-full flex lg:hidden justify-center px-8">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const input = e.currentTarget.elements.namedItem(
+              "search"
+            ) as HTMLInputElement;
+            if (input.value.trim()) {
+              window.location.href = `/search?q=${encodeURIComponent(
+                input.value.trim()
+              )}`;
+            }
+          }}
+          className="w-full max-w-xl"
+        >
+          <input
+            type="text"
+            name="search"
+            placeholder="Search trends..."
+            className="w-full rounded-[8px] max-w-xl px-4 py-3 md:py-2 bg-white dark:bg-black/30 text-black text-center dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition"
+          />
+        </form>
       </div>
       {/* Navigation Links */}
       <nav className="flex-1 flex flex-col space-y-2 mt-2 px-4">

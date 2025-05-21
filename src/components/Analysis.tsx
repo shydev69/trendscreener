@@ -23,7 +23,7 @@ export default function Analysis({ total }: AnalysisProps) {
     return num.toString();
   };
   return (
-    <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
+    <div className="flex flex-wrap items-center justify-start gap-10 mt-6 mb-4 px-4 w-full">
       <span
         className="flex justify-center opacity-70 items-center gap-2"
         title="Total Views"

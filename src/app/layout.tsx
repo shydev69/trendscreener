@@ -70,7 +70,7 @@ export default function RootLayout({
       <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
         <body
           className={cn(
-            "bg-[#F7F7F8] dark:bg-[#000000] font-sans antialiased geist"
+            "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden font-sans antialiased geist"
           )}
           style={{ minHeight: "calc(100vh - 2.5rem)" }}
         >
@@ -81,7 +81,7 @@ export default function RootLayout({
             </div>
             <Header />
             <div
-              className="md:ml-64 mt-14 md:mt-10 px-5 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-autobu"
+              className="md:ml-64 mt-14 pb-40 md:mt-10 px-5 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-auto"
               style={{ height: "calc(100vh - 2.5rem)" }}
             >
               {children}

@@ -31,6 +31,7 @@
 .react-tweet-theme img,
 .react-tweet-theme .tweet-media-module__TReg5a__root {
   object-fit: cover !important;
-  max-width: 100% !important;
+  width: auto;
+border-radius: 15px !important;
   max-height: 500px !important;
 }
