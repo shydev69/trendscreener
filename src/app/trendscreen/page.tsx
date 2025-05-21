@@ -138,9 +138,9 @@ export default function TrendsListPage() {
         throw new Error(data.error || "Failed to save trends list");
       }
 
-      window.location.href = `/trendlist/${data.listId}`;
+      window.location.href = `/trendscreen/${data.listId}`;
     } catch (err) {
-      console.error("Failed to save trendlist:", err);
+      console.error("Failed to save trendscreen:", err);
       setError("Failed to save trends list. Please try again.");
     } finally {
       setSaving(false);
@@ -165,9 +165,7 @@ export default function TrendsListPage() {
             checked={isPublic}
             onCheckedChange={setIsPublic}
           />
-          <Label htmlFor="is-public">
-            {isPublic ? "Public" : "Private"}
-          </Label>
+          <Label htmlFor="is-public">{isPublic ? "Public" : "Private"}</Label>
         </div>
         <button
           onClick={saveTrendsList}

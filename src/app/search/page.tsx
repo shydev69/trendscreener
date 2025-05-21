@@ -95,7 +95,7 @@ export default function Dashboard() {
                   style={{
                     border: "none",
                   }}
-                  onClick={() => router.push(`/trendlist/${trend.id}`)}
+                  onClick={() => router.push(`/trendscreen/${trend.id}`)}
                 >
                   <div className="text-xl font-semibold mb-3 truncate text-white">
                     {trend.name || "Untitled List"}
@@ -153,7 +153,7 @@ export default function Dashboard() {
                   style={{
                     border: "none",
                   }}
-                  onClick={() => router.push(`/trendlist/${trend.id}`)}
+                  onClick={() => router.push(`/trendscreen/${trend.id}`)}
                 >
                   <div className="text-xl font-semibold mb-3 truncate text-white">
                     {trend.name || "Untitled List"}

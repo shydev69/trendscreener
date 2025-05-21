@@ -21,8 +21,8 @@ import Link from "next/link";
 const links = [
   {
     icon: Plus,
-    label: "Make a TrendList",
-    href: "/trendlist",
+    label: "Make a Trendscreen",
+    href: "/trendscreen",
   },
   {
     icon: HelpCircle,
@@ -79,7 +79,7 @@ const Sidebar: React.FC = () => {
           alt="Logo"
           className="w-10 h-10 mr-1 rounded-full"
         />
-        Trendscreen
+        Trendscreener
       </div>{" "}
       <div className="w-full flex lg:hidden justify-center px-8">
         <form
@@ -128,11 +128,11 @@ const Sidebar: React.FC = () => {
         {userTrends.map((item) => (
           <Link
             key={item.id}
-            href={`/trendlist/${item.id}`}
-            onClick={() => handleLinkClick(`/trendlist/${item.id}`)}
+            href={`/trendscreen/${item.id}`}
+            onClick={() => handleLinkClick(`/trendscreen/${item.id}`)}
             className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
               ${
-                activeLink === `/trendlist/${item.id}` &&
+                activeLink === `/trendscreen/${item.id}` &&
                 "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
               }
               px-6 py-3 md:px-4 md:py-1.5

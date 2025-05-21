@@ -129,12 +129,12 @@ export default function TrendsListIdPage() {
     fetch(`/api/trends/${listId}`)
       .then((res) => res.json())
       .then((list) => {
-        if (list && list.trendlist) {
-          setLinks(list.trendlist.urls || []);
-          setStats([list.trendlist.analysis]);
-          setListName(list.trendlist.name || "");
-          setUserId(list.trendlist.creatorId);
-          setIsPublic(!!list.trendlist.isPublic); // 2. Set from DB
+        if (list && list.trendscreen) {
+          setLinks(list.trendscreen.urls || []);
+          setStats([list.trendscreen.analysis]);
+          setListName(list.trendscreen.name || "");
+          setUserId(list.trendscreen.creatorId);
+          setIsPublic(!!list.trendscreen.isPublic); // 2. Set from DB
         }
         setInitialLoading(false);
       });
@@ -241,7 +241,7 @@ export default function TrendsListIdPage() {
       if (!data.success) {
         throw new Error(data.error || "Failed to delete trends list");
       }
-      window.location.href = "/trendlist";
+      window.location.href = "/trendscreen";
     } catch (err) {
       setError("Failed to delete trends list. Please try again.");
     } finally {
