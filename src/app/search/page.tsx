@@ -80,7 +80,7 @@ export default function Dashboard() {
         <h1 className="text-xl font-semibold mb-6 text-white">
           From Your Trends
         </h1>
-        {error && <div style={{ color: "red", marginBottom: 16 }}>{error}</div>}
+
         {userTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
             No trends lists found.
@@ -138,7 +138,7 @@ export default function Dashboard() {
         <h1 className="text-xl font-semibold mb-6 text-white">
           Top Public Search Results
         </h1>
-        {error && <div style={{ color: "red", marginBottom: 16 }}>{error}</div>}
+
         {publicTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
             No trends lists found.
