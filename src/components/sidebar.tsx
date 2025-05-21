@@ -21,8 +21,8 @@ import Link from "next/link";
 const links = [
   {
     icon: Plus,
-    label: "Make a TrendsList",
-    href: "/trendslist",
+    label: "Make a TrendList",
+    href: "/trendlist",
   },
   {
     icon: HelpCircle,
@@ -68,13 +68,18 @@ const Sidebar: React.FC = () => {
     getUserTrends();
   }, []);
   return (
-    <aside className="fixed top-0 left-0 h-full w-64 z-50 flex flex-col">
+    <aside className="fixed top-0 left-0 bg-black/20 backdrop-blur-2xl h-full w-full md:w-64 pt-10 md:pt-0 z-50 flex flex-col">
       {/* Logo */}
       <div
-        className="flex text-center cursor-pointer items-center justify-start w-full font-medium text-shadow-xs dark:text-shadow-white/10 mt-3 h-16 px-8 text-xl text-black dark:text-white"
+        className="flex text-center cursor-pointer text-blue-400 items-center justify-start w-full font-medium text-shadow-xs dark:text-shadow-white/10 mt-3 h-16 px-8 text-xl"
         onClick={() => (window.location.href = "/")}
       >
-        Trendscreener
+        <img
+          src="/logo.png"
+          alt="Logo"
+          className="w-10 h-10 mr-1 rounded-full"
+        />
+        Trendscreen
       </div>
       {/* Navigation Links */}
       <nav className="flex-1 flex flex-col space-y-2 mt-2 px-4">
@@ -84,10 +89,13 @@ const Sidebar: React.FC = () => {
             key={item.label}
             href={`${item.href}`}
             onClick={() => handleLinkClick(item.href)}
-            className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition ${
-              activeLink === item.href &&
-              "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
-            }`}
+            className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
+              ${
+                activeLink === item.href &&
+                "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+              }
+              px-6 py-3 md:px-4 md:py-1.5
+            `}
           >
             {item.icon && <item.icon className="w-4 h-4 mr-3" />}
             <span className="text-sm">{item.label}</span>
@@ -97,12 +105,15 @@ const Sidebar: React.FC = () => {
         {userTrends.map((item) => (
           <Link
             key={item.id}
-            href={`/trendslist/${item.id}`}
-            onClick={() => handleLinkClick(`/trendslist/${item.id}`)}
-            className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition ${
-              activeLink === `/trendslist/${item.id}` &&
-              "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
-            }`}
+            href={`/trendlist/${item.id}`}
+            onClick={() => handleLinkClick(`/trendlist/${item.id}`)}
+            className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
+              ${
+                activeLink === `/trendlist/${item.id}` &&
+                "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+              }
+              px-6 py-3 md:px-4 md:py-1.5
+            `}
           >
             <span className="text-sm w-full truncate text-ellipsis">
               {item.name || item.urls[0]}

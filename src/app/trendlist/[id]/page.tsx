@@ -12,6 +12,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Tweet as TweetComponent } from "react-tweet";
 import { useParams, useRouter } from "next/navigation";
+import Analysis from "@/components/Analysis";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -100,11 +103,12 @@ export default function TrendsListIdPage() {
   const [links, setLinks] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [stats, setStats] = useState<TweetStats[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [listName, setListName] = useState("");
   const [initialLoading, setInitialLoading] = useState(true);
+  const [isPublic, setIsPublic] = useState(false); // 1. Add state
 
   // Fetch trends list from server on mount
   useEffect(() => {
@@ -113,14 +117,11 @@ export default function TrendsListIdPage() {
     fetch(`/api/trends/${listId}`)
       .then((res) => res.json())
       .then((list) => {
-        if (list && list.trendsList) {
-          setLinks(list.trendsList.urls || []);
-          setStats(
-            Array.isArray(list.trendsList.analysis)
-              ? list.trendsList.analysis
-              : JSON.parse(list.trendsList.analysis || "[]")
-          );
-          setListName(list.trendsList.name || "");
+        if (list && list.trendlist) {
+          setLinks(list.trendlist.urls || []);
+          setStats([list.trendlist.analysis]);
+          setListName(list.trendlist.name || "");
+          setIsPublic(!!list.trendlist.isPublic); // 2. Set from DB
         }
         setInitialLoading(false);
       });
@@ -130,7 +131,7 @@ export default function TrendsListIdPage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      setLoading(true);
+      setUpdating(true);
       const newStats: TweetStats[] = [];
       const linksIdsStringWithCommasWithoutBrackets = links
         .reduce((acc, link) => {
@@ -154,7 +155,7 @@ export default function TrendsListIdPage() {
         newStats.push(data);
       } catch {}
       if (!cancelled) setStats(newStats);
-      if (!cancelled) setLoading(false);
+      if (!cancelled) setUpdating(false);
     })();
     if (!links.length) setStats([]);
     return () => {
@@ -201,8 +202,8 @@ export default function TrendsListIdPage() {
         body: JSON.stringify({
           name: listName,
           urls: links.map(normalize),
-          analysis: JSON.stringify(stats),
-          isPublic: false,
+          analysis: total,
+          isPublic, // 3. Use current state
         }),
       });
       const data = await response.json();
@@ -227,7 +228,7 @@ export default function TrendsListIdPage() {
       if (!data.success) {
         throw new Error(data.error || "Failed to delete trends list");
       }
-      window.location.href = "/trendslist";
+      window.location.href = "/trendlist";
     } catch (err) {
       setError("Failed to delete trends list. Please try again.");
     } finally {
@@ -239,13 +240,26 @@ export default function TrendsListIdPage() {
     <div className="w-full mx-auto flex flex-col relative items-center">
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-        {loading && (
+        {updating && (
           <div style={{ color: "#ffffff55", marginTop: 8 }}>
-            Loading stats...
+            Updating stats...
+          </div>
+        )}
+        {initialLoading && (
+          <div style={{ color: "#ffffff55", marginTop: 8 }}>
+            Loading trends list...
           </div>
         )}
       </div>
-      <div className="absolute top-0 right-0 flex gap-5 items-center px-7 py-5 z-10 text-center text-sm">
+      <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
+        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
+          <Switch
+            id="is-public"
+            checked={isPublic} // 4. Bind to state
+            onCheckedChange={setIsPublic} // 5. Update state
+          />
+          <Label htmlFor="is-public">{isPublic ? "Public" : "Private"}</Label>
+        </div>
         <button
           onClick={() => {
             const url =
@@ -284,7 +298,7 @@ export default function TrendsListIdPage() {
         </button>
         <button
           onClick={saveTrendsList}
-          disabled={saving || loading}
+          disabled={saving || updating}
           className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
         >
           <SaveAll className="w-5 h-5" />
@@ -292,7 +306,7 @@ export default function TrendsListIdPage() {
         </button>
         <button
           onClick={deleteTrendsList}
-          disabled={deleting || loading}
+          disabled={deleting || updating}
           className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
         >
           <Trash className="w-5 h-5" />
@@ -300,7 +314,7 @@ export default function TrendsListIdPage() {
         </button>
       </div>
       <img
-        src="https://images.pexels.com/photos/19961796/pexels-photo-19961796/free-photo-of-view-of-an-erupting-volcano.jpeg?auto=compress&cs=tinysrgb&w=600"
+        src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
         alt="Goku"
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
         style={{ filter: "blur(150px)" }}
@@ -314,41 +328,7 @@ export default function TrendsListIdPage() {
           onChange={(e) => setListName(e.target.value)}
         />
         <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Views"
-          >
-            <Eye className="w-5 h-5" />
-            {total.views}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Likes"
-          >
-            <Heart className="w-5 h-5" />
-            {total.likes}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Replies"
-          >
-            <Reply className="w-5 h-5" />
-            {total.replies}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Reposts"
-          >
-            <RefreshCcw className="w-5 h-5" />
-            {total.reposts + total.quotes}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Bookmarks"
-          >
-            <Bookmark className="w-5 h-5" />
-            {total.bookmarks}
-          </span>{" "}
+          <Analysis total={total} />
           <div className="flex-1" />
         </div>
         <div

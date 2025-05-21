@@ -14,6 +14,7 @@ import {
 import Sidebar from "@/components/sidebar";
 import "./globals.css";
 import Header from "@/components/header";
+import { dark } from "@clerk/themes";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.origin),
@@ -61,7 +62,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+      }}
+    >
       <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
         <body
           className={cn(
@@ -71,10 +76,12 @@ export default function RootLayout({
         >
           <RootProviders>
             {" "}
-            <Sidebar />
+            <div className="hidden md:block">
+              <Sidebar />
+            </div>
             <Header />
             <div
-              className="ml-64 mt-10 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-autobu"
+              className="md:ml-64 mt-14 md:mt-10 px-5 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-autobu"
               style={{ height: "calc(100vh - 2.5rem)" }}
             >
               {children}

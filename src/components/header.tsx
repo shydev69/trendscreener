@@ -6,15 +6,28 @@ import {
   SignedOut,
   SignInButton,
   SignUpButton,
+  GoogleOneTap,
 } from "@clerk/clerk-react";
+import Sidebar from "./sidebar";
+import { Ham, List } from "lucide-react";
 
 const Header: React.FC = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
   return (
-    <header className="w-screen flex items-center justify-between fixed h-10 py-1 px-4 z-50 top-0 left-0">
+    <header className="w-screen flex items-center justify-between fixed h-14 md:h-10 py-1 px-4 z-50 top-0 left-0">
       {/* Empty left side for spacing */}
-      <div className="w-1/4" />
+
+      <div className="w-1/4">
+        <List
+          onClick={toggleSidebar}
+          className="w-6 h-6 text-white cursor-pointer md:hidden"
+        />
+      </div>
       {/* Centered input */}
-      <div className="w-3/4 flex justify-center">
+      <div className="w-full md:w-1/3 lg:w-3/4 flex justify-center">
         <input
           type="text"
           placeholder="Search trends..."
@@ -35,6 +48,15 @@ const Header: React.FC = () => {
             <UserButton afterSignOutUrl="/" />
           </div>
         </SignedIn>
+      </div>
+      <div
+        className={`-z-1 ${
+          isSidebarOpen
+            ? "opacity-100 pointer-events-all"
+            : "opacity-0 pointer-events-none"
+        } block md:hidden transition ease-in-out`}
+      >
+        <Sidebar />
       </div>
     </header>
   );

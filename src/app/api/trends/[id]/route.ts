@@ -20,7 +20,7 @@ export async function GET(
 
     const user = await currentUser();
     const userId = user?.id;
-    const trendsList = await queryDb(async (db) => {
+    const trendlist = await queryDb(async (db) => {
       return db
         .select()
         .from(trendLists)
@@ -39,14 +39,14 @@ export async function GET(
         .then((rows) => rows[0]);
     });
 
-    if (!trendsList) {
+    if (!trendlist) {
       return NextResponse.json(
         { success: false, error: "Trends list not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, trendsList });
+    return NextResponse.json({ success: true, trendlist });
   } catch (error: any) {
     console.error("Failed to fetch trends list:", error);
 
@@ -173,7 +173,7 @@ export async function PATCH(
       );
     }
 
-    return NextResponse.json({ success: true, trendsList: updatedTrendsList });
+    return NextResponse.json({ success: true, trendlist: updatedTrendsList });
   } catch (error: any) {
     console.error("Failed to update trends list:", error);
 

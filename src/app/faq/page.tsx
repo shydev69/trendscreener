@@ -3,9 +3,9 @@ import React from "react";
 
 const faqs = [
   {
-    question: "What is Trendscreener?",
+    question: "What is Trendscreen?",
     answer:
-      "Trendscreener lets you create, save, and analyze lists of trending tweets, aggregating stats like likes, views, and more.",
+      "Trendscreen lets you create, save, and analyze lists of trending tweets, aggregating stats like likes, views, and more.",
   },
   {
     question: "How do I add a tweet to my trends list?",
@@ -38,7 +38,7 @@ export default function FAQPage() {
   return (
     <div className="w-full mx-auto flex flex-col items-center">
       <img
-        src="https://images.pexels.com/photos/19961796/pexels-photo-19961796/free-photo-of-view-of-an-erupting-volcano.jpeg?auto=compress&cs=tinysrgb&w=600"
+        src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
         alt="Goku"
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
         style={{ filter: "blur(150px)" }}

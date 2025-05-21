@@ -6,6 +6,9 @@ import { Tweet as TweetComponent } from "react-tweet";
 import { trendLists } from "../../../drizzle/migrations/schema";
 //import returnCurrentUserId from "./returnCurrentUserId";
 import { useRouter } from "next/navigation";
+import Analysis from "@/components/Analysis";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -61,6 +64,7 @@ export default function TrendsListPage() {
     [loading, setLoading] = useState(false),
     [saving, setSaving] = useState(false),
     [listName, setListName] = useState("");
+  const [isPublic, setIsPublic] = useState(false); // <-- Add public/private switch state
 
   useEffect(() => {
     let cancelled = false;
@@ -123,8 +127,8 @@ export default function TrendsListPage() {
         body: JSON.stringify({
           name: listName,
           urls: links.map(normalize),
-          analysis: JSON.stringify(stats),
-          isPublic: false,
+          analysis: total,
+          isPublic, // <-- Save public/private state
         }),
       });
 
@@ -134,9 +138,9 @@ export default function TrendsListPage() {
         throw new Error(data.error || "Failed to save trends list");
       }
 
-      window.location.href = `/trendslist/${data.listId}`;
+      window.location.href = `/trendlist/${data.listId}`;
     } catch (err) {
-      console.error("Failed to save trendslist:", err);
+      console.error("Failed to save trendlist:", err);
       setError("Failed to save trends list. Please try again.");
     } finally {
       setSaving(false);
@@ -153,7 +157,18 @@ export default function TrendsListPage() {
           </div>
         )}
       </div>
-      <div className="absolute top-0 right-0 flex gap-5 items-center px-7 py-5 z-10 text-center text-sm">
+      <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
+        {/* Public/Private Switch */}
+        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
+          <Switch
+            id="is-public"
+            checked={isPublic}
+            onCheckedChange={setIsPublic}
+          />
+          <Label htmlFor="is-public">
+            {isPublic ? "Public" : "Private"}
+          </Label>
+        </div>
         <button
           onClick={saveTrendsList}
           disabled={saving || loading}
@@ -164,7 +179,7 @@ export default function TrendsListPage() {
         </button>
       </div>
       <img
-        src="https://images.pexels.com/photos/19961796/pexels-photo-19961796/free-photo-of-view-of-an-erupting-volcano.jpeg?auto=compress&cs=tinysrgb&w=600"
+        src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
         alt="Goku"
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
         style={{ filter: "blur(150px)" }}
@@ -179,41 +194,7 @@ export default function TrendsListPage() {
           required
         />
         <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Views"
-          >
-            <Eye className="w-5 h-5" />
-            {total.views}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Likes"
-          >
-            <Heart className="w-5 h-5" />
-            {total.likes}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Replies"
-          >
-            <Reply className="w-5 h-5" />
-            {total.replies}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Reposts"
-          >
-            <RefreshCcw className="w-5 h-5" />
-            {total.reposts + total.quotes}
-          </span>
-          <span
-            className="flex justify-center opacity-70 items-center gap-2"
-            title="Total Bookmarks"
-          >
-            <Bookmark className="w-5 h-5" />
-            {total.bookmarks}
-          </span>{" "}
+          <Analysis total={total} />
         </div>
 
         <div

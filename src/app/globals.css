@@ -27,3 +27,10 @@
   --tweet-verified-old-color: #a8aaab !important;
   --tweet-verified-blue-color: #fff !important;
 }
+
+.react-tweet-theme img,
+.react-tweet-theme .tweet-media-module__TReg5a__root {
+  object-fit: cover !important;
+  max-width: 100% !important;
+  max-height: 500px !important;
+}
