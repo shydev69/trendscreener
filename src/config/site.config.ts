@@ -1,28 +1,28 @@
 import { SiteConfig } from "@/types";
-
 export const siteConfig: SiteConfig = {
-  name: "Titan",
-  title: "Titan - Powerful Next.js 15 Template with Better-Auth, Drizzle ORM, PostgreSQL, and Shadcn UI",
-  description: "Modern Next.js 15 stack with Better-Auth, Drizzle ORM, PostgreSQL, Shadcn UI, and Tailwind v4 for fast, secure web app development.",
-  origin: "https://titan.rdsx.dev",
+  name: "TrendScreener",
+  title: "TrendScreener - Social Media Trends Aggregation Platform",
+  description:
+    "Discover and share trending content from across social media platforms. Create custom trend screens featuring popular tweets, Instagram reels, and other viral content in a shareable social feed.",
+  origin: "https://trendscreener.com",
   keywords: [
-    "Next.js 15",
-    "Authentication",
-    "Drizzle ORM",
-    "PostgreSQL",
-    "Tailwind CSS",
-    "Tailwind CSS V4",
-    "Shadcn UI",
-    "TypeScript",
-    "Full-Stack Template"
+    "Social Media Trends",
+    "Trending Content",
+    "Twitter Trends",
+    "Instagram Reels",
+    "Viral Content",
+    "Social Feed",
+    "Content Curation",
+    "Trend Aggregation",
+    "Social Sharing",
   ],
-  og: "https://titan.rdsx.dev/og.png",
+  og: "",
   creator: {
-    name: "rds_agi",
-    url: "https://rdsx.dev",
+    name: "",
+    url: "",
   },
   socials: {
-    github: "https://github.com/rudrodip/titan",
-    x: "https://x.com/rds_agi",
-  }
-}
+    github: "",
+    x: "",
+  },
+};
