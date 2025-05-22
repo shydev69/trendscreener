@@ -114,7 +114,7 @@ export default function TrendsListIdPage() {
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      const res = await fetch("/api/auth/currentUser");
+      const res = await fetch("/api/currentUser");
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data);
