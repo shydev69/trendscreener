@@ -25,6 +25,12 @@ export async function POST(request: Request) {
         creatorId,
         isPublic,
         updatedAt: new Date().toISOString(),
+        likes: analysis.likes,
+        views: analysis.views,
+        quotes: analysis.quotes,
+        reposts: analysis.reposts,
+        replies: analysis.replies,
+        bookmarks: analysis.bookmarks,
       });
     });
 

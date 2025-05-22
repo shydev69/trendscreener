@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq, and, like } from "drizzle-orm";
+import { eq, and, like, desc } from "drizzle-orm";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function GET(request: Request) {
@@ -17,6 +17,10 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
+    const sortBy = searchParams.get("sortBy") || "views";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
 
     if (!search) {
       return NextResponse.json(
@@ -24,6 +28,19 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
+
+    const offset = (page - 1) * limit;
+
+    // Map sortBy string to column
+    const sortColumns: Record<string, any> = {
+      likes: trendLists.likes,
+      views: trendLists.views,
+      quotes: trendLists.quotes,
+      reposts: trendLists.reposts,
+      replies: trendLists.replies,
+      bookmarks: trendLists.bookmarks,
+    };
+    const sortColumn = sortColumns[sortBy] || trendLists.views;
 
     const trends = await queryDb(async (db) => {
       return db
@@ -35,8 +52,11 @@ export async function GET(request: Request) {
             like(trendLists.name, `%${search}%`)
           )
         )
+        .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
+        .limit(limit)
+        .offset(offset);
     });
-
+    console.log("Trends fetched:", trends);
     return NextResponse.json({ success: true, trends });
   } catch (error: any) {
     console.error("Failed to fetch trends list:", error);
@@ -52,5 +72,3 @@ export async function GET(request: Request) {
     );
   }
 }
-
-// example link: http://localhost:3000/api/userSearch?search=trends

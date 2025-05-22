@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, jsonb, timestamp, uuid, boolean, text, unique } from "drizzle-orm/pg-core"
+import { pgTable, jsonb, timestamp, uuid, boolean, text, bigint } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -9,23 +9,19 @@ export const trendLists = pgTable("trend_lists", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`),
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	analysis: jsonb().default({}),
-	isPublic: boolean("is_public").default(false).notNull(),
+	isPublic: boolean("is_public").default(true).notNull(),
 	creatorId: text("creator_id").notNull(),
 	name: text(),
-}, (table) => [
-	foreignKey({
-			columns: [table.creatorId],
-			foreignColumns: [users.id],
-			name: "trend_lists_creator_id_fkey"
-		}).onUpdate("cascade").onDelete("cascade"),
-]);
-
-export const users = pgTable("users", {
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
-	listIds: uuid("list_ids").array(),
-	bio: text(),
-	id: text().primaryKey().notNull(),
-}, (table) => [
-	unique("users_id_key").on(table.id),
-]);
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	likes: bigint({ mode: "number" }).default(sql`'0'`),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	views: bigint({ mode: "number" }).default(sql`'0'`),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	quotes: bigint({ mode: "number" }).default(sql`'0'`),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	replies: bigint({ mode: "number" }).default(sql`'0'`),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	reposts: bigint({ mode: "number" }).default(sql`'0'`),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	bookmarks: bigint({ mode: "number" }).default(sql`'0'`),
+});

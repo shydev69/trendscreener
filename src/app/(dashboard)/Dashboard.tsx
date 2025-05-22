@@ -98,7 +98,7 @@ export default function Dashboard() {
                   <div className="text-sm text-gray-200 mb-3 truncate">
                     {trend.urls?.length || 0} tweets
                   </div>
-                  <div className="flex items-center gap-6 text-sm opacity-90">
+                  <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
                     <span className="flex items-center gap-1 text-white/80">
                       <Eye className="w-4 h-4" />
                       {returnReadableNumber(trend.analysis?.views ?? 0)}
@@ -156,7 +156,7 @@ export default function Dashboard() {
                   <div className="text-sm text-gray-200 mb-3 truncate">
                     {trend.urls?.length || 0} tweets
                   </div>
-                  <div className="flex items-center gap-6 text-sm opacity-90">
+                  <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
                     <span className="flex items-center gap-1 text-white/80">
                       <Eye className="w-4 h-4" />
                       {returnReadableNumber(trend.analysis?.views ?? 0)}

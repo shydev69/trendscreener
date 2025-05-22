@@ -160,6 +160,12 @@ export async function PATCH(
           analysis,
           isPublic,
           updatedAt: new Date().toISOString(),
+          likes: analysis.likes,
+          views: analysis.views,
+          quotes: analysis.quotes,
+          reposts: analysis.reposts,
+          replies: analysis.replies,
+          bookmarks: analysis.bookmarks,
         })
         .where(and(eq(trendLists.id, listId), eq(trendLists.creatorId, userId)))
         .returning()
