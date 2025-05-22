@@ -109,15 +109,19 @@ export default function TrendsListIdPage() {
   const [listName, setListName] = useState("");
   const [initialLoading, setInitialLoading] = useState(true);
   const [isPublic, setIsPublic] = useState(false); // 1. Add state
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<string>("");
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      const res = await fetch("/api/currentUser");
-      if (res.ok) {
-        const data = await res.json();
-        setCurrentUser(data);
+      try {
+        const res = await fetch("/api/currentUser");
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data.user);
+        }
+      } catch (error) {
+        console.error("Error fetching current user:", error);
       }
     };
     fetchCurrentUser();
@@ -249,6 +253,8 @@ export default function TrendsListIdPage() {
     }
   }
 
+  console.log(currentUser, userId);
+
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
@@ -265,7 +271,7 @@ export default function TrendsListIdPage() {
         )}
       </div>
       <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
-        {currentUser?.id === userId && (
+        {currentUser === userId && (
           <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
             <Switch
               id="is-public"
@@ -311,7 +317,7 @@ export default function TrendsListIdPage() {
           </svg>
           Share
         </button>
-        {currentUser?.id === userId && (
+        {currentUser === userId && (
           <>
             <button
               onClick={saveTrendsList}
@@ -344,7 +350,7 @@ export default function TrendsListIdPage() {
           placeholder="List name"
           className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none text-4xl transition"
           value={listName}
-          disabled={currentUser?.id !== userId}
+          disabled={currentUser !== userId}
           required
           onChange={(e) => setListName(e.target.value)}
         />
@@ -352,7 +358,7 @@ export default function TrendsListIdPage() {
           <Analysis total={total} />
           <div className="flex-1" />
         </div>
-        {currentUser?.id === userId && (
+        {currentUser === userId && (
           <div
             style={{
               display: "flex",
