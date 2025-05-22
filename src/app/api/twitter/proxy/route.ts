@@ -15,9 +15,6 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  console.log("API fetch called, got", res);
-
-  console.log("API fetch called, got", res.status);
   const data = await res.json();
   return NextResponse.json(data, { status: res.status });
 }

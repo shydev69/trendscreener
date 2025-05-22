@@ -257,7 +257,7 @@ export default function SearchPage() {
         </h1>
         {userTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
-            {loading ? "Loading..." : "No trends lists found."}
+            {loading ? "Loading..." : "No trends found."}
           </div>
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-1 gap-8">
@@ -325,7 +325,7 @@ export default function SearchPage() {
         </h1>
         {publicTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
-            {loading ? "Loading..." : "No trends lists found."}
+            {loading ? "Loading..." : "No trends found."}
           </div>
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-1 gap-8">

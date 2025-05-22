@@ -44,17 +44,15 @@ export default function FAQPage() {
         style={{ filter: "blur(150px)" }}
       />
       <div className="w-full max-w-2xl -mt-[10vh] z-1">
-        <h1 className="text-3xl font-bold mb-8 text-white text-center">FAQ</h1>
+        <h1 className="text-3xl mb-8 text-white text-center">FAQ</h1>
         <ul className="flex flex-col gap-6">
           {faqs.map((faq, idx) => (
             <li
               key={idx}
               className="rounded-3xl bg-white/10 dark:bg-[#1a1a1a]/30 p-6 pt-8 transition-all duration-200 backdrop-blur-lg border-none"
             >
-              <div className="text-xl font-semibold mb-2 text-white">
-                {faq.question}
-              </div>
-              <div className="text-base text-gray-200">{faq.answer}</div>
+              <div className="text-xl mb-2 text-white">{faq.question}</div>
+              <div className="text-sm opacity-80 text-gray-200">{faq.answer}</div>
             </li>
           ))}
         </ul>

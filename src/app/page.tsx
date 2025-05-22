@@ -6,7 +6,7 @@ export default async function Home() {
   console.log(user);
   if (!user) {
     return (
-      <div className="w-full text-center mt-10">
+      <div className="w-full text-center mt-10 h-screen flex items-center justify-center">
         Please log in to view your trends.
       </div>
     );

@@ -48,11 +48,6 @@ export default function Dashboard() {
     getPublicTrends();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="w-full text-center mt-10">Loading your trends...</div>
-    );
-  }
   const returnReadableNumber = (num: number) => {
     if (num >= 1e9) {
       return `${(num / 1e9).toFixed(1)}B`;
@@ -78,7 +73,7 @@ export default function Dashboard() {
 
         {userTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
-            No trends lists found.
+            {loading ? "Loading..." : "You don't have any trends."}
           </div>
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-1 gap-8">
@@ -136,7 +131,7 @@ export default function Dashboard() {
 
         {publicTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
-            No trends lists found.
+            {loading ? "Loading..." : "No trends found."}
           </div>
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-1 gap-8">

@@ -264,7 +264,7 @@ export default function TrendsListIdPage() {
         )}
         {initialLoading && (
           <div style={{ color: "#ffffff55", marginTop: 8 }}>
-            Loading trends list...
+            Loading trends...
           </div>
         )}
       </div>
