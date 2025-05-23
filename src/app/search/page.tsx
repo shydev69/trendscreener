@@ -210,17 +210,17 @@ export default function SearchPage() {
             {loading ? "Loading..." : "No trends found."}
           </div>
         ) : (
-          <ul className="grid grid-cols-1 md:grid-cols-1 gap-4">
+          <ul className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-10 lg:mt-0 ">
             {trends.map((trend: any) => (
               <li
                 key={trend.id}
-                className="rounded-3xl grid grid-cols-8 gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
+                className="rounded-3xl grid grid-cols-8 gap-x-5 md:gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
                 style={{
                   border: "none",
                 }}
                 onClick={() => router.push(`/trendscreen/${trend.id}`)}
               >
-                <div className="col-span-4 xl:col-span-2">
+                <div className="col-span-6 xl:col-span-2">
                   <div className="text-xl font-semibold mb-1 truncate text-white">
                     {trend.name || "Untitled List"}
                   </div>
@@ -228,7 +228,7 @@ export default function SearchPage() {
                     {trend.urls?.length || 0} tweets
                   </div>
                 </div>
-                <div className="col-span-4 xl:col-span-1">
+                <div className="col-span-2 xl:col-span-1">
                   <div className="flex flex-col items-center gap-6 gap-y-2 items-end xl:items-start text-sm opacity-90 flex-wrap w-full">
                     <span className="flex items-center gap-1 text-white/80">
                       <Eye className="w-4 h-4" />
