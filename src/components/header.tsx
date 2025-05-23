@@ -27,7 +27,7 @@ const Header: React.FC = () => {
         />
       </div>
       {/* Centered input */}
-      <div className="w-full lg:w-3/4 flex justify-center">
+      <div className="w-0 md:w-full lg:w-3/4 flex justify-center">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -61,7 +61,7 @@ const Header: React.FC = () => {
         </SignedOut>
         <SignedIn>
           <div className="px-0 pt-2">
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </div>
         </SignedIn>
       </div>

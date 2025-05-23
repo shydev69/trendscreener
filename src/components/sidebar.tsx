@@ -77,8 +77,10 @@ const Sidebar: React.FC = () => {
       const data = await res.json();
       setUser(data.user);
     };
+
     fetchUser();
   }, []);
+
   return (
     <aside className="fixed top-0 left-0 bg-black/20 backdrop-blur-2xl h-full w-full md:w-64 pt-10 md:pt-0 z-50 flex flex-col">
       {/* Logo */}
@@ -140,8 +142,8 @@ const Sidebar: React.FC = () => {
         <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4">
           My Trends
         </h2>
-        {user ? (
-          userTrends.map((item) => (
+        <SignedIn>
+          {userTrends.map((item) => (
             <Link
               key={item.id}
               href={`/trendscreen/${item.id}`}
@@ -158,14 +160,15 @@ const Sidebar: React.FC = () => {
                 {item.name || item.urls[0]}
               </span>
             </Link>
-          ))
-        ) : (
+          ))}
+        </SignedIn>
+        <SignedOut>
           <div className="flex items-center justify-center w-full px-4">
             <p className="text-gray-600 dark:text-neutral-400 text-sm">
               Please log in to view your trend screens.
             </p>
           </div>
-        )}
+        </SignedOut>
       </nav>
       {/*<nav className="flex-1 flex flex-col space-y-2 mt-2 px-4"></nav>
       <div className="px-4 py-6 flex flex-col gap-y-1">
