@@ -54,8 +54,10 @@ export default function SearchPage() {
     setError("");
     const endpoint = personal ? "/api/userSearch" : "/api/publicSearch";
     fetch(
-      `${endpoint}?search=${encodeURIComponent(query)}&sortBy=${sortBy}&sortOrder=${
-        isDesc ? "desc" : "asc"
+      `${endpoint}?search=${encodeURIComponent(
+        query
+      )}&sortBy=${sortBy}&sortOrder=${
+        sortBy == "createdAt" ? "asc" : isDesc ? "desc" : "asc"
       }&page=1&limit=${resultsPerPage}`
     )
       .then((response) => response.json())
@@ -80,8 +82,10 @@ export default function SearchPage() {
     const nextPage = searchPage + 1;
     const endpoint = personal ? "/api/userSearch" : "/api/publicSearch";
     fetch(
-      `${endpoint}?search=${encodeURIComponent(query)}&sortBy=${sortBy}&sortOrder=${
-        isDesc ? "desc" : "asc"
+      `${endpoint}?search=${encodeURIComponent(
+        query
+      )}&sortBy=${sortBy}&sortOrder=${
+        sortBy == "createdAt" ? "asc" : isDesc ? "desc" : "asc"
       }&page=${nextPage}&limit=${resultsPerPage}`
     )
       .then((response) => response.json())
@@ -136,7 +140,10 @@ export default function SearchPage() {
             checked={personal}
             onCheckedChange={setPersonal}
           />
-          <Label htmlFor="personal-switch" className="text-white pt-1 opacity-80 font-normal">
+          <Label
+            htmlFor="personal-switch"
+            className="text-white pt-1 opacity-80 font-normal"
+          >
             {personal ? "Personal Search" : "Public Search"}
           </Label>
         </div>
@@ -158,13 +165,16 @@ export default function SearchPage() {
                 <SelectItem value="reposts">Reposts</SelectItem>
                 <SelectItem value="quotes">Quotes</SelectItem>
                 <SelectItem value="bookmarks">Bookmarks</SelectItem>
+                <SelectItem value="createdAt">Newest First</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2.5 justify-center h-full">
           <Switch id="is-desc" checked={isDesc} onCheckedChange={setIsDesc} />
-          <Label htmlFor="is-desc" className="pt-1 opacity-80 font-normal">{isDesc ? "Desc" : "Asc"}</Label>
+          <Label htmlFor="is-desc" className="pt-1 opacity-80 font-normal">
+            {isDesc ? "Desc" : "Asc"}
+          </Label>
         </div>
         <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-1 py-1">
           <Select
@@ -189,60 +199,59 @@ export default function SearchPage() {
           </Select>
         </div>
       </div>
-     
+
       <div className="w-full -mt-[30vh] z-1">
-        
         {trends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
             {loading ? "Loading..." : "No trends found."}
           </div>
         ) : (
-              <ul className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                     {trends.map((trend: any) => (
-                       <li
-                         key={trend.id}
-                         className="rounded-3xl grid grid-cols-8 gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
-                         style={{
-                           border: "none",
-                         }}
-                         onClick={() => router.push(`/trendscreen/${trend.id}`)}
-                       >
-                         <div className="col-span-4 xl:col-span-2">
-                           <div className="text-xl font-semibold mb-1 truncate text-white">
-                             {trend.name || "Untitled List"}
-                           </div>
-                           <div className="text-sm text-gray-200 mb-1 truncate">
-                             {trend.urls?.length || 0} tweets
-                           </div>
-                         </div>
-                         <div className="col-span-4 xl:col-span-1">
-                           <div className="flex flex-col items-center gap-6 gap-y-2 items-end xl:items-start text-sm opacity-90 flex-wrap w-full">
-                             <span className="flex items-center gap-1 text-white/80">
-                               <Eye className="w-4 h-4" />
-                               {returnReadableNumber(trend.analysis?.views ?? 0)}
-                             </span>
-                             <span className="flex items-center gap-1 text-white/80">
-                               <Heart className="w-4 h-4" />
-                               {returnReadableNumber(trend.analysis?.likes ?? 0)}
-                             </span>
-                           </div>
-                         </div>
-                         <div className="col-span-5">
-                           <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
-                             {trend.description ? (
-                               <span className="flex items-center gap-1 text-white/80">
-                                 {trend.description}
-                               </span>
-                             ) : (
-                               <span className="flex items-center gap-1 text-white/20">
-                                 No description
-                               </span>
-                             )}
-                           </div>
-                         </div>
-                       </li>
-                     ))}
-                   </ul>
+          <ul className="grid grid-cols-1 md:grid-cols-1 gap-4">
+            {trends.map((trend: any) => (
+              <li
+                key={trend.id}
+                className="rounded-3xl grid grid-cols-8 gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
+                style={{
+                  border: "none",
+                }}
+                onClick={() => router.push(`/trendscreen/${trend.id}`)}
+              >
+                <div className="col-span-4 xl:col-span-2">
+                  <div className="text-xl font-semibold mb-1 truncate text-white">
+                    {trend.name || "Untitled List"}
+                  </div>
+                  <div className="text-sm text-gray-200 mb-1 truncate">
+                    {trend.urls?.length || 0} tweets
+                  </div>
+                </div>
+                <div className="col-span-4 xl:col-span-1">
+                  <div className="flex flex-col items-center gap-6 gap-y-2 items-end xl:items-start text-sm opacity-90 flex-wrap w-full">
+                    <span className="flex items-center gap-1 text-white/80">
+                      <Eye className="w-4 h-4" />
+                      {returnReadableNumber(trend.analysis?.views ?? 0)}
+                    </span>
+                    <span className="flex items-center gap-1 text-white/80">
+                      <Heart className="w-4 h-4" />
+                      {returnReadableNumber(trend.analysis?.likes ?? 0)}
+                    </span>
+                  </div>
+                </div>
+                <div className="col-span-5">
+                  <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
+                    {trend.description ? (
+                      <span className="flex items-center gap-1 text-white/80">
+                        {trend.description}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-white/20">
+                        No description
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
         {hasMore && (
           <div className="flex items-end justify-center gap-2 mt-4 rounded-[8px] px-2 py-2.5">
