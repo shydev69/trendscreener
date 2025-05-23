@@ -148,7 +148,7 @@ export default function SearchPage() {
             htmlFor="personal-switch"
             className="text-white pt-1 opacity-80 font-normal"
           >
-            {personal ? "Personal Search" : "Public Search"}
+            {personal ? "Personal" : "Public"}
           </Label>
         </div>
         {/* Filters */}
