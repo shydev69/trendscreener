@@ -141,7 +141,7 @@ export default function SearchPage() {
           </div>
         )}
         {error &&
-          (error !== "no user" ? (
+          (error == "no user" ? (
             <div className="text-center text-red-400 rounded-2xl py-4 px-4 backdrop-blur-md">
               You are not logged in for personal search.
             </div>
