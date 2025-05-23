@@ -86,7 +86,15 @@ export default function SearchPage() {
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
-        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+        {error && (
+          <div style={{ color: "red", marginTop: 8 }}>
+            Error, please try{" "}
+            <a onClick={() => window.location.reload()} className="underline">
+              reloading
+            </a>
+            .
+          </div>
+        )}
         {loading && (
           <div style={{ color: "#ffffff55", marginTop: 8 }}>loading...</div>
         )}

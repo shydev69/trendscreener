@@ -128,7 +128,11 @@ export default function SearchPage() {
         )}
         {error && (
           <div className="text-center text-red-400 rounded-2xl py-4 px-4 backdrop-blur-md">
-            {error}
+            Error, please try{" "}
+            <a onClick={() => window.location.reload()} className="underline">
+              reloading
+            </a>
+            .
           </div>
         )}
       </div>
