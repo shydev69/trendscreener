@@ -124,7 +124,10 @@ const Sidebar: React.FC = () => {
             <span className="text-sm">{item.label}</span>
           </Link>
         ))}
-        <hr className="border-t border-gray-300 dark:border-neutral-700 my-3 mx-2 opacity-0" />
+        <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
+        <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4">
+          My Trends
+        </h2>
         {userTrends.map((item) => (
           <Link
             key={item.id}

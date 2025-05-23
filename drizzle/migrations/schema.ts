@@ -24,4 +24,5 @@ export const trendLists = pgTable("trend_lists", {
 	reposts: bigint({ mode: "number" }).default(sql`'0'`),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	bookmarks: bigint({ mode: "number" }).default(sql`'0'`),
+	description: text(),
 });

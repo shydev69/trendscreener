@@ -1,7 +1,7 @@
 import { SiteConfig } from "@/types";
 export const siteConfig: SiteConfig = {
   name: "TrendScreener",
-  title: "TrendScreener - Social Media Trends Aggregation Platform",
+  title: "TrendScreener",
   description:
     "Discover and share trending content from across social media platforms. Create custom trend screens featuring popular tweets, Instagram reels, and other viral content in a shareable social feed.",
   origin: "https://trendscreener.com",

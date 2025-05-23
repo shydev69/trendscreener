@@ -8,6 +8,7 @@ export async function POST(request: Request) {
     const {
       urls,
       name,
+      description,
       analysis,
       creatorId = await currentUser().then((user) => user?.id),
       isPublic = false,
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
         id: listId,
         urls,
         name,
+        description,
         analysis,
         creatorId,
         isPublic,

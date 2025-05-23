@@ -110,6 +110,7 @@ export default function TrendsListIdPage() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [isPublic, setIsPublic] = useState(false); // 1. Add state
   const [currentUser, setCurrentUser] = useState<string>("");
+  const [description, setDescription] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -136,6 +137,7 @@ export default function TrendsListIdPage() {
         if (list && list.trendscreen) {
           setLinks(list.trendscreen.urls || []);
           setStats([list.trendscreen.analysis]);
+          setDescription(list.trendscreen.description || "");
           setListName(list.trendscreen.name || "");
           setUserId(list.trendscreen.creatorId);
           setIsPublic(!!list.trendscreen.isPublic); // 2. Set from DB
@@ -218,6 +220,7 @@ export default function TrendsListIdPage() {
         },
         body: JSON.stringify({
           name: listName,
+          description,
           urls: links.map(normalize),
           analysis: total,
           isPublic, // 3. Use current state
@@ -355,7 +358,15 @@ export default function TrendsListIdPage() {
         <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
           <Analysis total={total} />
           <div className="flex-1" />
-        </div>
+        </div>{" "}
+        <textarea
+          rows={3}
+          placeholder="Add a description..."
+          className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none my-5 text-base transition"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
         {currentUser === userId && (
           <div
             style={{
@@ -385,7 +396,6 @@ export default function TrendsListIdPage() {
             </form>
           </div>
         )}
-
         <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
           {links.map((link, idx) => {
             const tweetId = extractTweetId(link);

@@ -63,7 +63,8 @@ export default function TrendsListPage() {
     [stats, setStats] = useState<TweetStats[]>([]),
     [loading, setLoading] = useState(false),
     [saving, setSaving] = useState(false),
-    [listName, setListName] = useState("");
+    [listName, setListName] = useState(""),
+    [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false); // <-- Add public/private switch state
 
   useEffect(() => {
@@ -126,6 +127,7 @@ export default function TrendsListPage() {
         },
         body: JSON.stringify({
           name: listName,
+          description,
           urls: links.map(normalize),
           analysis: total,
           isPublic, // <-- Save public/private state
@@ -193,8 +195,15 @@ export default function TrendsListPage() {
         />
         <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
           <Analysis total={total} />
-        </div>
-
+        </div>{" "}
+        <textarea
+          rows={3}
+          placeholder="Add a description..."
+          className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none my-5 text-base transition"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
         <div
           style={{
             display: "flex",
@@ -222,7 +231,6 @@ export default function TrendsListPage() {
             />
           </form>
         </div>
-
         <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
           {links.map((link, idx) => {
             const tweetId = extractTweetId(link);

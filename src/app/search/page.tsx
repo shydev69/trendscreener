@@ -23,18 +23,16 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 
 export default function SearchPage() {
-  const [userTrends, setUserTrends] = useState<any[]>([]);
-  const [publicTrends, setPublicTrends] = useState<any[]>([]);
+  const [trends, setTrends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [isDesc, setIsDesc] = useState(true);
   const [sortBy, setSortBy] = useState("views");
   const [resultsPerPage, setResultsPerPage] = useState(10);
-  const [userSearchPage, setUserSearchPage] = useState(1);
-  const [publicSearchPage, setPublicSearchPage] = useState(1);
-  const [userHasMore, setUserHasMore] = useState(true);
-  const [publicHasMore, setPublicHasMore] = useState(true);
+  const [searchPage, setSearchPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [personal, setPersonal] = useState(false); // Switch for user/public
   const router = useRouter();
 
   // Helper to get query param from URL
@@ -42,107 +40,56 @@ export default function SearchPage() {
     const searchParams = new URLSearchParams(window.location.search);
     const q = searchParams.get("q") || "";
     setQuery(q);
-    setUserSearchPage(1);
-    setPublicSearchPage(1);
+    setSearchPage(1);
   }, [typeof window !== "undefined" && window.location.search]);
 
   // Fetch trends when filters or query change
   useEffect(() => {
     if (!query) {
-      setUserTrends([]);
-      setPublicTrends([]);
+      setTrends([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     setError("");
-    // Fetch user trends
+    const endpoint = personal ? "/api/userSearch" : "/api/publicSearch";
     fetch(
-      `/api/userSearch?search=${encodeURIComponent(
-        query
-      )}&sortBy=${sortBy}&sortOrder=${
+      `${endpoint}?search=${encodeURIComponent(query)}&sortBy=${sortBy}&sortOrder=${
         isDesc ? "desc" : "asc"
       }&page=1&limit=${resultsPerPage}`
     )
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          setUserTrends(data.trends);
-          setUserHasMore(data.trends.length === resultsPerPage);
+          setTrends(data.trends);
+          setHasMore(data.trends.length === resultsPerPage);
         } else {
-          setError(data.error || "Error fetching user trends");
+          setError(data.error || "Error fetching trends");
         }
         setLoading(false);
       })
       .catch((error) => {
-        setError("Error fetching user trends: " + error);
+        setError("Error fetching trends: " + error);
         setLoading(false);
       });
+  }, [query, sortBy, isDesc, resultsPerPage, personal]);
 
-    // Fetch public trends
+  // Load more trends
+  const loadMoreTrends = () => {
+    setLoading(true);
+    const nextPage = searchPage + 1;
+    const endpoint = personal ? "/api/userSearch" : "/api/publicSearch";
     fetch(
-      `/api/publicSearch?search=${encodeURIComponent(
-        query
-      )}&sortBy=${sortBy}&sortOrder=${
-        isDesc ? "desc" : "asc"
-      }&page=1&limit=${resultsPerPage}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setPublicTrends(data.trends);
-          setPublicHasMore(data.trends.length === resultsPerPage);
-        } else {
-          setError(data.error || "Error fetching public trends");
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError("Error fetching public trends: " + error);
-        setLoading(false);
-      });
-  }, [query, sortBy, isDesc, resultsPerPage]);
-
-  // Load more user trends
-  const loadMoreUserTrends = () => {
-    setLoading(true); // Show loading when loading more
-    const nextPage = userSearchPage + 1;
-    fetch(
-      `/api/userSearch?search=${encodeURIComponent(
-        query
-      )}&sortBy=${sortBy}&sortOrder=${
+      `${endpoint}?search=${encodeURIComponent(query)}&sortBy=${sortBy}&sortOrder=${
         isDesc ? "desc" : "asc"
       }&page=${nextPage}&limit=${resultsPerPage}`
     )
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          setUserTrends((prev) => [...prev, ...data.trends]);
-          setUserSearchPage(nextPage);
-          setUserHasMore(data.trends.length === resultsPerPage);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  };
-
-  // Load more public trends
-  const loadMorePublicTrends = () => {
-    setLoading(true); // Show loading when loading more
-    const nextPage = publicSearchPage + 1;
-    fetch(
-      `/api/publicSearch?search=${encodeURIComponent(
-        query
-      )}&sortBy=${sortBy}&sortOrder=${
-        isDesc ? "desc" : "asc"
-      }&page=${nextPage}&limit=${resultsPerPage}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setPublicTrends((prev) => [...prev, ...data.trends]);
-          setPublicSearchPage(nextPage);
-          setPublicHasMore(data.trends.length === resultsPerPage);
+          setTrends((prev) => [...prev, ...data.trends]);
+          setSearchPage(nextPage);
+          setHasMore(data.trends.length === resultsPerPage);
         }
         setLoading(false);
       })
@@ -168,7 +115,7 @@ export default function SearchPage() {
         alt="Goku"
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover"
         style={{ filter: "blur(150px)" }}
-      />{" "}
+      />
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
         {loading && (
           <div className="text-center text-white py-4 px-4 backdrop-blur-md">
@@ -182,8 +129,18 @@ export default function SearchPage() {
         )}
       </div>
       <div className="absolute top-0 right-0 flex gap-2 items-center px-5 py-5 z-10 text-center text-sm max-w-screen flex-wrap">
+        {/* User/Public Switch */}
+        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2.5 justify-center h-full">
+          <Switch
+            id="personal-switch"
+            checked={personal}
+            onCheckedChange={setPersonal}
+          />
+          <Label htmlFor="personal-switch" className="text-white pt-1 opacity-80 font-normal">
+            {personal ? "Personal Search" : "Public Search"}
+          </Label>
+        </div>
         {/* Filters */}
-
         <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-1 py-1">
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger
@@ -205,9 +162,9 @@ export default function SearchPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-2 py-2.5">
+        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2.5 justify-center h-full">
           <Switch id="is-desc" checked={isDesc} onCheckedChange={setIsDesc} />
-          <Label htmlFor="is-desc">{isDesc ? "Desc" : "Asc"}</Label>
+          <Label htmlFor="is-desc" className="pt-1 opacity-80 font-normal">{isDesc ? "Desc" : "Asc"}</Label>
         </div>
         <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-1 py-1">
           <Select
@@ -231,158 +188,73 @@ export default function SearchPage() {
             </SelectContent>
           </Select>
         </div>
-        {/* {<div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-1 py-0.5 hover:bg-white/15">
-          {" "}
-          <form
-            onSubmit={handleSearch}
-            className="flex gap-2 items-center"
-            style={{ marginBottom: 0 }}
-          >
-            <Button
-              type="submit"
-              className="px-4 !py-2 rounded bg-transparent text-white rounded-[8px] shadow-sm hover:bg-transparent transition-all duration-200"
-              variant="secondary"
-            >
-              Apply filters
-            </Button>
-          </form>
-        </div>} */}
       </div>
-      <div className="w-full max-w-2xl -mt-[10vh] z-1">
-        <h1 className="text-4xl font-semibold mb-6 text-white opacity-50">
-          Search Results for "{query}"
-        </h1>
-        <h1 className="text-xl font-semibold mb-6 text-white">
-          From Your Trends
-        </h1>
-        {userTrends.length === 0 ? (
+     
+      <div className="w-full -mt-[30vh] z-1">
+        
+        {trends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
             {loading ? "Loading..." : "No trends found."}
           </div>
         ) : (
-          <ul className="grid grid-cols-1 md:grid-cols-1 gap-8">
-            {userTrends.map((trend: any) => (
-              <li
-                key={trend.id}
-                className="rounded-3xl bg-white/10 dark:bg-[#1a1a1a]/30 p-6 pt-8 cursor-pointer hover:scale-[1.03] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
-                style={{
-                  border: "none",
-                }}
-                onClick={() => router.push(`/trendscreen/${trend.id}`)}
-              >
-                <div className="text-xl font-semibold mb-3 truncate text-white">
-                  {trend.name || "Untitled List"}
-                </div>
-                <div className="text-sm text-gray-200 mb-3 truncate">
-                  {trend.urls?.length || 0} tweets
-                </div>
-                <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Eye className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.views ?? 0)}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Heart className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.likes ?? 0)}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Reply className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.replies ?? 0)}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <RefreshCcw className="w-4 h-4" />
-                    {returnReadableNumber(
-                      (trend.analysis?.reposts ?? 0) +
-                        (trend.analysis?.quotes ?? 0)
-                    )}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Bookmark className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.bookmarks ?? 0)}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
+              <ul className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                     {trends.map((trend: any) => (
+                       <li
+                         key={trend.id}
+                         className="rounded-3xl grid grid-cols-8 gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
+                         style={{
+                           border: "none",
+                         }}
+                         onClick={() => router.push(`/trendscreen/${trend.id}`)}
+                       >
+                         <div className="col-span-4 xl:col-span-2">
+                           <div className="text-xl font-semibold mb-1 truncate text-white">
+                             {trend.name || "Untitled List"}
+                           </div>
+                           <div className="text-sm text-gray-200 mb-1 truncate">
+                             {trend.urls?.length || 0} tweets
+                           </div>
+                         </div>
+                         <div className="col-span-4 xl:col-span-1">
+                           <div className="flex flex-col items-center gap-6 gap-y-2 items-end xl:items-start text-sm opacity-90 flex-wrap w-full">
+                             <span className="flex items-center gap-1 text-white/80">
+                               <Eye className="w-4 h-4" />
+                               {returnReadableNumber(trend.analysis?.views ?? 0)}
+                             </span>
+                             <span className="flex items-center gap-1 text-white/80">
+                               <Heart className="w-4 h-4" />
+                               {returnReadableNumber(trend.analysis?.likes ?? 0)}
+                             </span>
+                           </div>
+                         </div>
+                         <div className="col-span-5">
+                           <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
+                             {trend.description ? (
+                               <span className="flex items-center gap-1 text-white/80">
+                                 {trend.description}
+                               </span>
+                             ) : (
+                               <span className="flex items-center gap-1 text-white/20">
+                                 No description
+                               </span>
+                             )}
+                           </div>
+                         </div>
+                       </li>
+                     ))}
+                   </ul>
         )}
-        {userHasMore && (
+        {hasMore && (
           <div className="flex items-end justify-center gap-2 mt-4 rounded-[8px] px-2 py-2.5">
             <Button
               className="bg-white/10 text-white/80 border-none rounded-[8px] shadow-sm"
               size="sm"
               variant="outline"
-              onClick={loadMoreUserTrends}
+              onClick={loadMoreTrends}
+              disabled={loading}
             >
               <ArrowDown className="w-4 h-4" />
-              Load More
-            </Button>
-          </div>
-        )}
-      </div>
-      <div className="w-full max-w-2xl mt-10 z-1">
-        <h1 className="text-xl font-semibold mb-6 text-white">
-          Top Public Search Results
-        </h1>
-        {publicTrends.length === 0 ? (
-          <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
-            {loading ? "Loading..." : "No trends found."}
-          </div>
-        ) : (
-          <ul className="grid grid-cols-1 md:grid-cols-1 gap-8">
-            {publicTrends.map((trend: any) => (
-              <li
-                key={trend.id}
-                className="rounded-3xl bg-white/10 dark:bg-[#1a1a1a]/30 p-6 pt-8 cursor-pointer hover:scale-[1.03] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
-                style={{
-                  border: "none",
-                }}
-                onClick={() => router.push(`/trendscreen/${trend.id}`)}
-              >
-                <div className="text-xl font-semibold mb-3 truncate text-white">
-                  {trend.name || "Untitled List"}
-                </div>
-                <div className="text-sm text-gray-200 mb-3 truncate">
-                  {trend.urls?.length || 0} tweets
-                </div>
-                <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Eye className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.views ?? 0)}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Heart className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.likes ?? 0)}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Reply className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.replies ?? 0)}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <RefreshCcw className="w-4 h-4" />
-                    {returnReadableNumber(
-                      (trend.analysis?.reposts ?? 0) +
-                        (trend.analysis?.quotes ?? 0)
-                    )}
-                  </span>
-                  <span className="flex items-center gap-1 text-white/80">
-                    <Bookmark className="w-4 h-4" />
-                    {returnReadableNumber(trend.analysis?.bookmarks ?? 0)}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        {publicHasMore && (
-          <div className="flex items-end justify-center gap-2 mt-4 rounded-[8px] px-2 py-2.5">
-            <Button
-              className="bg-white/10 text-white/80 border-none rounded-[8px] shadow-sm"
-              size="sm"
-              variant="outline"
-              onClick={loadMorePublicTrends}
-            >
-              <ArrowDown className="w-4 h-4" />
-              Load More
+              {loading ? "Loading..." : "Load More"}
             </Button>
           </div>
         )}

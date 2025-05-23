@@ -142,7 +142,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, urls, analysis, isPublic } = body;
+    const { name, urls, analysis, description, isPublic } = body;
 
     if (!name || !urls || !analysis) {
       return NextResponse.json(
@@ -158,6 +158,7 @@ export async function PATCH(
           name,
           urls,
           analysis,
+          description,
           isPublic,
           updatedAt: new Date().toISOString(),
           likes: analysis.likes,

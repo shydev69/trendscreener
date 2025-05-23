@@ -22,13 +22,6 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
 
-    if (!search) {
-      return NextResponse.json(
-        { success: false, error: "Missing search parameter" },
-        { status: 400 }
-      );
-    }
-
     const offset = (page - 1) * limit;
 
     // Map sortBy string to column
@@ -47,10 +40,12 @@ export async function GET(request: Request) {
         .select()
         .from(trendLists)
         .where(
-          and(
-            eq(trendLists.creatorId, userId),
-            like(trendLists.name, `%${search}%`)
-          )
+          search
+            ? and(
+                eq(trendLists.creatorId, userId),
+                like(trendLists.name, `%${search}%`)
+              )
+            : eq(trendLists.creatorId, userId)
         )
         .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
         .limit(limit)
