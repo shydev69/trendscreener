@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   UserButton,
   SignedIn,
@@ -67,6 +67,18 @@ const Sidebar: React.FC = () => {
   React.useEffect(() => {
     getUserTrends();
   }, []);
+
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/currentUser");
+
+      const data = await res.json();
+      setUser(data.user);
+    };
+    fetchUser();
+  }, []);
   return (
     <aside className="fixed top-0 left-0 bg-black/20 backdrop-blur-2xl h-full w-full md:w-64 pt-10 md:pt-0 z-50 flex flex-col">
       {/* Logo */}
@@ -128,24 +140,32 @@ const Sidebar: React.FC = () => {
         <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4">
           My Trends
         </h2>
-        {userTrends.map((item) => (
-          <Link
-            key={item.id}
-            href={`/trendscreen/${item.id}`}
-            onClick={() => handleLinkClick(`/trendscreen/${item.id}`)}
-            className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
+        {user ? (
+          userTrends.map((item) => (
+            <Link
+              key={item.id}
+              href={`/trendscreen/${item.id}`}
+              onClick={() => handleLinkClick(`/trendscreen/${item.id}`)}
+              className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
               ${
                 activeLink === `/trendscreen/${item.id}` &&
                 "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
               }
               px-6 py-3 md:px-4 md:py-1.5
             `}
-          >
-            <span className="text-sm w-full truncate text-ellipsis">
-              {item.name || item.urls[0]}
-            </span>
-          </Link>
-        ))}
+            >
+              <span className="text-sm w-full truncate text-ellipsis">
+                {item.name || item.urls[0]}
+              </span>
+            </Link>
+          ))
+        ) : (
+          <div className="flex items-center justify-center w-full px-4">
+            <p className="text-gray-600 dark:text-neutral-400 text-sm">
+              Please log in to view your trend screens.
+            </p>
+          </div>
+        )}
       </nav>
       <nav className="flex-1 flex flex-col space-y-2 mt-2 px-4"></nav>{" "}
       {/* Auth/Profile Section */}

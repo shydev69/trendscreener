@@ -149,6 +149,28 @@ export default function TrendsListPage() {
     }
   }
 
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/currentUser");
+      if (!res.ok) {
+        setError("Failed to fetch user data");
+        return;
+      }
+      const data = await res.json();
+      setUser(data.user);
+    };
+    fetchUser();
+  }, []);
+
+  if (!user) {
+    return (
+      <div className="w-full text-center mt-10 h-screen flex items-center justify-center">
+        Please log in to create trend screens.
+      </div>
+    );
+  }
   return (
     <div className="w-full mx-auto relative flex flex-col items-center">
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">

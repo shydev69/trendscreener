@@ -112,6 +112,20 @@ export default function SearchPage() {
     return num.toString();
   };
 
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/currentUser");
+      if (!res.ok) {
+        setError("no user");
+        return;
+      }
+      const data = await res.json();
+      setUser(data.user);
+    };
+    fetchUser();
+  }, []);
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
       <img
@@ -126,15 +140,20 @@ export default function SearchPage() {
             Loading trends...
           </div>
         )}
-        {error && (
-          <div className="text-center text-red-400 rounded-2xl py-4 px-4 backdrop-blur-md">
-            Error, please try{" "}
-            <a onClick={() => window.location.reload()} className="underline">
-              reloading
-            </a>
-            .
-          </div>
-        )}
+        {error &&
+          (error !== "no user" ? (
+            <div className="text-center text-red-400 rounded-2xl py-4 px-4 backdrop-blur-md">
+              You are not logged in for personal search.
+            </div>
+          ) : (
+            <div className="text-center text-red-400 rounded-2xl py-4 px-4 backdrop-blur-md">
+              Error, please try{" "}
+              <a onClick={() => window.location.reload()} className="underline">
+                reloading
+              </a>
+              .
+            </div>
+          ))}
       </div>
       <div className="absolute top-0 right-0 flex gap-2 items-center px-5 py-5 z-10 text-center text-sm max-w-screen flex-wrap">
         {/* User/Public Switch */}
@@ -148,7 +167,7 @@ export default function SearchPage() {
             htmlFor="personal-switch"
             className="text-white pt-1 opacity-80 font-normal"
           >
-            {personal ? "Personal Search" : "Public Search"}
+            {personal ? "Personal" : "Public"}
           </Label>
         </div>
         {/* Filters */}
