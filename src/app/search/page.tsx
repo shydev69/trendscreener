@@ -157,19 +157,21 @@ export default function SearchPage() {
       </div>
       <div className="absolute top-0 right-0 flex gap-2 items-center px-5 py-5 z-10 text-center text-sm max-w-screen flex-wrap">
         {/* User/Public Switch */}
-        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2.5 justify-center h-full">
-          <Switch
-            id="personal-switch"
-            checked={personal}
-            onCheckedChange={setPersonal}
-          />
-          <Label
-            htmlFor="personal-switch"
-            className="text-white pt-1 opacity-80 font-normal"
-          >
-            {personal ? "Personal" : "Public"}
-          </Label>
-        </div>
+        {user && (
+          <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2.5 justify-center h-full">
+            <Switch
+              id="personal-switch"
+              checked={personal}
+              onCheckedChange={setPersonal}
+            />
+            <Label
+              htmlFor="personal-switch"
+              className="text-white pt-1 opacity-80 font-normal"
+            >
+              {personal ? "Personal" : "Public"}
+            </Label>
+          </div>
+        )}
         {/* Filters */}
         <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-1 py-1">
           <Select value={sortBy} onValueChange={setSortBy}>
