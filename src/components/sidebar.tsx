@@ -167,9 +167,8 @@ const Sidebar: React.FC = () => {
           </div>
         )}
       </nav>
-      <nav className="flex-1 flex flex-col space-y-2 mt-2 px-4"></nav>{" "}
-      {/* Auth/Profile Section */}
-      {/*<div className="px-4 py-6 flex flex-col gap-y-1">
+      {/*<nav className="flex-1 flex flex-col space-y-2 mt-2 px-4"></nav>
+      <div className="px-4 py-6 flex flex-col gap-y-1">
         <SignedOut>
           <SignInButton>
             <button className="overflow-hidden flex items-center my-0 px-4 py-2 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:underline hover:text-black dark:hover:text-white transition justify-center text-center">
