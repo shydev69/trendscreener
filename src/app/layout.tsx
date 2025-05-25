@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   keywords: siteConfig.keywords,
   creator: siteConfig.name,
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
+    icon: "/logobig.png",
+    shortcut: "/logobig.png",
   },
   openGraph: {
     title: siteConfig.title,
@@ -76,9 +76,6 @@ export default function RootLayout({
         >
           <RootProviders>
             {" "}
-            <div className="hidden md:block">
-              <Sidebar />
-            </div>
             <Header />
             <div
               className="md:ml-64 mt-14 pb-40 md:mt-10 px-5 flex flex-col items-center bg-white border dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-auto"

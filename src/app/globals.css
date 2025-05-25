@@ -36,3 +36,8 @@
   border-radius: 15px !important;
   max-height: 500px !important;
 }
+/* 
+iframe > div.Content.EmbedFrame > a > img.EmbeddedMediaImage {
+  border-radius: 15px !important;
+  max-height: 500px !important;
+} */

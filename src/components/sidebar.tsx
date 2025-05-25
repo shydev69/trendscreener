@@ -42,7 +42,15 @@ interface userTrend {
   createdAt: string;
 }
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isSidebarOpen?: boolean;
+  toggleSidebar?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({
+  isSidebarOpen = false,
+  toggleSidebar,
+}) => {
   const [activeLink, setActiveLink] = React.useState<string | null>(
     usePathname() ? "/" + usePathname().split("/")[1] : null
   );
@@ -68,25 +76,19 @@ const Sidebar: React.FC = () => {
     getUserTrends();
   }, []);
 
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch("/api/currentUser");
-
-      const data = await res.json();
-      setUser(data.user);
-    };
-
-    fetchUser();
-  }, []);
-
   return (
-    <aside className="fixed top-0 left-0 bg-black/20 backdrop-blur-2xl h-full w-full md:w-64 pt-10 md:pt-0 z-50 flex flex-col">
+    <aside
+      className={`fixed top-0 left-0 h-screen overflow-y-auto bg-black/20 backdrop-blur-2xl w-full md:w-64 pt-10 md:pt-0 z-50 flex flex-col ${
+        isSidebarOpen ? "block" : "hidden"
+      }`}
+    >
       {/* Logo */}
       <div
         className="flex text-center cursor-pointer text-blue-400 items-center justify-start w-full font-medium text-shadow-xs dark:text-shadow-white/10 mt-3 h-16 px-8 text-xl"
-        onClick={() => (window.location.href = "/")}
+        onClick={() => {
+          window.location.href = "/";
+          toggleSidebar?.();
+        }}
       >
         <img
           src="/logo.png"
@@ -106,7 +108,8 @@ const Sidebar: React.FC = () => {
               window.location.href = `/search?q=${encodeURIComponent(
                 input.value.trim()
               )}`;
-            }
+            };
+          toggleSidebar?.();
           }}
           className="w-full max-w-xl"
         >
@@ -125,13 +128,16 @@ const Sidebar: React.FC = () => {
           <Link
             key={item.label}
             href={`${item.href}`}
-            onClick={() => handleLinkClick(item.href)}
+            onClick={() => {
+              handleLinkClick(item.href);
+              toggleSidebar?.();
+            }}
             className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
               ${
                 activeLink === item.href &&
                 "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
               }
-              px-6 py-3 md:px-4 md:py-1.5
+              px-6 py-3 md:px-4 md:py-3
             `}
           >
             {item.icon && <item.icon className="w-4 h-4 mr-3" />}
@@ -147,13 +153,16 @@ const Sidebar: React.FC = () => {
             <Link
               key={item.id}
               href={`/trendscreen/${item.id}`}
-              onClick={() => handleLinkClick(`/trendscreen/${item.id}`)}
+              onClick={() => {
+                handleLinkClick(`/trendscreen/${item.id}`);
+                toggleSidebar?.();
+              }}
               className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
               ${
                 activeLink === `/trendscreen/${item.id}` &&
                 "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
               }
-              px-6 py-3 md:px-4 md:py-1.5
+              px-6 py-3 md:px-4 md:py-3
             `}
             >
               <span className="text-sm w-full truncate text-ellipsis">

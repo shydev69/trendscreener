@@ -32,6 +32,7 @@ export async function GET(request: Request) {
       reposts: trendLists.reposts,
       replies: trendLists.replies,
       bookmarks: trendLists.bookmarks,
+      createdAt: trendLists.createdAt,
     };
     const sortColumn = sortColumns[sortBy] || trendLists.views;
 

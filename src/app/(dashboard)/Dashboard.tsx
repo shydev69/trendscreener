@@ -147,56 +147,57 @@ export default function SearchPage() {
         </button>
       </div>
       <div className="w-full -mt-[30vh] z-1">
-        {publicTrends.length === 0 ? (
+        {publicTrends && publicTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
             {loading ? "Loading..." : "No trends found."}
           </div>
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-1 gap-4">
-            {publicTrends.map((trend: any) => (
-              <li
-                key={trend.id}
-                className="rounded-3xl grid grid-cols-8 gap-x-5 md:gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
-                style={{
-                  border: "none",
-                }}
-                onClick={() => router.push(`/trendscreen/${trend.id}`)}
-              >
-                <div className="col-span-6 xl:col-span-2">
-                  <div className="text-xl font-semibold mb-1 truncate text-white">
-                    {trend.name || "Untitled List"}
+            {publicTrends &&
+              publicTrends.map((trend: any) => (
+                <li
+                  key={trend.id}
+                  className="rounded-3xl grid grid-cols-8 gap-x-5 md:gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
+                  style={{
+                    border: "none",
+                  }}
+                  onClick={() => router.push(`/trendscreen/${trend.id}`)}
+                >
+                  <div className="col-span-6 xl:col-span-2">
+                    <div className="text-xl font-semibold mb-1 truncate text-white">
+                      {trend.name || "Untitled List"}
+                    </div>
+                    <div className="text-sm text-gray-200 mb-1 truncate">
+                      {trend.urls?.length || 0} tweets
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-200 mb-1 truncate">
-                    {trend.urls?.length || 0} tweets
-                  </div>
-                </div>
-                <div className="col-span-2 xl:col-span-1">
-                  <div className="flex flex-col items-center gap-6 gap-y-2 items-end xl:items-start text-sm opacity-90 flex-wrap w-full">
-                    <span className="flex items-center gap-1 text-white/80">
-                      <Eye className="w-4 h-4" />
-                      {returnReadableNumber(trend.analysis?.views ?? 0)}
-                    </span>
-                    <span className="flex items-center gap-1 text-white/80">
-                      <Heart className="w-4 h-4" />
-                      {returnReadableNumber(trend.analysis?.likes ?? 0)}
-                    </span>
-                  </div>
-                </div>
-                <div className="col-span-5">
-                  <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
-                    {trend.description ? (
+                  <div className="col-span-2 xl:col-span-1">
+                    <div className="flex flex-col items-center gap-6 gap-y-2 items-end xl:items-start text-sm opacity-90 flex-wrap w-full">
                       <span className="flex items-center gap-1 text-white/80">
-                        {trend.description}
+                        <Eye className="w-4 h-4" />
+                        {returnReadableNumber(trend.analysis?.views ?? 0)}
                       </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-white/20">
-                        No description
+                      <span className="flex items-center gap-1 text-white/80">
+                        <Heart className="w-4 h-4" />
+                        {returnReadableNumber(trend.analysis?.likes ?? 0)}
                       </span>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                  <div className="col-span-5">
+                    <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
+                      {trend.description ? (
+                        <span className="flex items-center gap-1 text-white/80">
+                          {trend.description}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-white/20">
+                          No description
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
           </ul>
         )}
         {hasMore && (

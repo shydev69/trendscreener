@@ -209,7 +209,7 @@ export default function TrendsListPage() {
       <div className="w-full max-w-2xl -mt-[10vh] z-1">
         <input
           type="text"
-          placeholder="Secret-Goku"
+          placeholder="Give it a name..."
           className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none text-4xl transition"
           value={listName}
           onChange={(e) => setListName(e.target.value)}

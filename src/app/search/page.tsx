@@ -53,6 +53,7 @@ export default function SearchPage() {
     setLoading(true);
     setError("");
     const endpoint = personal ? "/api/userSearch" : "/api/publicSearch";
+    setTrends([]);
     fetch(
       `${endpoint}?search=${encodeURIComponent(
         query
@@ -63,6 +64,7 @@ export default function SearchPage() {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
+          console.log(data.trends);
           setTrends(data.trends);
           setHasMore(data.trends.length === resultsPerPage);
         } else {

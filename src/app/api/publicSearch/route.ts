@@ -22,8 +22,9 @@ export async function GET(request: Request) {
       reposts: trendLists.reposts,
       replies: trendLists.replies,
       bookmarks: trendLists.bookmarks,
+      createdAt: trendLists.createdAt,
     };
-    const sortColumn = sortColumns[sortBy] || trendLists.views;
+    const sortColumn = sortColumns[sortBy];
 
     const trends = await queryDb(async (db) => {
       return db
@@ -37,11 +38,11 @@ export async function GET(request: Request) {
               )
             : eq(trendLists.isPublic, true)
         )
-        .orderBy(sortOrder === "asc" ? sortColumn : desc(trendLists.views))
+        .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
         .limit(limit)
         .offset(offset);
     });
-
+    console.log("Trends fetched:", trends);
     return NextResponse.json({ success: true, trends });
   } catch (error: any) {
     console.error("Failed to fetch trends list:", error);

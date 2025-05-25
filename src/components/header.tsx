@@ -19,7 +19,9 @@ const Header: React.FC = () => {
   return (
     <header className="w-screen flex items-center justify-between fixed h-14 md:h-10 py-1 px-4 z-50 top-0 left-0">
       {/* Empty left side for spacing */}
-
+      <div className="hidden md:block">
+        <Sidebar isSidebarOpen={true} />
+      </div>
       <div className="w-1/4">
         <List
           onClick={toggleSidebar}
@@ -55,7 +57,7 @@ const Header: React.FC = () => {
         <SignedOut>
           <SignInButton>
             <button className="ml-2 px-4 py-1 rounded-[8px] bg-gradient-to-br from-[#34353C] to-black/90 dark:to-white/10 border text-white/80 text-sm hover:text-white transition">
-              Continue with Google
+              Sign In
             </button>
           </SignInButton>
         </SignedOut>
@@ -72,7 +74,7 @@ const Header: React.FC = () => {
             : "opacity-0 pointer-events-none"
         } block md:hidden transition ease-in-out`}
       >
-        <Sidebar />
+        <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       </div>
     </header>
   );

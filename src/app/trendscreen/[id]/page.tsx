@@ -15,10 +15,13 @@ import { useParams, useRouter } from "next/navigation";
 import Analysis from "@/components/Analysis";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { InstagramEmbed } from "@/components/InstragramEmbed";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
 const extractTweetId = (url: string) => url.match(TWEET_URL_REGEX)?.[5] ?? null;
+const isInstagramUrl = (url: string) =>
+  /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
 
 type TweetStats = {
   id: string;
@@ -183,15 +186,15 @@ export default function TrendsListIdPage() {
   }, [links]);
 
   const normalize = (url: string) =>
-    url.trim().replace(/\/+$/, "").toLowerCase();
+    url.trim().replace(/\/+$/, "").toLowerCase() + "/";
   const handleAddLink = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = input.trim();
-    if (!TWEET_URL_REGEX.test(trimmed))
-      return setError("Please enter a valid tweet URL.");
+    if (!TWEET_URL_REGEX.test(trimmed) && !isInstagramUrl(trimmed))
+      return setError("Please enter a valid tweet or Instagram URL.");
     const normalized = normalize(trimmed);
     if (links.map(normalize).includes(normalized))
-      return setError("This tweet is already added.");
+      return setError("This Tweet or Instagram post is already added.");
     setLinks([trimmed, ...links]);
     setInput("");
     setError("");
@@ -237,6 +240,16 @@ export default function TrendsListIdPage() {
       setSaving(false);
     }
   }
+  useEffect(() => {
+    // Dynamically load Instagram embed script
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = "//www.instagram.com/embed.js";
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   async function deleteTrendsList() {
     setDeleting(true);
@@ -396,14 +409,17 @@ export default function TrendsListIdPage() {
             </form>
           </div>
         )}
-        <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
+        <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets max-w-full overflow-x-hidden">
           {links.map((link, idx) => {
             const tweetId = extractTweetId(link);
+            console.log("Processing link:", link, "Tweet ID:", tweetId);
             return (
               <li key={idx}>
                 {tweetId ? (
                   <TweetComponent id={tweetId} />
                 ) : (
+                  // ) : isInstagramUrl(link) ? (
+                  //   <InstagramEmbed url={link} />
                   <span>Invalid Tweet Link</span>
                 )}
               </li>
