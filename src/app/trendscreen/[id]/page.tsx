@@ -3,6 +3,7 @@ import {
   Bookmark,
   Eye,
   Heart,
+  Link,
   RefreshCcw,
   Reply,
   SaveAll,
@@ -271,10 +272,17 @@ export default function TrendsListIdPage() {
   const removeUrlAtIndex = (index: number) => {
     setLinks(links.filter((_, i) => i !== index));
   };
+  const [copied, setCopied] = useState(false);
 
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
-      <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
+      <div
+        className="fixed bottom-5 right-5 md:pl-64 w-full z-10 text-right text-sm"
+        onClick={() => navigator.clipboard.writeText(listId!.toString())}
+      >
+        <div style={{ color: "#ffffff55", marginTop: 8 }}>ca: {listId}</div>
+      </div>
+      <div className="absolute top-10 left-0 w-full z-10 text-center text-sm">
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
         {updating && (
           <div style={{ color: "#ffffff55", marginTop: 8 }}>
@@ -287,6 +295,8 @@ export default function TrendsListIdPage() {
           </div>
         )}
       </div>
+      {/* top-14 md:top-10 left
+top-5 md:top-2 xl: */}
       <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
         {currentUser === userId && (
           <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
@@ -302,37 +312,23 @@ export default function TrendsListIdPage() {
           onClick={() => {
             const url =
               typeof window !== "undefined" ? window.location.href : "";
-            if (navigator.share) {
-              navigator.share({
-                title: listName || "Trends List",
-                url,
-              });
-            } else {
-              navigator.clipboard.writeText(url);
-              alert("Link copied to clipboard!");
-            }
+            // if (navigator.share) {
+            //   navigator.share({
+            //     title: listName || "Trends List",
+            //     url,
+            //   });
+            // } else {
+            navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 3000);
+            // }
           }}
           className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
           type="button"
           title="Share this list"
         >
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-5 h-5"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
-          </svg>
-          Share
+          <Link className="w-5 h-5" />
+          {copied ? "Copied" : "Copy Link"}
         </button>
         {currentUser === userId && (
           <>
@@ -413,31 +409,37 @@ export default function TrendsListIdPage() {
           </div>
         )}
         <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets max-w-full overflow-x-hidden">
-          {links.map((link, idx) => {
-            const tweetId = extractTweetId(link);
-            console.log("Processing link:", link, "Tweet ID:", tweetId);
-            return (
-              <li key={idx}>
-                {tweetId ? (
-                  <div className="flex flex-col items-end relative">
-                    {currentUser === userId && (
-                      <div
-                        className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
-                        onClick={() => removeUrlAtIndex(idx)}
-                      >
-                        <Trash className="w-4 h-4" />
-                      </div>
-                    )}
-                    <TweetComponent id={tweetId} />
-                  </div>
-                ) : isInstagramUrl(link) ? (
-                  <InstagramEmbed url={link} />
-                ) : (
-                  <span>Invalid Tweet Link</span>
-                )}
-              </li>
-            );
-          })}
+          {links.length > 0 ? (
+            links.map((link, idx) => {
+              const tweetId = extractTweetId(link);
+              console.log("Processing link:", link, "Tweet ID:", tweetId);
+              return (
+                <li key={idx}>
+                  {tweetId ? (
+                    <div className="flex flex-col items-end relative">
+                      {currentUser === userId && (
+                        <div
+                          className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                          onClick={() => removeUrlAtIndex(idx)}
+                        >
+                          <Trash className="w-4 h-4" />
+                        </div>
+                      )}
+                      <TweetComponent id={tweetId} />
+                    </div>
+                  ) : isInstagramUrl(link) ? (
+                    <InstagramEmbed url={link} />
+                  ) : (
+                    <span>Invalid Tweet Link</span>
+                  )}
+                </li>
+              );
+            })
+          ) : (
+            <li className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
+              This list has no links yet. Add some to get started!
+            </li>
+          )}
         </ul>
       </div>
     </div>

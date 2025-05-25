@@ -11,6 +11,7 @@ import {
 import {
   ArrowRight,
   ArrowRightCircle,
+  Lock,
   HelpCircle,
   Plus,
   TriangleRight,
@@ -108,8 +109,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               window.location.href = `/search?q=${encodeURIComponent(
                 input.value.trim()
               )}`;
-            };
-          toggleSidebar?.();
+            }
+            toggleSidebar?.();
           }}
           className="w-full max-w-xl"
         >
@@ -146,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ))}
         <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
         <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4">
-          My Trends
+          My Twitter <span className="text-green-400 ml-1">●</span>
         </h2>
         <SignedIn>
           {userTrends.map((item) => (
@@ -169,7 +170,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {item.name || item.urls[0]}
               </span>
             </Link>
-          ))}
+          ))}{" "}
+          <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
+          <h2 className="text-sm text-gray-600 dark:text-neutral-400 opacity-40 font-semibold mb-4 px-4 flex items-center">
+            My Instagram
+            <Lock className="inline-block w-3.5 h-3.5 ml-2" />
+          </h2>{" "}
+          <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
+          <h2 className="text-sm text-gray-600 dark:text-neutral-400 opacity-40 font-semibold mb-4 px-4 flex items-center">
+            My TikTok
+            <Lock className="inline-block w-3.5 h-3.5 ml-2" />
+          </h2>{" "}
         </SignedIn>
         <SignedOut>
           <div className="flex items-center justify-center w-full px-4">
