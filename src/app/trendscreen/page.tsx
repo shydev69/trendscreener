@@ -1,5 +1,14 @@
 "use client";
-import { Bookmark, Eye, Heart, RefreshCcw, Reply, SaveAll } from "lucide-react";
+import {
+  Bookmark,
+  Delete,
+  Eye,
+  Heart,
+  RefreshCcw,
+  Reply,
+  SaveAll,
+  Trash,
+} from "lucide-react";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Tweet as TweetComponent } from "react-tweet";
@@ -9,6 +18,7 @@ import { useRouter } from "next/navigation";
 import Analysis from "@/components/Analysis";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -148,126 +158,122 @@ export default function TrendsListPage() {
       setSaving(false);
     }
   }
+  const removeUrlAtIndex = (index: number) => {
+    setLinks(links.filter((_, i) => i !== index));
+  };
 
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch("/api/currentUser");
-      if (!res.ok) {
-        setError("Failed to fetch user data");
-        return;
-      }
-      const data = await res.json();
-      setUser(data.user);
-    };
-    fetchUser();
-  }, []);
-
-  if (!user) {
-    return (
-      <div className="w-full text-center mt-10 h-screen flex items-center justify-center">
-        Please log in to create trend screens.
-      </div>
-    );
-  }
   return (
     <div className="w-full mx-auto relative flex flex-col items-center">
-      <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
-        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-        {loading && (
-          <div style={{ color: "#ffffff55", marginTop: 8 }}>
-            Loading stats...
-          </div>
-        )}
-      </div>
-      <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
-        {/* Public/Private Switch */}
-        <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
-          <Switch
-            id="is-public"
-            checked={isPublic}
-            onCheckedChange={setIsPublic}
-          />
-          <Label htmlFor="is-public">{isPublic ? "Public" : "Private"}</Label>
+      <SignedOut>
+        <div className="w-full text-center mt-10 h-screen flex items-center justify-center">
+          Please log in to create trend screens.
         </div>
-        <button
-          onClick={saveTrendsList}
-          disabled={saving || loading}
-          className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
-        >
-          <SaveAll className="w-5 h-5" />
-          {saving ? "Saving..." : ""}
-        </button>
-      </div>
-      <img
-        src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
-        alt="Goku"
-        className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
-        style={{ filter: "blur(150px)" }}
-      />
-      <div className="w-full max-w-2xl -mt-[10vh] z-1">
-        <input
-          type="text"
-          placeholder="Give it a name..."
-          className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none text-4xl transition"
-          value={listName}
-          onChange={(e) => setListName(e.target.value)}
-          required
-        />
-        <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
-          <Analysis total={total} />
-        </div>{" "}
-        <textarea
-          rows={3}
-          placeholder="Add a description..."
-          className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none my-5 text-base transition"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 16,
-          }}
-        >
-          <form
-            onSubmit={handleAddLink}
-            style={{ display: "flex", gap: 8, flex: 1 }}
-          >
-            <input
-              type="url"
-              placeholder="Paste a link and hit enter"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
-              required
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleAddLink(e as any);
-                }
-              }}
+      </SignedOut>
+      <SignedIn>
+        <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
+          {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+          {loading && (
+            <div style={{ color: "#ffffff55", marginTop: 8 }}>
+              Loading stats...
+            </div>
+          )}
+        </div>
+        <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
+          {/* Public/Private Switch */}
+          <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
+            <Switch
+              id="is-public"
+              checked={isPublic}
+              onCheckedChange={setIsPublic}
             />
-          </form>
+            <Label htmlFor="is-public">{isPublic ? "Public" : "Private"}</Label>
+          </div>
+          <button
+            onClick={saveTrendsList}
+            disabled={saving || loading}
+            className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
+          >
+            <SaveAll className="w-5 h-5" />
+            {saving ? "Saving..." : ""}
+          </button>
         </div>
-        <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
-          {links.map((link, idx) => {
-            const tweetId = extractTweetId(link);
-            return (
-              <li key={idx}>
-                {tweetId ? (
-                  <TweetComponent id={tweetId} />
-                ) : (
-                  <span>Invalid Tweet Link</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+        <img
+          src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
+          alt="Goku"
+          className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
+          style={{ filter: "blur(150px)" }}
+        />
+        <div className="w-full max-w-2xl -mt-[10vh] z-1">
+          <input
+            type="text"
+            placeholder="Give it a name..."
+            className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none text-4xl transition"
+            value={listName}
+            onChange={(e) => setListName(e.target.value)}
+            required
+          />
+          <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
+            <Analysis total={total} />
+          </div>{" "}
+          <textarea
+            rows={3}
+            placeholder="Add a description..."
+            className="w-full rounded-[8px] overflow-y-hidden h-20 placeholder:opacity-60 opacity-90 py-1.5 px-4 text-black dark:text-white focus:outline-none my-5 text-base transition"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 16,
+            }}
+          >
+            <form
+              onSubmit={handleAddLink}
+              style={{ display: "flex", gap: 8, flex: 1 }}
+            >
+              <input
+                type="url"
+                placeholder="Paste a link and hit enter"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
+                required
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddLink(e as any);
+                  }
+                }}
+              />
+            </form>
+          </div>
+          <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
+            {links.map((link, idx) => {
+              const tweetId = extractTweetId(link);
+              return (
+                <li key={idx}>
+                  {tweetId ? (
+                    <div className="flex flex-col items-end relative">
+                      <div
+                        className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                        onClick={() => removeUrlAtIndex(idx)}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </div>
+                      <TweetComponent id={tweetId} />
+                    </div>
+                  ) : (
+                    <span>Invalid Tweet Link</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </SignedIn>
     </div>
   );
 }

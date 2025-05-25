@@ -268,6 +268,9 @@ export default function TrendsListIdPage() {
       setDeleting(false);
     }
   }
+  const removeUrlAtIndex = (index: number) => {
+    setLinks(links.filter((_, i) => i !== index));
+  };
 
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
@@ -416,10 +419,18 @@ export default function TrendsListIdPage() {
             return (
               <li key={idx}>
                 {tweetId ? (
-                  <TweetComponent id={tweetId} />
+                  <div className="flex flex-col items-end relative">
+                    <div
+                      className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                      onClick={() => removeUrlAtIndex(idx)}
+                    >
+                      <Trash className="w-4 h-4" />
+                    </div>
+                    <TweetComponent id={tweetId} />
+                  </div>
+                ) : isInstagramUrl(link) ? (
+                  <InstagramEmbed url={link} />
                 ) : (
-                  // ) : isInstagramUrl(link) ? (
-                  //   <InstagramEmbed url={link} />
                   <span>Invalid Tweet Link</span>
                 )}
               </li>

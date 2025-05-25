@@ -21,6 +21,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { SignedIn } from "@clerk/nextjs";
 
 export default function SearchPage() {
   const [trends, setTrends] = useState<any[]>([]);
@@ -114,20 +115,6 @@ export default function SearchPage() {
     return num.toString();
   };
 
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch("/api/currentUser");
-      if (!res.ok) {
-        setError("no user");
-        return;
-      }
-      const data = await res.json();
-      setUser(data.user);
-    };
-    fetchUser();
-  }, []);
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
       <img
@@ -157,7 +144,7 @@ export default function SearchPage() {
       </div>
       <div className="absolute top-0 right-0 flex gap-2 items-center px-5 py-5 z-10 text-center text-sm max-w-screen flex-wrap">
         {/* User/Public Switch */}
-        {user && (
+        <SignedIn>
           <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2.5 justify-center h-full">
             <Switch
               id="personal-switch"
@@ -171,7 +158,7 @@ export default function SearchPage() {
               {personal ? "Personal" : "Public"}
             </Label>
           </div>
-        )}
+        </SignedIn>
         {/* Filters */}
         <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-1 py-1">
           <Select value={sortBy} onValueChange={setSortBy}>

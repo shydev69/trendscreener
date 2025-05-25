@@ -36,7 +36,7 @@ export default function SearchPage() {
     setError("");
     fetch(
       `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=${
-        sortBy == "createdAt" ? "asc" : "desc"
+        sortBy == "createdAt" ? "desc" : "desc" // sortBy == "createdAt" ? "asc" : "desc"
       }&page=1&limit=${resultsPerPage}`
     )
       .then((response) => response.json())
@@ -61,7 +61,7 @@ export default function SearchPage() {
     const nextPage = searchPage + 1;
     fetch(
       `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=${
-        sortBy == "createdAt" ? "asc" : "desc"
+        sortBy == "createdAt" ? "desc" : "desc" // sortBy == "createdAt" ? "asc" : "desc"
       }&page=${nextPage}&limit=${resultsPerPage}`
     )
       .then((response) => response.json())
@@ -169,6 +169,33 @@ export default function SearchPage() {
                     </div>
                     <div className="text-sm text-gray-200 mb-1 truncate">
                       {trend.urls?.length || 0} tweets
+                    </div>
+                    <div className="text-sm text-gray-200 mb-1 truncate">
+                      {(() => {
+                        const now = new Date();
+                        const created = new Date(trend.createdAt);
+                        const diffMs = now.getTime() - created.getTime();
+                        const diffSec = Math.floor(diffMs / 1000);
+                        const diffMin = Math.floor(diffSec / 60);
+                        const diffHour = Math.floor(diffMin / 60);
+
+                        if (diffMs < 24 * 60 * 60 * 1000) {
+                          if (diffHour > 0)
+                            return `${diffHour} hour${
+                              diffHour > 1 ? "s" : ""
+                            } ago`;
+                          if (diffMin > 0)
+                            return `${diffMin} minute${
+                              diffMin > 1 ? "s" : ""
+                            } ago`;
+                          return "Just now";
+                        }
+                        return created.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        });
+                      })()}
                     </div>
                   </div>
                   <div className="col-span-2 xl:col-span-1">
