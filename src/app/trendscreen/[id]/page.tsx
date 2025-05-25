@@ -282,7 +282,7 @@ export default function TrendsListIdPage() {
       >
         <div style={{ color: "#ffffff55", marginTop: 8 }}>ca: {listId}</div>
       </div>
-      <div className="absolute top-10 left-0 w-full z-10 text-center text-sm">
+      <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
         {updating && (
           <div style={{ color: "#ffffff55", marginTop: 8 }}>
