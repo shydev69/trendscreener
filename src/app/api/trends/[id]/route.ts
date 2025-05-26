@@ -119,77 +119,89 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id: listId } = await params;
-
-    if (!listId) {
-      return NextResponse.json(
-        { success: false, error: "Missing listId" },
-        { status: 400 }
-      );
+    const currentUserId = (await currentUser())?.id;
+    if (!currentUserId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await currentUser();
-    const userId = user?.id;
+    const { name, description, urls, analysis, isPublic, newListId } = await request.json();
+    const listId = params.id;
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const { name, urls, analysis, description, isPublic } = body;
-
-    if (!name || !urls || !analysis) {
-      return NextResponse.json(
-        { success: false, error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    const updatedTrendsList = await queryDb(async (db) => {
-      return db
-        .update(trendLists)
-        .set({
-          name,
-          urls,
-          analysis,
-          description,
-          isPublic,
-          updatedAt: new Date().toISOString(),
-          likes: analysis.likes,
-          views: analysis.views,
-          quotes: analysis.quotes,
-          reposts: analysis.reposts,
-          replies: analysis.replies,
-          bookmarks: analysis.bookmarks,
-        })
-        .where(and(eq(trendLists.id, listId), eq(trendLists.creatorId, userId)))
-        .returning()
-        .then((rows) => rows[0]);
+    // Check if user owns this list
+    const existingList = await queryDb(async (db) => {
+      const result = await db
+        .select()
+        .from(trendLists)
+        .where(eq(trendLists.id, listId));
+      return result[0];
     });
 
-    if (!updatedTrendsList) {
-      return NextResponse.json(
-        { success: false, error: "Trends list not found or not owned by user" },
-        { status: 404 }
-      );
+    if (!existingList || existingList.creatorId !== currentUserId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
     }
 
-    return NextResponse.json({ success: true, trendscreen: updatedTrendsList });
+    // If changing CA, check if new CA exists
+    if (newListId && newListId !== listId) {
+      const newIdExists = await queryDb(async (db) => {
+        const result = await db
+          .select()
+          .from(trendLists)
+          .where(eq(trendLists.id, newListId));
+        return result.length > 0;
+      });
+
+      if (newIdExists) {
+        return NextResponse.json(
+          { success: false, error: "New CA already exists" },
+          { status: 400 }
+        );
+      }
+
+      // Create new entry with new ID and delete old one
+      await queryDb(async (db) => {
+        // Insert with new ID
+        await db.insert(trendLists).values({
+          id: newListId,
+          name,
+          description,
+          urls,
+          analysis,
+          isPublic: !!isPublic,
+          creatorId: currentUserId,
+        });
+
+        // Delete old entry
+        await db.delete(trendLists).where(eq(trendLists.id, listId));
+      });
+
+      return NextResponse.json({ success: true, listId: newListId });
+    } else {
+      // Update existing entry
+      await queryDb(async (db) => {
+        await db
+          .update(trendLists)
+          .set({
+            name,
+            description,
+            urls,
+            analysis,
+            isPublic: !!isPublic,
+          })
+          .where(eq(trendLists.id, listId));
+      });
+
+      return NextResponse.json({ success: true, listId });
+    }
   } catch (error: any) {
     console.error("Failed to update trends list:", error);
-
     return NextResponse.json(
       {
         success: false,
         error: "Failed to update trends list",
         message: error.message || "Unknown error",
-        cause: error.cause?.message || "Unknown cause",
       },
       { status: 500 }
     );

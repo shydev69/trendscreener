@@ -1,4 +1,4 @@
-import { pgTable, jsonb, timestamp, uuid, boolean, text, bigint } from "drizzle-orm/pg-core"
+import { pgTable, jsonb, timestamp, text, boolean, bigint } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -7,7 +7,7 @@ export const trendLists = pgTable("trend_lists", {
 	urls: jsonb().array(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`),
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: text().primaryKey().notNull(),
 	analysis: jsonb().default({}),
 	isPublic: boolean("is_public").default(true).notNull(),
 	creatorId: text("creator_id").notNull(),

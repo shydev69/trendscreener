@@ -6,6 +6,7 @@ import { currentUser } from "@clerk/nextjs/server";
 export async function POST(request: Request) {
   try {
     const {
+      id: _id, // This is not used, but kept for compatibility
       urls,
       name,
       description,
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
     } = await request.json();
 
     // Generate a unique ID for the trends list
-    const listId = crypto.randomUUID();
+    const listId = _id || crypto.randomUUID();
 
     await queryDb(async (db) => {
       return db.insert(trendLists).values({

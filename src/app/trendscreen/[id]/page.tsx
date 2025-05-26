@@ -112,10 +112,12 @@ export default function TrendsListIdPage() {
   const [deleting, setDeleting] = useState(false);
   const [listName, setListName] = useState("");
   const [initialLoading, setInitialLoading] = useState(true);
-  const [isPublic, setIsPublic] = useState(false); // 1. Add state
+  const [isPublic, setIsPublic] = useState(false);
   const [currentUser, setCurrentUser] = useState<string>("");
   const [description, setDescription] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
+  const [newListId, setNewListId] = useState(""); // New CA input
+  const [listIdExists, setListIdExists] = useState(false); // Check if new CA exists
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -131,6 +133,24 @@ export default function TrendsListIdPage() {
     };
     fetchCurrentUser();
   }, []);
+  // Check if new CA exists when user types
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!newListId || newListId === listId) {
+        setListIdExists(false);
+        return;
+      }
+      try {
+        const response = await fetch(`/api/listIdExists?listId=${newListId}`);
+        const data = await response.json();
+        setListIdExists(data.exists);
+      } catch (error) {
+        console.error("Error checking list ID existence:", error);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [newListId, listId]);
   // Fetch trends list from server on mount
   useEffect(() => {
     if (!listId) return;
@@ -144,7 +164,8 @@ export default function TrendsListIdPage() {
           setDescription(list.trendscreen.description || "");
           setListName(list.trendscreen.name || "");
           setUserId(list.trendscreen.creatorId);
-          setIsPublic(!!list.trendscreen.isPublic); // 2. Set from DB
+          setIsPublic(!!list.trendscreen.isPublic);
+          setNewListId(listId); // Set current CA as default
         }
         setInitialLoading(false);
       });
@@ -227,14 +248,20 @@ export default function TrendsListIdPage() {
           description,
           urls: links.map(normalize),
           analysis: total,
-          isPublic, // 3. Use current state
+          isPublic,
+          newListId: newListId !== listId ? newListId : undefined, // Only send if changed
         }),
       });
       const data = await response.json();
       if (!data.success) {
         throw new Error(data.error || "Failed to save trends list");
       }
-      window.location.reload();
+      // If CA changed, redirect to new URL
+      if (newListId !== listId) {
+        window.location.href = `/trendscreen/${data.listId || newListId}`;
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       setError("Failed to save trends list. Please try again.");
     } finally {
@@ -358,6 +385,23 @@ top-5 md:top-2 xl: */}
         style={{ filter: "blur(150px)" }}
       />
       <div className="w-full max-w-2xl -mt-[10vh] z-1">
+        {currentUser === userId && (
+          <>
+            <input
+              type="text"
+              placeholder="CA (Leave empty to keep current)"
+              className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
+              value={newListId}
+              onChange={(e) => setNewListId(e.target.value)}
+              required
+            />
+            {listIdExists && newListId !== listId && newListId && (
+              <p className="text-sm text-red-400 mb-2 mx-4">
+                This CA already exists. Please choose a different one.
+              </p>
+            )}
+          </>
+        )}
         <input
           type="text"
           placeholder="List name"

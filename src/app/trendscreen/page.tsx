@@ -74,7 +74,9 @@ export default function TrendsListPage() {
     [loading, setLoading] = useState(false),
     [saving, setSaving] = useState(false),
     [listName, setListName] = useState(""),
-    [description, setDescription] = useState("");
+    [description, setDescription] = useState(""),
+    [listId, setListId] = useState(""),
+    [listIdExists, setListIdExists] = useState(false);
   const [isPublic, setIsPublic] = useState(false); // <-- Add public/private switch state
 
   useEffect(() => {
@@ -97,6 +99,20 @@ export default function TrendsListPage() {
       cancelled = true;
     };
   }, [links]);
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!listId) return;
+      try {
+        const response = await fetch(`/api/listIdExists?listId=${listId}`);
+        const data = await response.json();
+        setListIdExists(data.exists);
+      } catch (error) {
+        console.error("Error checking list ID existence:", error);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [listId]);
 
   const normalize = (url: string) =>
     url.trim().replace(/\/+$/, "").toLowerCase();
@@ -136,6 +152,7 @@ export default function TrendsListPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          id: !listIdExists ? listId || undefined : undefined, // Use the provided listId or generate a new one
           name: listName,
           description,
           urls: links.map(normalize),
@@ -204,6 +221,21 @@ export default function TrendsListPage() {
           style={{ filter: "blur(150px)" }}
         />
         <div className="w-full max-w-2xl -mt-[10vh] z-1">
+          <input
+            type="text"
+            placeholder="CA (default: random)"
+            className="w-full rounded-[8px] overflow-y-hidden h-14 placeholder:opacity-60 opacity-50 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
+            value={listId}
+            onChange={(e) => setListId(e.target.value)}
+            required
+          />{" "}
+          {
+            <p className="text-sm text-red-400 mb-2 mx-4">
+              {listIdExists &&
+                listId &&
+                "This CA already exists. A random CA will be generated if you save without changing it."}
+            </p>
+          }
           <input
             type="text"
             placeholder="Give it a name..."
