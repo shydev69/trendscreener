@@ -244,7 +244,7 @@ export default function TrendsListPage() {
         <div className="w-full max-w-2xl -mt-[10vh] z-1">
           <input
             type="text"
-            placeholder="CA (default: random) - Hit Enter to check"
+            placeholder="Enter CA"
             className="w-full rounded-[8px] overflow-y-hidden h-14 placeholder:opacity-60 opacity-50 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
             value={listId}
             onChange={handleCAChange}
