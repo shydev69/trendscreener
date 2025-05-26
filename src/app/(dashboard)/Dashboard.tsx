@@ -147,7 +147,7 @@ export default function SearchPage() {
           <Sparkles className="w-4 h-4" /> New
         </button>
       </div>
-      <div className="absolute top-0 right-0 flex gap-2 items-center px-0 py-5 z-10 text-center text-sm">
+      <div className="absolute top-0 right-0 hidden md:flex gap-2 items-center px-0 py-5 z-10 text-center text-sm">
         <button
           className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300 `}
           onClick={() => {
