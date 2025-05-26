@@ -407,7 +407,14 @@ export default function TrendsListIdPage() {
       <div className="w-full max-w-2xl -mt-[10vh] z-1">
         {currentUser === userId && (
           <>
-            <div className="flex w-full items-center h-14">
+            <div
+              className="flex w-full items-center h-14"
+              onClick={() => {
+                navigator.clipboard.writeText(listId!.toString());
+                setCaCopied(true);
+                setTimeout(() => setCaCopied(false), 3000);
+              }}
+            >
               <p className="pl-4 mt-0.5 pr-0.5 opacity-20">CA:</p>
               <input
                 type="text"
