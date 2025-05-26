@@ -118,6 +118,7 @@ export default function TrendsListIdPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [newListId, setNewListId] = useState(""); // New CA input
   const [listIdExists, setListIdExists] = useState(false); // Check if new CA exists
+  const [caCopied, setCaCopied] = useState(false);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -321,6 +322,11 @@ export default function TrendsListIdPage() {
             Loading trends...
           </div>
         )}
+        {caCopied && (
+          <div style={{ color: "green", marginTop: 8 }}>
+            CA copied to clipboard!
+          </div>
+        )}
       </div>
       {/* top-14 md:top-10 left
 top-5 md:top-2 xl: */}
@@ -393,6 +399,8 @@ top-5 md:top-2 xl: */}
           disabled={currentUser !== userId}
           onClick={() => {
             navigator.clipboard.writeText(listId!.toString());
+            setCaCopied(true);
+            setTimeout(() => setCaCopied(false), 3000);
           }}
           onChange={(e) =>
             setNewListId(e.target.value.replace("CA: ", "").trim())
