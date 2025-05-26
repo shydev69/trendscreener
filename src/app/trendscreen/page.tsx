@@ -76,8 +76,9 @@ export default function TrendsListPage() {
     [listName, setListName] = useState(""),
     [description, setDescription] = useState(""),
     [listId, setListId] = useState(""),
-    [listIdExists, setListIdExists] = useState(false);
-  const [isPublic, setIsPublic] = useState(false); // <-- Add public/private switch state
+    [listIdExists, setListIdExists] = useState(false),
+    [listIdChecked, setListIdChecked] = useState(false); // Track if CA was checked
+  const [isPublic, setIsPublic] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,20 +100,40 @@ export default function TrendsListPage() {
       cancelled = true;
     };
   }, [links]);
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (!listId) return;
-      try {
-        const response = await fetch(`/api/listIdExists?listId=${listId}`);
-        const data = await response.json();
-        setListIdExists(data.exists);
-      } catch (error) {
-        console.error("Error checking list ID existence:", error);
-      }
-    }, 500);
 
-    return () => clearTimeout(timer);
-  }, [listId]);
+  // Function to check CA existence
+  const checkListIdExists = async () => {
+    if (!listId.trim()) {
+      setListIdExists(false);
+      setListIdChecked(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/listIdExists?listId=${listId.trim()}`);
+      const data = await response.json();
+      setListIdExists(data.exists);
+      setListIdChecked(true);
+    } catch (error) {
+      console.error("Error checking list ID existence:", error);
+      setListIdChecked(false);
+    }
+  };
+
+  // Handle Enter key press on CA input
+  const handleCAKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      checkListIdExists();
+    }
+  };
+
+  // Reset check status when user types
+  const handleCAChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setListId(e.target.value);
+    setListIdChecked(false); // Reset check status
+    setListIdExists(false); // Reset exists status
+  };
 
   const normalize = (url: string) =>
     url.trim().replace(/\/+$/, "").toLowerCase();
@@ -223,19 +244,23 @@ export default function TrendsListPage() {
         <div className="w-full max-w-2xl -mt-[10vh] z-1">
           <input
             type="text"
-            placeholder="CA (default: random)"
+            placeholder="CA (default: random) - Hit Enter to check"
             className="w-full rounded-[8px] overflow-y-hidden h-14 placeholder:opacity-60 opacity-50 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
             value={listId}
-            onChange={(e) => setListId(e.target.value)}
-            required
-          />{" "}
-          {
-            <p className="text-sm text-red-400 mb-2 mx-4">
-              {listIdExists &&
-                listId &&
-                "This CA already exists. A random CA will be generated if you save without changing it."}
+            onChange={handleCAChange}
+            onKeyDown={handleCAKeyDown}
+          />
+          {listIdChecked && listId && (
+            <p
+              className={`text-sm mb-2 mx-4 ${
+                !listIdExists ? "text-red-400" : "text-green-400"
+              }`}
+            >
+              {!listIdExists
+                ? "This CA already exists. A random CA will be generated if you save without changing it."
+                : "CA is available!"}
             </p>
-          }
+          )}
           <input
             type="text"
             placeholder="Give it a name..."

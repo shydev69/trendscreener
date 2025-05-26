@@ -118,6 +118,7 @@ export default function TrendsListIdPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [newListId, setNewListId] = useState(""); // New CA input
   const [listIdExists, setListIdExists] = useState(false); // Check if new CA exists
+  const [listIdChecked, setListIdChecked] = useState(false); // Track if CA was checked
   const [caCopied, setCaCopied] = useState(false);
 
   useEffect(() => {
@@ -134,24 +135,44 @@ export default function TrendsListIdPage() {
     };
     fetchCurrentUser();
   }, []);
-  // Check if new CA exists when user types
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (!newListId || newListId === listId) {
-        setListIdExists(false);
-        return;
-      }
-      try {
-        const response = await fetch(`/api/listIdExists?listId=${newListId}`);
-        const data = await response.json();
-        setListIdExists(data.exists);
-      } catch (error) {
-        console.error("Error checking list ID existence:", error);
-      }
-    }, 500);
 
-    return () => clearTimeout(timer);
-  }, [newListId, listId]);
+  // Function to check CA existence (only on Enter press)
+  const checkListIdExists = async () => {
+    if (!newListId.trim() || newListId === listId) {
+      setListIdExists(false);
+      setListIdChecked(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/listIdExists?listId=${newListId.trim()}`
+      );
+      const data = await response.json();
+      setListIdExists(data.exists);
+      setListIdChecked(true);
+    } catch (error) {
+      console.error("Error checking list ID existence:", error);
+      setListIdChecked(false);
+    }
+  };
+
+  // Handle Enter key press on CA input
+  const handleCAKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      checkListIdExists();
+    }
+  };
+
+  // Reset check status when user types
+  const handleCAChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewListId(value);
+    setListIdChecked(false); // Reset check status
+    setListIdExists(false); // Reset exists status
+  };
+
   // Fetch trends list from server on mount
   useEffect(() => {
     if (!listId) return;
@@ -304,12 +325,6 @@ export default function TrendsListIdPage() {
 
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
-      {/* <div
-        className="fixed bottom-5 right-5 md:pl-64 w-full z-10 text-right text-sm"
-        onClick={() => navigator.clipboard.writeText(listId!.toString())}
-      >
-        <div style={{ color: "#ffffff55", marginTop: 8 }}>ca: {listId}</div>
-      </div> */}
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
         {updating && (
@@ -328,8 +343,7 @@ export default function TrendsListIdPage() {
           </div>
         )}
       </div>
-      {/* top-14 md:top-10 left
-top-5 md:top-2 xl: */}
+
       <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
         {currentUser === userId && (
           <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
@@ -391,26 +405,46 @@ top-5 md:top-2 xl: */}
         style={{ filter: "blur(150px)" }}
       />
       <div className="w-full max-w-2xl -mt-[10vh] z-1">
-        <input
-          type="text"
-          placeholder="CA (Leave empty to keep current)"
-          className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
-          value={"CA: " + newListId}
-          disabled={currentUser !== userId}
-          onClick={() => {
-            navigator.clipboard.writeText(listId!.toString());
-            setCaCopied(true);
-            setTimeout(() => setCaCopied(false), 3000);
-          }}
-          onChange={(e) =>
-            setNewListId(e.target.value.replace("CA: ", "").trim())
-          }
-          required
-        />
-        {listIdExists && newListId !== listId && newListId && (
-          <p className="text-sm text-red-400 mb-2 mx-4">
-            This CA already exists. Please choose a different one.
-          </p>
+        {currentUser === userId && (
+          <>
+            <div className="flex w-full items-center h-14">
+              <p className="pl-4 mt-0.5 pr-0.5 opacity-20">CA:</p>
+              <input
+                type="text"
+                placeholder="(Leave empty to keep current) - Hit Enter to check"
+                className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 pr-4 text-black dark:text-white focus:outline-none text-base transition"
+                value={newListId}
+                onChange={handleCAChange}
+                onKeyDown={handleCAKeyDown}
+                required
+              />
+            </div>
+            {listIdChecked && newListId && newListId !== listId && (
+              <p
+                className={`text-sm mb-2 mx-4 ${
+                  listIdExists ? "text-red-400" : "text-green-400"
+                }`}
+              >
+                {listIdExists
+                  ? "This CA already exists. Please choose a different one."
+                  : "CA is available!"}
+              </p>
+            )}
+          </>
+        )}
+        {currentUser !== userId && (
+          <input
+            type="text"
+            placeholder="CA (Leave empty to keep current)"
+            className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
+            value={"CA: " + newListId}
+            disabled={true}
+            onClick={() => {
+              navigator.clipboard.writeText(listId!.toString());
+              setCaCopied(true);
+              setTimeout(() => setCaCopied(false), 3000);
+            }}
+          />
         )}
         <input
           type="text"
