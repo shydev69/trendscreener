@@ -149,7 +149,7 @@ export default function SearchPage() {
       </div>
       <div className="absolute top-0 right-0 hidden md:flex gap-2 items-center px-0 py-5 z-10 text-center text-sm">
         <button
-          className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300 `}
+          className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2.5 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300 `}
           onClick={() => {
             window.location.href = "http://x.com/trendscreener";
           }}
@@ -158,14 +158,14 @@ export default function SearchPage() {
             width="16"
             height="16"
             fill="currentColor"
-            className="bi bi-twitter-x"
+            className="bi bi-twitter-x w-4 h-4"
             viewBox="0 0 16 16"
           >
             <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" />
           </svg>
         </button>
         <button
-          className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300`}
+          className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2.5 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300`}
           onClick={() => {
             window.location.href = "http://instagram.com/trendscreenerai";
           }}
