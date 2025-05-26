@@ -3,6 +3,8 @@ import "@/styles/globals.css";
 import { siteConfig } from "@/config/site.config";
 import { cn } from "@/lib/utils";
 import RootProviders from "@/components/providers";
+import { GoogleAnalytics } from "@next/third-parties/google";
+
 import {
   ClerkProvider,
   SignedIn,
@@ -69,7 +71,7 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
-        <head>
+        {/* <head>
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-9L0JYJ4G7M"
             strategy="afterInteractive"
@@ -82,7 +84,7 @@ export default function RootLayout({
               gtag('config', 'G-9L0JYJ4G7M');
             `}
           </Script>
-        </head>
+        </head> */}
         <body
           className={cn(
             "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden font-sans antialiased geist"
@@ -100,6 +102,7 @@ export default function RootLayout({
             </div>
           </RootProviders>
         </body>
+        <GoogleAnalytics gaId="G-9L0JYJ4G7M" />
       </html>
     </ClerkProvider>
   );
