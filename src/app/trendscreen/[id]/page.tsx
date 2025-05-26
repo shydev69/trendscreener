@@ -389,12 +389,14 @@ top-5 md:top-2 xl: */}
           type="text"
           placeholder="CA (Leave empty to keep current)"
           className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
-          value={newListId}
+          value={"CA: " + newListId}
           disabled={currentUser !== userId}
           onClick={() => {
             navigator.clipboard.writeText(listId!.toString());
           }}
-          onChange={(e) => setNewListId(e.target.value)}
+          onChange={(e) =>
+            setNewListId(e.target.value.replace("CA: ", "").trim())
+          }
           required
         />
         {listIdExists && newListId !== listId && newListId && (
