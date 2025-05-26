@@ -38,7 +38,9 @@ export default function SearchPage() {
     fetch(
       `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=${
         sortBy == "createdAt" ? "desc" : "desc" // sortBy == "createdAt" ? "asc" : "desc"
-      }&page=1&limit=${resultsPerPage}${sortBy == "views" ? "&findFromToday=true" : ""}` // Always find from today for public trends
+      }&page=1&limit=${resultsPerPage}${
+        sortBy == "likes" ? "&findFromToday=true" : ""
+      }` // Always find from today for public trends
     )
       .then((response) => response.json())
       .then((data) => {
@@ -147,9 +149,7 @@ export default function SearchPage() {
           <Sparkles className="w-4 h-4" /> New
         </button>
       </div>
-      <div className="absolute top-0 right-0 hidden md:flex gap-2 items-center px-0 py-5 z-10 text-center text-sm">
-       
-      </div>
+      <div className="absolute top-0 right-0 hidden md:flex gap-2 items-center px-0 py-5 z-10 text-center text-sm"></div>
       <div className="w-full -mt-[30vh] z-1">
         {publicTrends && publicTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
