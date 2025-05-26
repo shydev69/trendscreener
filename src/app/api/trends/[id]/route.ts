@@ -206,6 +206,7 @@ export async function PATCH(
             urls,
             analysis,
             isPublic: !!isPublic,
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(trendLists.id, listId));
       });
