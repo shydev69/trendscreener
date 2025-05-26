@@ -119,17 +119,28 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { params } = context;
   try {
+    const { id: listId } = await params; // Await the params Promise
+
     const currentUserId = (await currentUser())?.id;
     if (!currentUserId) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const { name, description, urls, analysis, isPublic, newListId } = await request.json();
-    const listId = params.id;
+    const {
+      name,
+      description,
+      urls,
+      analysis,
+      isPublic,
+      newListId,
+      createdAt,
+    } = await request.json();
 
     // Check if user owns this list
     const existingList = await queryDb(async (db) => {
@@ -141,7 +152,10 @@ export async function PATCH(
     });
 
     if (!existingList || existingList.creatorId !== currentUserId) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 403 }
+      );
     }
 
     // If changing CA, check if new CA exists
@@ -172,6 +186,8 @@ export async function PATCH(
           analysis,
           isPublic: !!isPublic,
           creatorId: currentUserId,
+          createdAt,
+          updatedAt: new Date().toISOString(),
         });
 
         // Delete old entry
