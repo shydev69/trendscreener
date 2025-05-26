@@ -410,12 +410,14 @@ export default function TrendsListIdPage() {
             <div
               className="flex w-full items-center h-14"
               onClick={() => {
-                navigator.clipboard.writeText(listId!.toString());
+                const idToCopy = listId ? listId : newListId;
+                console.log("Copying CA:", idToCopy);
+                navigator.clipboard.writeText(idToCopy);
                 setCaCopied(true);
                 setTimeout(() => setCaCopied(false), 3000);
               }}
             >
-              <p className="pl-4 mt-0.5 pr-0.5 opacity-20">CA:</p>
+              <p className="pl-4 mt-0.5 pr-0.5 opacity-50">CA:</p>
               <input
                 type="text"
                 placeholder="(Leave empty to keep current) - Hit Enter to check"
@@ -440,18 +442,19 @@ export default function TrendsListIdPage() {
           </>
         )}
         {currentUser !== userId && (
-          <input
-            type="text"
-            placeholder="CA (Leave empty to keep current)"
-            className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
-            value={"CA: " + newListId}
-            disabled={true}
+          <p
+            className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition flex items-center cursor-pointer"
+            style={{ userSelect: "all" }}
+            title="Click to copy CA"
             onClick={() => {
-              navigator.clipboard.writeText(listId!.toString());
+              const idToCopy = listId ? listId : newListId;
+              navigator.clipboard.writeText(idToCopy!);
               setCaCopied(true);
               setTimeout(() => setCaCopied(false), 3000);
             }}
-          />
+          >
+            {"CA: " + newListId}
+          </p>
         )}
         <input
           type="text"
