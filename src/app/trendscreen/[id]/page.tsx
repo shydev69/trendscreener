@@ -303,12 +303,12 @@ export default function TrendsListIdPage() {
 
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
-      <div
+      {/* <div
         className="fixed bottom-5 right-5 md:pl-64 w-full z-10 text-right text-sm"
         onClick={() => navigator.clipboard.writeText(listId!.toString())}
       >
         <div style={{ color: "#ffffff55", marginTop: 8 }}>ca: {listId}</div>
-      </div>
+      </div> */}
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
         {updating && (
@@ -385,22 +385,22 @@ top-5 md:top-2 xl: */}
         style={{ filter: "blur(150px)" }}
       />
       <div className="w-full max-w-2xl -mt-[10vh] z-1">
-        {currentUser === userId && (
-          <>
-            <input
-              type="text"
-              placeholder="CA (Leave empty to keep current)"
-              className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
-              value={newListId}
-              onChange={(e) => setNewListId(e.target.value)}
-              required
-            />
-            {listIdExists && newListId !== listId && newListId && (
-              <p className="text-sm text-red-400 mb-2 mx-4">
-                This CA already exists. Please choose a different one.
-              </p>
-            )}
-          </>
+        <input
+          type="text"
+          placeholder="CA (Leave empty to keep current)"
+          className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
+          value={newListId}
+          disabled={currentUser !== userId}
+          onClick={() => {
+            navigator.clipboard.writeText(listId!.toString());
+          }}
+          onChange={(e) => setNewListId(e.target.value)}
+          required
+        />
+        {listIdExists && newListId !== listId && newListId && (
+          <p className="text-sm text-red-400 mb-2 mx-4">
+            This CA already exists. Please choose a different one.
+          </p>
         )}
         <input
           type="text"
