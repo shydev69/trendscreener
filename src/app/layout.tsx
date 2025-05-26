@@ -18,6 +18,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import { dark } from "@clerk/themes";
 import Script from "next/script";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.origin),

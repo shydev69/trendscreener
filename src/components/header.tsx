@@ -9,7 +9,7 @@ import {
   GoogleOneTap,
 } from "@clerk/clerk-react";
 import Sidebar from "./sidebar";
-import { Ham, List } from "lucide-react";
+import { Ham, Instagram, List } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -46,14 +46,40 @@ const Header: React.FC = () => {
         >
           <input
             type="text"
-            name="search"
             placeholder="Search trends..."
+            name="search"
+            autoComplete="off"
             className="hidden lg:block w-full rounded-[8px] max-w-xl px-4 py-1.5 bg-white dark:bg-neutral-900 text-black text-center dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition"
           />
         </form>
       </div>
       {/* User profile on right */}
       <div className="w-full md:w-2/4 lg:w-1/4 flex justify-end items-center p-2">
+        {" "}
+        <button
+          className={`flex items-center justify-center px-3 gap-1 py-2.5 rounded-[8px] text-white/80 text-sm hover:text-white transition duration-300 `}
+          onClick={() => {
+            window.location.href = "http://x.com/trendscreener";
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="currentColor"
+            className="bi bi-twitter-x w-4 h-4"
+            viewBox="0 0 16 16"
+          >
+            <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" />
+          </svg>
+        </button>
+        <button
+          className={`flex items-center justify-center px-3 gap-1 py-2.5 mr-5 rounded-[8px] text-white/80 text-sm hover:text-white transition duration-300`}
+          onClick={() => {
+            window.location.href = "http://instagram.com/trendscreenerai";
+          }}
+        >
+          <Instagram className="w-4 h-4" />
+        </button>
         <SignedOut>
           <SignInButton>
             <button className="ml-2 px-4 py-1 rounded-[8px] bg-gradient-to-br from-[#34353C] to-black/90 dark:to-white/10 border text-white/80 text-sm hover:text-white transition">

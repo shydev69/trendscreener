@@ -41,3 +41,11 @@ iframe > div.Content.EmbedFrame > a > img.EmbeddedMediaImage {
   border-radius: 15px !important;
   max-height: 500px !important;
 } */
+.toaster {
+  margin-top: 2rem !important;
+}
+.toaster > li {
+  border-radius: 0.5rem !important;
+  background-color: #00000066 !important;
+  backdrop-filter: blur(10px) !important;
+}

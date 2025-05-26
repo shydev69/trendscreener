@@ -17,6 +17,7 @@ import Analysis from "@/components/Analysis";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { InstagramEmbed } from "@/components/InstragramEmbed";
+import { toast } from "sonner";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -412,9 +413,8 @@ export default function TrendsListIdPage() {
               onClick={() => {
                 const idToCopy = listId ? listId : newListId;
                 console.log("Copying CA:", idToCopy);
+                toast("Copied CA to Clipboard!");
                 navigator.clipboard.writeText(idToCopy);
-                setCaCopied(true);
-                setTimeout(() => setCaCopied(false), 3000);
               }}
             >
               <p className="pl-4 mt-0.5 pr-0.5 opacity-50">CA:</p>
@@ -442,19 +442,20 @@ export default function TrendsListIdPage() {
           </>
         )}
         {currentUser !== userId && (
-          <p
-            className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition flex items-center cursor-pointer"
-            style={{ userSelect: "all" }}
-            title="Click to copy CA"
-            onClick={() => {
-              const idToCopy = listId ? listId : newListId;
-              navigator.clipboard.writeText(idToCopy!);
-              setCaCopied(true);
-              setTimeout(() => setCaCopied(false), 3000);
-            }}
-          >
-            {"CA: " + newListId}
-          </p>
+          <>
+            <p
+              className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition flex items-center cursor-pointer"
+              style={{ userSelect: "all" }}
+              title="Click to copy CA"
+              onClick={() => {
+                const idToCopy = listId ? listId : newListId;
+                navigator.clipboard.writeText(idToCopy!);
+                toast("Copied CA to Clipboard!");
+              }}
+            >
+              {"CA: " + newListId}
+            </p>
+          </>
         )}
         <input
           type="text"

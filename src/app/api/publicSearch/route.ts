@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq, and, like, desc } from "drizzle-orm";
+import { eq, and, like, desc, gte } from "drizzle-orm";
 
 export async function GET(request: Request) {
   try {
@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const sortOrder = searchParams.get("sortOrder") || "desc";
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const findFromToday = searchParams.get("findFromToday") === "true";
 
     const offset = (page - 1) * limit;
 
@@ -26,22 +27,29 @@ export async function GET(request: Request) {
     };
     const sortColumn = sortColumns[sortBy];
 
+    // Build where conditions
+    const conditions = [eq(trendLists.isPublic, true)];
+
+    if (search) {
+      conditions.push(like(trendLists.name, `%${search}%`));
+    }
+
+    if (findFromToday) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Start of today
+      conditions.push(gte(trendLists.createdAt, today.toISOString()));
+    }
+
     const trends = await queryDb(async (db) => {
       return db
         .select()
         .from(trendLists)
-        .where(
-          search
-            ? and(
-                eq(trendLists.isPublic, true),
-                like(trendLists.name, `%${search}%`)
-              )
-            : eq(trendLists.isPublic, true)
-        )
+        .where(and(...conditions))
         .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
         .limit(limit)
         .offset(offset);
     });
+
     console.log("Trends fetched:", trends);
     return NextResponse.json({ success: true, trends });
   } catch (error: any) {
@@ -59,4 +67,4 @@ export async function GET(request: Request) {
   }
 }
 
-// example link: http://localhost:3000/api/userSearch?search=trends
+// example link: http://localhost:3000/api/publicSearch?search=trends&findFromToday=true
