@@ -15,6 +15,7 @@ import Sidebar from "@/components/sidebar";
 import "./globals.css";
 import Header from "@/components/header";
 import { dark } from "@clerk/themes";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.origin),
@@ -68,6 +69,20 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+        <head>
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-9L0JYJ4G7M"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-9L0JYJ4G7M');
+            `}
+          </Script>
+        </head>
         <body
           className={cn(
             "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden font-sans antialiased geist"
