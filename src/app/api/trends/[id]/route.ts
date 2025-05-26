@@ -119,8 +119,9 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const { params } = context;
   try {
     const currentUserId = (await currentUser())?.id;
     if (!currentUserId) {
