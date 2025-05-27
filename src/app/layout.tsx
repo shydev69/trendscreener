@@ -91,6 +91,7 @@ export default function RootLayout({
             "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden font-sans antialiased geist"
           )}
           style={{ minHeight: "calc(100vh - 2.5rem)" }}
+          data-atm-ext-installed="1.29.9"
         >
           <RootProviders>
             {" "}

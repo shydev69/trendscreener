@@ -39,7 +39,7 @@ export default function SearchPage() {
       `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=${
         sortBy == "createdAt" ? "desc" : "desc" // sortBy == "createdAt" ? "asc" : "desc"
       }&page=1&limit=${resultsPerPage}${
-        sortBy == "likes" ? "&findFromToday=true" : ""
+        sortBy == "likes" ? "&intelligentSort=true" : ""
       }` // Always find from today for public trends
     )
       .then((response) => response.json())

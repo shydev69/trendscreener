@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq, and, like, desc, gte } from "drizzle-orm";
+import { eq, and, like, desc, gte, sql } from "drizzle-orm";
 
 export async function GET(request: Request) {
   try {
@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const findFromToday = searchParams.get("findFromToday") === "true";
+    const intelligentSort = searchParams.get("intelligentSort") === "true";
 
     const offset = (page - 1) * limit;
 
@@ -40,15 +41,40 @@ export async function GET(request: Request) {
       conditions.push(gte(trendLists.createdAt, today.toISOString()));
     }
 
-    const trends = await queryDb(async (db) => {
-      return db
-        .select()
-        .from(trendLists)
-        .where(and(...conditions))
-        .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
-        .limit(limit)
-        .offset(offset);
-    });
+    let trends;
+    if (intelligentSort) {
+      // Intelligent sort: order by createdAt DESC, then views DESC
+      trends = await queryDb(async (db) => {
+        // Intelligent sort: score = (views + 1) / (hours since created + 2)^1.5
+        // This boosts new trends with high views, penalizes old/low-view trends
+        const now = new Date();
+        return db
+          .select()
+          .from(trendLists)
+          .where(and(...conditions))
+          .orderBy(
+            // Custom score: (views + 1) / (hours since created + 2)^1.5 DESC
+            desc(
+              sql`
+                (((${trendLists.views} + 1)::float) / 
+                POWER(EXTRACT(EPOCH FROM (NOW() - ${trendLists.createdAt})) / 3600 + 2, 1.5))
+              `
+            )
+          )
+          .limit(limit)
+          .offset(offset);
+      });
+    } else {
+      trends = await queryDb(async (db) => {
+        return db
+          .select()
+          .from(trendLists)
+          .where(and(...conditions))
+          .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
+          .limit(limit)
+          .offset(offset);
+      });
+    }
 
     console.log("Trends fetched:", trends);
     return NextResponse.json({ success: true, trends });
