@@ -427,6 +427,26 @@ export default function TrendsListIdPage() {
                 onKeyDown={handleCAKeyDown}
                 required
               />
+              <a
+                href={`https://axiom.trade/t/${encodeURIComponent(
+                  newListId
+                )}/@tscreener`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black/50 text-white rounded-[8px] px-4 py-2 ml-2 flex items-center gap-2"
+                title="Open in Axiom"
+                style={{
+                  pointerEvents: !newListId.trim() ? "none" : "auto",
+                  opacity: !newListId.trim() ? 0.5 : 1,
+                }}
+              >
+                <img
+                  src="https://axiom.trade/images/axiom-logo-mark.svg"
+                  alt="Trade"
+                  className="w-4 h-4"
+                />{" "}
+                <p className="mr-4">Trade</p>
+              </a>
             </div>
             {listIdChecked && newListId && newListId !== listId && (
               <p
@@ -443,18 +463,48 @@ export default function TrendsListIdPage() {
         )}
         {currentUser !== userId && (
           <>
-            <p
-              className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition flex items-center cursor-pointer"
-              style={{ userSelect: "all" }}
-              title="Click to copy CA"
+            <div
+              className="flex w-full items-center h-14 truncate !text-ellipsis"
               onClick={() => {
                 const idToCopy = listId ? listId : newListId;
-                navigator.clipboard.writeText(idToCopy!);
+                console.log("Copying CA:", idToCopy);
                 toast("Copied CA to Clipboard!");
+                navigator.clipboard.writeText(idToCopy);
               }}
             >
-              {"CA: " + newListId}
-            </p>
+              <p
+                className="w-full rounded-[8px] opacity-50 truncate !text-ellipsis overflow-y-hidden h-14 placeholder:opacity-60 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition flex items-center cursor-pointer"
+                style={{ userSelect: "all" }}
+                title="Click to copy CA"
+                onClick={() => {
+                  const idToCopy = listId ? listId : newListId;
+                  navigator.clipboard.writeText(idToCopy!);
+                  toast("Copied CA to Clipboard!");
+                }}
+              >
+                {"CA: " + newListId}
+              </p>{" "}
+              <a
+                href={`https://axiom.trade/t/${encodeURIComponent(
+                  newListId
+                )}/@tscreener`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black/50 text-white rounded-[8px] px-4 py-2 ml-2 flex items-center gap-2"
+                title="Open in Axiom"
+                style={{
+                  pointerEvents: !newListId.trim() ? "none" : "auto",
+                  opacity: !newListId.trim() ? 0.5 : 1,
+                }}
+              >
+                <img
+                  src="https://axiom.trade/images/axiom-logo-mark.svg"
+                  alt="Trade"
+                  className="w-4 h-4"
+                />{" "}
+                <p className="mr-4">Trade</p>
+              </a>
+            </div>
           </>
         )}
         <input
