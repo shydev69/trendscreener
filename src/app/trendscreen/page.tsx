@@ -253,10 +253,10 @@ export default function TrendsListPage() {
           {listIdChecked && listId && (
             <p
               className={`text-sm mb-2 mx-4 ${
-                !listIdExists ? "text-red-400" : "text-green-400"
+                listIdExists ? "text-red-400" : "text-green-400"
               }`}
             >
-              {!listIdExists
+              {listIdExists
                 ? "This CA already exists. A random CA will be generated if you save without changing it."
                 : "CA is available!"}
             </p>
