@@ -256,9 +256,7 @@ export default function TrendsListPage() {
                 listIdExists ? "text-red-400" : "text-green-400"
               }`}
             >
-              {listIdExists
-                ? "This CA already exists. A random CA will be generated if you save without changing it."
-                : "CA is available!"}
+              {listIdExists ? "This CA already exists." : "CA is available!"}
             </p>
           )}
           <input

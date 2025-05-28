@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     } = await request.json();
 
     // Generate a unique ID for the trends list
-    const listId = _id || crypto.randomUUID();
+    const listId = _id || "<" + crypto.randomUUID() + "<";
 
     await queryDb(async (db) => {
       return db.insert(trendLists).values({

@@ -417,12 +417,25 @@ export default function TrendsListIdPage() {
                 navigator.clipboard.writeText(idToCopy);
               }}
             >
-              <p className="pl-4 mt-0.5 pr-0.5 opacity-50">CA:</p>
+              {newListId.startsWith("%3C") && newListId.endsWith("%3C") ? (
+                <p className="pl-4 mt-0.5 pr-0.5 opacity-50"></p>
+              ) : (
+                <p className="pl-4 mt-0.5 pr-0.5 opacity-50">CA:</p>
+              )}
+
               <input
                 type="text"
-                placeholder="(Leave empty to keep current) - Hit Enter to check"
+                placeholder={
+                  newListId.startsWith("%3C") && newListId.endsWith("%3C")
+                    ? "Enter new CA"
+                    : "(Leave empty to keep current) - Hit Enter to check"
+                }
                 className="w-full rounded-[8px] opacity-50 overflow-y-hidden h-14 placeholder:opacity-60 py-0 pr-4 text-black dark:text-white focus:outline-none text-base transition"
-                value={newListId}
+                value={
+                  newListId.startsWith("%3C") && newListId.endsWith("%3C")
+                    ? ""
+                    : newListId
+                }
                 onChange={handleCAChange}
                 onKeyDown={handleCAKeyDown}
                 required
