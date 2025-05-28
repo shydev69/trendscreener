@@ -161,7 +161,7 @@ export default function SearchPage() {
               publicTrends.map((trend: any) => (
                 <li
                   key={trend.id}
-                  className="rounded-3xl grid grid-cols-8 gap-x-5 md:gap-x-10 gap-y-2 bg-white/10 dark:bg-black/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
+                  className="rounded-3xl grid grid-cols-8 gap-x-5 md:gap-x-10 gap-y-2 bg-white/10 dark:bg-[#ffffff55]/10 p-6 cursor-pointer hover:scale-[1.005] hover:bg-white/20 transition-all duration-200 backdrop-blur-lg"
                   style={{
                     border: "none",
                   }}
