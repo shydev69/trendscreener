@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function GET(request: Request) {
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       return db
         .select()
         .from(trendLists)
-        .where(eq(trendLists.isPublic, true))
+        .where(and(eq(trendLists.isPublic, true), isNull(trendLists.newId)))
         .limit(10);
     });
 

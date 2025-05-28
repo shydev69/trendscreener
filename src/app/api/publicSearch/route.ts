@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq, and, like, desc, gte, sql } from "drizzle-orm";
+import { eq, and, like, desc, gte, sql, isNull } from "drizzle-orm";
 
 export async function GET(request: Request) {
   try {
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const sortColumn = sortColumns[sortBy];
 
     // Build where conditions
-    const conditions = [eq(trendLists.isPublic, true)];
+    const conditions = [and(eq(trendLists.isPublic, true), isNull(trendLists.newId))];
 
     if (search) {
       conditions.push(like(trendLists.name, `%${search}%`));

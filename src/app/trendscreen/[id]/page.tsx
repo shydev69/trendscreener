@@ -181,6 +181,12 @@ export default function TrendsListIdPage() {
     fetch(`/api/trends/${listId}`)
       .then((res) => res.json())
       .then((list) => {
+        // Handle redirect if the list has moved to a new CA
+        if (list.trendscreen.newId) {
+          window.location.href = `/trendscreen/${list.trendscreen.newId}`;
+          return;
+        }
+
         if (list && list.trendscreen) {
           setLinks(list.trendscreen.urls || []);
           setStats([list.trendscreen.analysis]);
@@ -261,28 +267,78 @@ export default function TrendsListIdPage() {
     if (!links.length) return;
     setSaving(true);
     try {
-      const response = await fetch(`/api/trends/${listId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: listName,
-          description,
-          urls: links.map(normalize),
-          analysis: total,
-          isPublic,
-          newListId: newListId !== listId ? newListId : undefined, // Only send if changed
-        }),
-      });
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error || "Failed to save trends list");
-      }
-      // If CA changed, redirect to new URL
-      if (newListId !== listId) {
-        window.location.href = `/trendscreen/${data.listId || newListId}`;
+      // If CA changed, create new list and update old one
+      if (newListId !== listId && listIdChecked && !listIdExists) {
+        // First, create the new trends list
+        const createResponse = await fetch("/api/trends", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: newListId,
+            name: listName,
+            description,
+            urls: links.map(normalize),
+            analysis: total,
+            isPublic,
+          }),
+        });
+
+        const createData = await createResponse.json();
+        if (!createData.success) {
+          throw new Error(
+            createData.error || "Failed to create new trends list"
+          );
+        }
+
+        // Then, update the old list's newListId to point to the new one
+        const updateResponse = await fetch(`/api/trends/${listId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: listName,
+            description,
+            urls: links.map(normalize),
+            analysis: total,
+            isPublic,
+            newListId: newListId, // Set the redirect CA
+            isRedirect: true, // Flag to indicate this is a redirect update
+          }),
+        });
+
+        const updateData = await updateResponse.json();
+        if (!updateData.success) {
+          console.warn(
+            "Failed to update old list redirect, but new list created successfully"
+          );
+        }
+
+        // Redirect to the new list
+        window.location.href = `/trendscreen/${newListId}`;
       } else {
+        // Normal update - no CA change
+        const response = await fetch(`/api/trends/${listId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: listName,
+            description,
+            urls: links.map(normalize),
+            analysis: total,
+            isPublic,
+          }),
+        });
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error || "Failed to save trends list");
+        }
+
         window.location.reload();
       }
     } catch (err) {

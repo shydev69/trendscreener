@@ -9,53 +9,41 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: listId } = await params;
+    const { id } = await params;
 
-    if (!listId) {
-      return NextResponse.json(
-        { success: false, error: "Missing listId" },
-        { status: 400 }
-      );
-    }
-
-    const user = await currentUser();
-    const userId = user?.id;
-    const trendscreen = await queryDb(async (db) => {
-      return db
-        .select()
-        .from(trendLists)
-        .where(
-          userId
-            ? and(
-                eq(trendLists.id, listId),
-                or(
-                  eq(trendLists.isPublic, true),
-                  eq(trendLists.creatorId, userId)
-                )
-              )
-            : and(eq(trendLists.id, listId), eq(trendLists.isPublic, true))
-        )
-        .limit(1)
-        .then((rows) => rows[0]);
+    const trends = await queryDb(async (db) => {
+      return db.select().from(trendLists).where(eq(trendLists.id, id));
     });
 
-    if (!trendscreen) {
+    if (trends.length === 0) {
       return NextResponse.json(
         { success: false, error: "Trends list not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, trendscreen });
+    const trend = trends[0];
+
+    // If this list has a newListId (redirect), redirect to the new one
+    if (trend.newListId && trend.newListId !== id) {
+      return NextResponse.json({
+        success: true,
+        redirect: trend.newListId,
+        message: "This list has been moved to a new CA",
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      trendscreen: trend,
+    });
   } catch (error: any) {
     console.error("Failed to fetch trends list:", error);
-
     return NextResponse.json(
       {
         success: false,
         error: "Failed to fetch trends list",
         message: error.message || "Unknown error",
-        cause: error.cause?.message || "Unknown cause",
       },
       { status: 500 }
     );
@@ -122,9 +110,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: listId } = await params; // Await the params Promise
-
+    const { id: listId } = await params;
     const currentUserId = (await currentUser())?.id;
+
     if (!currentUserId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -139,7 +127,7 @@ export async function PATCH(
       analysis,
       isPublic,
       newListId,
-      createdAt,
+      isRedirect,
     } = await request.json();
 
     // Check if user owns this list
@@ -158,61 +146,36 @@ export async function PATCH(
       );
     }
 
-    // If changing CA, check if new CA exists
-    if (newListId && newListId !== listId) {
-      const newIdExists = await queryDb(async (db) => {
-        const result = await db
-          .select()
-          .from(trendLists)
-          .where(eq(trendLists.id, newListId));
-        return result.length > 0;
+    // If this is a redirect update (old list pointing to new CA)
+    if (isRedirect && newListId) {
+      await queryDb(async (db) => {
+        await db
+          .update(trendLists)
+          .set({
+            newId: newListId, // Set redirect CA
+            // Don't update other fields for redirect
+          })
+          .where(eq(trendLists.id, listId));
       });
 
-      if (newIdExists) {
-        return NextResponse.json(
-          { success: false, error: "New CA already exists" },
-          { status: 400 }
-        );
-      }
+      return NextResponse.json({ success: true, listId, isRedirect: true });
+    }
 
-      // Create new entry with new ID and delete old one
-      await queryDb(async (db) => {
-        // Insert with new ID
-        await db.insert(trendLists).values({
-          id: newListId,
+    // Normal update (no CA change)
+    await queryDb(async (db) => {
+      await db
+        .update(trendLists)
+        .set({
           name,
           description,
           urls,
           analysis,
           isPublic: !!isPublic,
-          creatorId: currentUserId,
-          createdAt,
-          updatedAt: new Date().toISOString(),
-        });
+        })
+        .where(eq(trendLists.id, listId));
+    });
 
-        // Delete old entry
-        await db.delete(trendLists).where(eq(trendLists.id, listId));
-      });
-
-      return NextResponse.json({ success: true, listId: newListId });
-    } else {
-      // Update existing entry
-      await queryDb(async (db) => {
-        await db
-          .update(trendLists)
-          .set({
-            name,
-            description,
-            urls,
-            analysis,
-            isPublic: !!isPublic,
-            updatedAt: new Date().toISOString(),
-          })
-          .where(eq(trendLists.id, listId));
-      });
-
-      return NextResponse.json({ success: true, listId });
-    }
+    return NextResponse.json({ success: true, listId });
   } catch (error: any) {
     console.error("Failed to update trends list:", error);
     return NextResponse.json(

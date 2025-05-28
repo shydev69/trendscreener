@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq, and, like, desc } from "drizzle-orm";
+import { eq, and, like, desc, isNull } from "drizzle-orm";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function GET(request: Request) {
@@ -44,9 +44,13 @@ export async function GET(request: Request) {
           search
             ? and(
                 eq(trendLists.creatorId, userId),
-                like(trendLists.name, `%${search}%`)
+                like(trendLists.name, `%${search}%`),
+                isNull(trendLists.newId) 
               )
-            : eq(trendLists.creatorId, userId)
+            : and(
+                eq(trendLists.creatorId, userId),
+                isNull(trendLists.newId)
+              )
         )
         .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
         .limit(limit)
