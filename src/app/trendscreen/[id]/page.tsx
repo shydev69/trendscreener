@@ -172,6 +172,7 @@ export default function TrendsListIdPage() {
     setNewListId(value);
     setListIdChecked(false); // Reset check status
     setListIdExists(false); // Reset exists status
+    setError(""); // Clear any previous errors
   };
 
   // Fetch trends list from server on mount
@@ -267,9 +268,40 @@ export default function TrendsListIdPage() {
     if (!links.length) return;
     setSaving(true);
     try {
-      // If CA changed, create new list and update old one
-      if (newListId !== listId && listIdChecked && !listIdExists) {
-        // First, create the new trends list
+      // If CA changed, check if it exists before proceeding
+      if (newListId !== listId) {
+        // Auto-check if new CA exists
+        if (!listIdChecked) {
+          try {
+            const response = await fetch(
+              `/api/listIdExists?listId=${newListId.trim()}`
+            );
+            const data = await response.json();
+            setListIdExists(data.exists);
+            setListIdChecked(true);
+
+            // If it exists, show error and stop
+            if (data.exists) {
+              setError(
+                "This CA already exists. Please choose a different one."
+              );
+              setSaving(false);
+              return;
+            }
+          } catch (error) {
+            console.error("Error checking list ID existence:", error);
+            setError("Failed to verify CA availability. Please try again.");
+            setSaving(false);
+            return;
+          }
+        } else if (listIdExists) {
+          // If already checked and exists, show error and stop
+          setError("This CA already exists. Please choose a different one.");
+          setSaving(false);
+          return;
+        }
+
+        // Proceed with creating new list since CA is available
         const createResponse = await fetch("/api/trends", {
           method: "POST",
           headers: {
@@ -304,8 +336,8 @@ export default function TrendsListIdPage() {
             urls: links.map(normalize),
             analysis: total,
             isPublic,
-            newListId: newListId, // Set the redirect CA
-            isRedirect: true, // Flag to indicate this is a redirect update
+            newListId: newListId,
+            isRedirect: true,
           }),
         });
 
@@ -468,9 +500,13 @@ export default function TrendsListIdPage() {
               className="flex w-full items-center h-14"
               onClick={() => {
                 const idToCopy = listId ? listId : newListId;
-                console.log("Copying CA:", idToCopy);
-                toast("Copied CA to Clipboard!");
-                navigator.clipboard.writeText(idToCopy);
+                currentUser !== userId
+                  ? () => {
+                      console.log("Copying CA:", idToCopy);
+                      toast("Copied CA to Clipboard!");
+                      navigator.clipboard.writeText(idToCopy);
+                    }
+                  : null;
               }}
             >
               {newListId.startsWith("%3C") && newListId.endsWith("%3C") ? (
