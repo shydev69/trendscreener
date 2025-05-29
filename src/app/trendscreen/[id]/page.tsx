@@ -9,14 +9,13 @@ import {
   SaveAll,
   Trash,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Tweet as TweetComponent } from "react-tweet";
 import { useParams, useRouter } from "next/navigation";
 import Analysis from "@/components/Analysis";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { InstagramEmbed } from "@/components/InstragramEmbed";
 import { toast } from "sonner";
 
 const TWEET_URL_REGEX =
@@ -97,6 +96,41 @@ async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
       quotes: t?.quotes ?? 0,
       bookmarks: t?.bookmarks ?? 0,
     };
+  }
+}
+
+// Add Instagram stats type
+type InstagramStats = {
+  shortcode: string;
+  likes: number;
+  comments: number;
+  views: number;
+  caption: string | null;
+};
+
+// Function to fetch Instagram stats
+async function fetchInstagramStats(
+  shortcode: string
+): Promise<InstagramStats | null> {
+  try {
+    const response = await fetch(`/api/instagramData?shortcode=${shortcode}`);
+    const result = await response.json();
+
+    if (result.success) {
+      return {
+        shortcode: result.data.shortcode,
+        likes: result.data.likes || 0,
+        comments: result.data.comments || 0,
+        views: result.data.views || 0,
+        caption: result.data.caption,
+      };
+    } else {
+      console.error("Instagram API error:", result.error);
+      return null;
+    }
+  } catch (error) {
+    console.error("Failed to fetch Instagram stats:", error);
+    return null;
   }
 }
 
@@ -201,52 +235,102 @@ export default function TrendsListIdPage() {
       });
   }, [listId]);
 
-  // Update stats when links change
+  // Update stats when links change - now handles both Twitter and Instagram
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setUpdating(true);
       const newStats: TweetStats[] = [];
-      const linksIdsStringWithCommasWithoutBrackets = links
-        .reduce((acc, link) => {
-          const tweetId = extractTweetId(link);
-          if (tweetId) {
-            acc.push(tweetId);
-          }
-          return acc;
-        }, [] as string[])
-        .join(",")
-        .replace(/[\[\]']+/g, "");
-      console.log(
-        "Fetching stats for",
-        linksIdsStringWithCommasWithoutBrackets
-      );
-      try {
-        let data = await fetchTweetStats(
-          linksIdsStringWithCommasWithoutBrackets
-        );
 
-        newStats.push(data);
-      } catch {}
+      // Separate Twitter and Instagram links
+      const twitterLinks: string[] = [];
+      const instagramLinks: string[] = [];
+
+      links.forEach((link) => {
+        const tweetId = extractTweetId(link);
+        const instaShortcode = extractInstagramId(link);
+
+        if (tweetId) {
+          twitterLinks.push(tweetId);
+        } else if (instaShortcode) {
+          instagramLinks.push(instaShortcode);
+        }
+      });
+
+      try {
+        // Fetch Twitter stats
+        if (twitterLinks.length > 0) {
+          const twitterIdsString = twitterLinks.join(",");
+          console.log("Fetching Twitter stats for", twitterIdsString);
+
+          try {
+            const twitterData = await fetchTweetStats(twitterIdsString);
+            newStats.push(twitterData);
+          } catch (error) {
+            console.error("Failed to fetch Twitter stats:", error);
+          }
+        }
+
+        // Fetch Instagram stats
+        if (instagramLinks.length > 0) {
+          console.log("Fetching Instagram stats for", instagramLinks);
+
+          for (const shortcode of instagramLinks) {
+            try {
+              const instaData = await fetchInstagramStats(shortcode);
+              if (instaData) {
+                // Convert Instagram stats to TweetStats format
+                const convertedStats: TweetStats = {
+                  id: instaData.shortcode,
+                  likes: instaData.likes,
+                  views: instaData.views,
+                  replies: instaData.comments, // Instagram comments = Twitter replies
+                  reposts: 0, // Instagram doesn't have reposts
+                  quotes: 0, // Instagram doesn't have quotes
+                  bookmarks: 0, // Instagram doesn't have bookmarks (we don't track saves)
+                };
+                newStats.push(convertedStats);
+              }
+            } catch (error) {
+              console.error(
+                `Failed to fetch Instagram stats for ${shortcode}:`,
+                error
+              );
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+
       if (!cancelled) setStats(newStats);
       if (!cancelled) setUpdating(false);
     })();
+
     if (!links.length) setStats([]);
     return () => {
       cancelled = true;
     };
   }, [links]);
 
-  const normalize = (url: string) =>
-    url.trim().replace(/\/+$/, "").toLowerCase() + "/";
+  const normalize = (url: string) => url.trim().replace(/\/+$/, "") + "/";
   const handleAddLink = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = input.trim();
-    if (!TWEET_URL_REGEX.test(trimmed) && !isInstagramUrl(trimmed))
+
+    // Check if it's a valid Twitter or Instagram URL
+    const isTweet = TWEET_URL_REGEX.test(trimmed);
+    const isInstagram = isInstagramUrl(trimmed);
+
+    if (!isTweet && !isInstagram) {
       return setError("Please enter a valid tweet or Instagram URL.");
+    }
+
     const normalized = normalize(trimmed);
-    if (links.map(normalize).includes(normalized))
+    if (links.map(normalize).includes(normalized)) {
       return setError("This Tweet or Instagram post is already added.");
+    }
+
     setLinks([trimmed, ...links]);
     setInput("");
     setError("");
@@ -379,16 +463,6 @@ export default function TrendsListIdPage() {
       setSaving(false);
     }
   }
-  useEffect(() => {
-    // Dynamically load Instagram embed script
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = "//www.instagram.com/embed.js";
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
 
   async function deleteTrendsList() {
     setDeleting(true);
@@ -411,6 +485,61 @@ export default function TrendsListIdPage() {
     setLinks(links.filter((_, i) => i !== index));
   };
   const [copied, setCopied] = useState(false);
+
+  // Add this function to extract Instagram post ID
+  const extractInstagramId = (url: string) => {
+    const match = url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
+    return match ? match[1] : null;
+  };
+
+  // Update the Instagram embed component
+  const InstagramEmbed = ({ instaId }: { instaId: string }) => {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    useEffect(() => {
+      // Listen for postMessage from iframe
+      const handleMessage = (event: MessageEvent) => {
+        // Check if this message is for THIS specific Instagram post
+        if (
+          event.data.type === "instagram-height" &&
+          event.data.instaId === instaId
+        ) {
+          console.log(`Received height for ${instaId}:`, event.data.height);
+          if (event.data.height && iframeRef.current) {
+            const height = Math.max(event.data.height, 300); // Minimum height of 300px
+            iframeRef.current.style.height = `${height}px`;
+            console.log(`Set iframe height for ${instaId} to:`, height);
+          }
+        }
+      };
+
+      window.addEventListener("message", handleMessage);
+
+      // Clean up event listener
+      return () => {
+        window.removeEventListener("message", handleMessage);
+      };
+    }, [instaId]);
+
+    return (
+      <div className="w-full">
+        <iframe
+          ref={iframeRef}
+          src={`/api/instagramEmbed?instaId=${instaId}`}
+          className="w-full border-0 rounded-lg"
+          style={{
+            borderRadius: "20px",
+            height: "400px", // Initial height
+            minHeight: "300px", // Minimum height
+          }}
+          frameBorder="0"
+          scrolling="no"
+          allowFullScreen={true}
+          title={`Instagram post ${instaId}`}
+        />
+      </div>
+    );
+  };
 
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
@@ -666,7 +795,16 @@ export default function TrendsListIdPage() {
           {links.length > 0 ? (
             links.map((link, idx) => {
               const tweetId = extractTweetId(link);
-              console.log("Processing link:", link, "Tweet ID:", tweetId);
+              const instaId = extractInstagramId(link);
+              console.log(
+                "Processing link:",
+                link,
+                "Tweet ID:",
+                tweetId,
+                "Instagram ID:",
+                instaId
+              );
+
               return (
                 <li key={idx}>
                   {tweetId ? (
@@ -681,10 +819,32 @@ export default function TrendsListIdPage() {
                       )}
                       <TweetComponent id={tweetId} />
                     </div>
-                  ) : isInstagramUrl(link) ? (
-                    <InstagramEmbed url={link} />
+                  ) : instaId ? (
+                    <div className="flex flex-col items-end relative">
+                      {currentUser === userId && (
+                        <div
+                          className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                          onClick={() => removeUrlAtIndex(idx)}
+                        >
+                          <Trash className="w-4 h-4" />
+                        </div>
+                      )}
+                      <InstagramEmbed instaId={instaId} />
+                    </div>
                   ) : (
-                    <span>Invalid Tweet Link</span>
+                    <div className="flex flex-col items-end relative">
+                      {currentUser === userId && (
+                        <div
+                          className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                          onClick={() => removeUrlAtIndex(idx)}
+                        >
+                          <Trash className="w-4 h-4" />
+                        </div>
+                      )}
+                      <div className="bg-red-900/20 text-red-400 rounded-lg p-4 text-center">
+                        Invalid Tweet or Instagram Link
+                      </div>
+                    </div>
                   )}
                 </li>
               );

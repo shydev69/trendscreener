@@ -9,7 +9,7 @@ import {
   SaveAll,
   Trash,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Tweet as TweetComponent } from "react-tweet";
 import { trendLists } from "../../../drizzle/migrations/schema";
@@ -23,6 +23,8 @@ import { SignedIn, SignedOut } from "@clerk/nextjs";
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
 const extractTweetId = (url: string) => url.match(TWEET_URL_REGEX)?.[5] ?? null;
+const isInstagramUrl = (url: string) =>
+  /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
 
 type TweetStats = {
   id: string;
@@ -33,6 +35,7 @@ type TweetStats = {
   quotes: number;
   bookmarks: number;
 };
+
 async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
   try {
     const res = await fetch(`/api/twitter/proxy?tweet_id=${tweetId}`);
@@ -65,6 +68,47 @@ async function fetchTweetStats(tweetId: string): Promise<TweetStats> {
   }
 }
 
+// Add Instagram stats type
+type InstagramStats = {
+  shortcode: string;
+  likes: number;
+  comments: number;
+  views: number;
+  caption: string | null;
+};
+
+// Function to fetch Instagram stats
+async function fetchInstagramStats(
+  shortcode: string
+): Promise<InstagramStats | null> {
+  try {
+    const response = await fetch(`/api/instagramData?shortcode=${shortcode}`);
+    const result = await response.json();
+
+    if (result.success) {
+      return {
+        shortcode: result.data.shortcode,
+        likes: result.data.likes || 0,
+        comments: result.data.comments || 0,
+        views: result.data.views || 0,
+        caption: result.data.caption,
+      };
+    } else {
+      console.error("Instagram API error:", result.error);
+      return null;
+    }
+  } catch (error) {
+    console.error("Failed to fetch Instagram stats:", error);
+    return null;
+  }
+}
+
+// Helper function to extract Instagram shortcode
+const extractInstagramShortcode = (url: string) => {
+  const match = url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
+  return match ? match[1] : null;
+};
+
 export default function TrendsListPage() {
   const router = useRouter();
   const [input, setInput] = useState(""),
@@ -80,21 +124,82 @@ export default function TrendsListPage() {
     [listIdChecked, setListIdChecked] = useState(false); // Track if CA was checked
   const [isPublic, setIsPublic] = useState(false);
 
+  // Update stats when links change - now handles both Twitter and Instagram
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       const newStats: TweetStats[] = [];
-      for (const link of links) {
+
+      // Separate Twitter and Instagram links
+      const twitterLinks: string[] = [];
+      const instagramLinks: string[] = [];
+
+      links.forEach((link) => {
         const tweetId = extractTweetId(link);
-        if (!tweetId) continue;
-        try {
-          newStats.push(await fetchTweetStats(tweetId));
-        } catch {}
+        const instaShortcode = extractInstagramShortcode(link);
+
+        if (tweetId) {
+          twitterLinks.push(tweetId);
+        } else if (instaShortcode) {
+          instagramLinks.push(instaShortcode);
+        }
+      });
+
+      try {
+        // Fetch Twitter stats
+        if (twitterLinks.length > 0) {
+          console.log("Fetching Twitter stats for", twitterLinks);
+
+          for (const tweetId of twitterLinks) {
+            try {
+              const twitterData = await fetchTweetStats(tweetId);
+              newStats.push(twitterData);
+            } catch (error) {
+              console.error(
+                `Failed to fetch Twitter stats for ${tweetId}:`,
+                error
+              );
+            }
+          }
+        }
+
+        // Fetch Instagram stats
+        if (instagramLinks.length > 0) {
+          console.log("Fetching Instagram stats for", instagramLinks);
+
+          for (const shortcode of instagramLinks) {
+            try {
+              const instaData = await fetchInstagramStats(shortcode);
+              if (instaData) {
+                // Convert Instagram stats to TweetStats format
+                const convertedStats: TweetStats = {
+                  id: instaData.shortcode,
+                  likes: instaData.likes,
+                  views: instaData.views,
+                  replies: instaData.comments, // Instagram comments = Twitter replies
+                  reposts: 0, // Instagram doesn't have reposts
+                  quotes: 0, // Instagram doesn't have quotes
+                  bookmarks: 0, // Instagram doesn't have bookmarks (we don't track saves)
+                };
+                newStats.push(convertedStats);
+              }
+            } catch (error) {
+              console.error(
+                `Failed to fetch Instagram stats for ${shortcode}:`,
+                error
+              );
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
       }
+
       if (!cancelled) setStats(newStats);
       if (!cancelled) setLoading(false);
     })();
+
     if (!links.length) setStats([]);
     return () => {
       cancelled = true;
@@ -135,16 +240,26 @@ export default function TrendsListPage() {
     setListIdExists(false); // Reset exists status
   };
 
-  const normalize = (url: string) =>
-    url.trim().replace(/\/+$/, "").toLowerCase();
+  const normalize = (url: string) => url.trim().replace(/\/+$/, "") + "/";
+
+  // Updated handleAddLink to support both Twitter and Instagram
   const handleAddLink = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = input.trim();
-    if (!TWEET_URL_REGEX.test(trimmed))
-      return setError("Please enter a valid tweet URL.");
+
+    // Check if it's a valid Twitter or Instagram URL
+    const isTweet = TWEET_URL_REGEX.test(trimmed);
+    const isInstagram = isInstagramUrl(trimmed);
+
+    if (!isTweet && !isInstagram) {
+      return setError("Please enter a valid tweet or Instagram URL.");
+    }
+
     const normalized = normalize(trimmed);
-    if (links.map(normalize).includes(normalized))
-      return setError("This tweet is already added.");
+    if (links.map(normalize).includes(normalized)) {
+      return setError("This Tweet or Instagram post is already added.");
+    }
+
     setLinks([trimmed, ...links]);
     setInput("");
     setError("");
@@ -161,6 +276,7 @@ export default function TrendsListPage() {
     }),
     { likes: 0, views: 0, replies: 0, reposts: 0, quotes: 0, bookmarks: 0 }
   );
+
   async function saveTrendsList() {
     if (!links.length) return;
 
@@ -196,8 +312,64 @@ export default function TrendsListPage() {
       setSaving(false);
     }
   }
+
   const removeUrlAtIndex = (index: number) => {
     setLinks(links.filter((_, i) => i !== index));
+  };
+
+  // Add this function to extract Instagram post ID
+  const extractInstagramId = (url: string) => {
+    const match = url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
+    return match ? match[1] : null;
+  };
+
+  // Update the Instagram embed component
+  const InstagramEmbed = ({ instaId }: { instaId: string }) => {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    useEffect(() => {
+      // Listen for postMessage from iframe
+      const handleMessage = (event: MessageEvent) => {
+        // Check if this message is for THIS specific Instagram post
+        if (
+          event.data.type === "instagram-height" &&
+          event.data.instaId === instaId
+        ) {
+          console.log(`Received height for ${instaId}:`, event.data.height);
+          if (event.data.height && iframeRef.current) {
+            const height = Math.max(event.data.height, 300); // Minimum height of 300px
+            iframeRef.current.style.height = `${height}px`;
+            console.log(`Set iframe height for ${instaId} to:`, height);
+          }
+        }
+      };
+
+      window.addEventListener("message", handleMessage);
+
+      // Clean up event listener
+      return () => {
+        window.removeEventListener("message", handleMessage);
+      };
+    }, [instaId]);
+
+    return (
+      <div className="w-full">
+        <iframe
+          ref={iframeRef}
+          src={`/api/instagramEmbed?instaId=${instaId}`}
+          className="w-full border-0 rounded-lg"
+          style={{
+            borderRadius: "20px",
+            height: "400px", // Initial height
+            minHeight: "300px", // Minimum height
+          }}
+          frameBorder="0"
+          scrolling="no"
+          allowFullScreen={true}
+          title={`Instagram post ${instaId}`}
+        />
+      </div>
+    );
   };
 
   return (
@@ -292,7 +464,7 @@ export default function TrendsListPage() {
             >
               <input
                 type="url"
-                placeholder="Paste a link and hit enter"
+                placeholder="Paste a tweet or Instagram link and hit enter"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
@@ -305,9 +477,19 @@ export default function TrendsListPage() {
               />
             </form>
           </div>
-          <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets">
+          <ul className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 list-none p-0 customTweets max-w-full overflow-x-hidden">
             {links.map((link, idx) => {
               const tweetId = extractTweetId(link);
+              const instaId = extractInstagramId(link);
+              console.log(
+                "Processing link:",
+                link,
+                "Tweet ID:",
+                tweetId,
+                "Instagram ID:",
+                instaId
+              );
+
               return (
                 <li key={idx}>
                   {tweetId ? (
@@ -320,8 +502,28 @@ export default function TrendsListPage() {
                       </div>
                       <TweetComponent id={tweetId} />
                     </div>
+                  ) : instaId ? (
+                    <div className="flex flex-col items-end relative">
+                      <div
+                        className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                        onClick={() => removeUrlAtIndex(idx)}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </div>
+                      <InstagramEmbed instaId={instaId} />
+                    </div>
                   ) : (
-                    <span>Invalid Tweet Link</span>
+                    <div className="flex flex-col items-end relative">
+                      <div
+                        className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                        onClick={() => removeUrlAtIndex(idx)}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </div>
+                      <div className="bg-red-900/20 text-red-400 rounded-lg p-4 text-center">
+                        Invalid Tweet or Instagram Link
+                      </div>
+                    </div>
                   )}
                 </li>
               );
