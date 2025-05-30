@@ -26,6 +26,14 @@ const extractTweetId = (url: string) => url.match(TWEET_URL_REGEX)?.[5] ?? null;
 const isInstagramUrl = (url: string) =>
   /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
 
+// Add TikTok support to the main creation page as well
+const TIKTOK_URL_REGEX = /tiktok\.com\/@[\w.-]+\/video\/(\d+)/;
+const isTiktokUrl = (url: string) => TIKTOK_URL_REGEX.test(url);
+const extractTiktokId = (url: string) => {
+  const match = url.match(TIKTOK_URL_REGEX);
+  return match ? match[1] : null;
+};
+
 type TweetStats = {
   id: string;
   likes: number;
@@ -247,17 +255,18 @@ export default function TrendsListPage() {
     e.preventDefault();
     const trimmed = input.trim();
 
-    // Check if it's a valid Twitter or Instagram URL
+    // Check if it's a valid Twitter, Instagram, or TikTok URL
     const isTweet = TWEET_URL_REGEX.test(trimmed);
     const isInstagram = isInstagramUrl(trimmed);
+    const isTiktok = isTiktokUrl(trimmed);
 
-    if (!isTweet && !isInstagram) {
-      return setError("Please enter a valid tweet or Instagram URL.");
+    if (!isTweet && !isInstagram && !isTiktok) {
+      return setError("Please enter a valid tweet, Instagram, or TikTok URL.");
     }
 
     const normalized = normalize(trimmed);
     if (links.map(normalize).includes(normalized)) {
-      return setError("This Tweet or Instagram post is already added.");
+      return setError("This post is already added.");
     }
 
     setLinks([trimmed, ...links]);
@@ -464,7 +473,7 @@ export default function TrendsListPage() {
             >
               <input
                 type="url"
-                placeholder="Paste a tweet or Instagram link and hit enter"
+                placeholder="Paste a tweet, Instagram, or TikTok link and hit enter"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
@@ -481,13 +490,16 @@ export default function TrendsListPage() {
             {links.map((link, idx) => {
               const tweetId = extractTweetId(link);
               const instaId = extractInstagramId(link);
+              const tiktokId = extractTiktokId(link);
               console.log(
                 "Processing link:",
                 link,
                 "Tweet ID:",
                 tweetId,
                 "Instagram ID:",
-                instaId
+                instaId,
+                "TikTok ID:",
+                tiktokId
               );
 
               return (
@@ -511,6 +523,18 @@ export default function TrendsListPage() {
                         <Trash className="w-4 h-4" />
                       </div>
                       <InstagramEmbed instaId={instaId} />
+                    </div>
+                  ) : tiktokId ? (
+                    <div className="flex flex-col items-end relative">
+                      <div
+                        className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                        onClick={() => removeUrlAtIndex(idx)}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </div>
+                      <div className="bg-blue-900/20 text-blue-400 rounded-lg p-4 text-center">
+                        TikTok videos cannot be previewed yet.
+                      </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-end relative">

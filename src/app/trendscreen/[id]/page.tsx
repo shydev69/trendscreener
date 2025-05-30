@@ -20,9 +20,16 @@ import { toast } from "sonner";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
+const TIKTOK_URL_REGEX = /tiktok\.com\/@[\w.-]+\/video\/(\d+)/;
+
 const extractTweetId = (url: string) => url.match(TWEET_URL_REGEX)?.[5] ?? null;
 const isInstagramUrl = (url: string) =>
   /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
+const isTiktokUrl = (url: string) => TIKTOK_URL_REGEX.test(url);
+const extractTiktokId = (url: string) => {
+  const match = url.match(TIKTOK_URL_REGEX);
+  return match ? match[1] : null;
+};
 
 type TweetStats = {
   id: string;
@@ -242,18 +249,22 @@ export default function TrendsListIdPage() {
       setUpdating(true);
       const newStats: TweetStats[] = [];
 
-      // Separate Twitter and Instagram links
+      // Separate Twitter, Instagram, and TikTok links
       const twitterLinks: string[] = [];
       const instagramLinks: string[] = [];
+      const tiktokLinks: string[] = [];
 
       links.forEach((link) => {
         const tweetId = extractTweetId(link);
         const instaShortcode = extractInstagramId(link);
+        const tiktokId = extractTiktokId(link);
 
         if (tweetId) {
           twitterLinks.push(tweetId);
         } else if (instaShortcode) {
           instagramLinks.push(instaShortcode);
+        } else if (tiktokId) {
+          tiktokLinks.push(tiktokId);
         }
       });
 
@@ -299,6 +310,33 @@ export default function TrendsListIdPage() {
             }
           }
         }
+
+        // Fetch TikTok stats (placeholder - you'll need to implement TikTok API)
+        if (tiktokLinks.length > 0) {
+          console.log("Fetching TikTok stats for", tiktokLinks);
+
+          for (const tiktokId of tiktokLinks) {
+            try {
+              // For now, add placeholder stats for TikTok
+              // You can implement actual TikTok API later
+              const tiktokStats: TweetStats = {
+                id: tiktokId,
+                likes: 0, // TikTok API needed
+                views: 0, // TikTok API needed
+                replies: 0, // TikTok comments
+                reposts: 0, // TikTok shares
+                quotes: 0,
+                bookmarks: 0,
+              };
+              newStats.push(tiktokStats);
+            } catch (error) {
+              console.error(
+                `Failed to fetch TikTok stats for ${tiktokId}:`,
+                error
+              );
+            }
+          }
+        }
       } catch (error) {
         console.error("Error fetching stats:", error);
       }
@@ -318,17 +356,18 @@ export default function TrendsListIdPage() {
     e.preventDefault();
     const trimmed = input.trim();
 
-    // Check if it's a valid Twitter or Instagram URL
+    // Check if it's a valid Twitter, Instagram, or TikTok URL
     const isTweet = TWEET_URL_REGEX.test(trimmed);
     const isInstagram = isInstagramUrl(trimmed);
+    const isTiktok = isTiktokUrl(trimmed);
 
-    if (!isTweet && !isInstagram) {
-      return setError("Please enter a valid tweet or Instagram URL.");
+    if (!isTweet && !isInstagram && !isTiktok) {
+      return setError("Please enter a valid tweet, Instagram, or TikTok URL.");
     }
 
     const normalized = normalize(trimmed);
     if (links.map(normalize).includes(normalized)) {
-      return setError("This Tweet or Instagram post is already added.");
+      return setError("This post is already added.");
     }
 
     setLinks([trimmed, ...links]);
@@ -536,6 +575,54 @@ export default function TrendsListIdPage() {
           scrolling="no"
           allowFullScreen={true}
           title={`Instagram post ${instaId}`}
+        />
+      </div>
+    );
+  };
+
+  // Add TikTok embed component
+  const TiktokEmbed = ({ tiktokId }: { tiktokId: string }) => {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    useEffect(() => {
+      // Listen for postMessage from iframe
+      const handleMessage = (event: MessageEvent) => {
+        // Check if this message is for THIS specific TikTok video
+        if (
+          event.data.type === "tiktok-height" &&
+          event.data.tiktokId === tiktokId
+        ) {
+          console.log(`Received height for ${tiktokId}:`, event.data.height);
+          if (event.data.height && iframeRef.current) {
+            const height = Math.max(event.data.height, 400); // Minimum height
+            iframeRef.current.style.height = `${height}px`;
+            console.log(`Set iframe height for ${tiktokId} to:`, height);
+          }
+        }
+      };
+
+      window.addEventListener("message", handleMessage);
+
+      return () => {
+        window.removeEventListener("message", handleMessage);
+      };
+    }, [tiktokId]);
+
+    return (
+      <div className="w-full">
+        <iframe
+          ref={iframeRef}
+          src={`/api/tiktokEmbed?tiktokId=${tiktokId}`}
+          className="w-full border-0 rounded-lg"
+          style={{
+            borderRadius: "20px",
+            height: "600px", // Initial height for TikTok
+            minHeight: "400px",
+          }}
+          frameBorder="0"
+          scrolling="no"
+          allowFullScreen={true}
+          title={`TikTok video ${tiktokId}`}
         />
       </div>
     );
@@ -796,13 +883,16 @@ export default function TrendsListIdPage() {
             links.map((link, idx) => {
               const tweetId = extractTweetId(link);
               const instaId = extractInstagramId(link);
+              const tiktokId = extractTiktokId(link);
               console.log(
                 "Processing link:",
                 link,
                 "Tweet ID:",
                 tweetId,
                 "Instagram ID:",
-                instaId
+                instaId,
+                "TikTok ID:",
+                tiktokId
               );
 
               return (
@@ -831,6 +921,18 @@ export default function TrendsListIdPage() {
                       )}
                       <InstagramEmbed instaId={instaId} />
                     </div>
+                  ) : tiktokId ? (
+                    <div className="flex flex-col items-end relative">
+                      {currentUser === userId && (
+                        <div
+                          className="bg-red-900 px-4 absolute top-6 right-2 z-10 hover:bg-red-500 transition duration-300 py-3 rounded-[8px] flex items-center justify-center"
+                          onClick={() => removeUrlAtIndex(idx)}
+                        >
+                          <Trash className="w-4 h-4" />
+                        </div>
+                      )}
+                      <TiktokEmbed tiktokId={tiktokId} />
+                    </div>
                   ) : (
                     <div className="flex flex-col items-end relative">
                       {currentUser === userId && (
@@ -842,7 +944,7 @@ export default function TrendsListIdPage() {
                         </div>
                       )}
                       <div className="bg-red-900/20 text-red-400 rounded-lg p-4 text-center">
-                        Invalid Tweet or Instagram Link
+                        Invalid Tweet, Instagram, or TikTok Link
                       </div>
                     </div>
                   )}
