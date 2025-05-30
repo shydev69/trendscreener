@@ -11,16 +11,33 @@ import {
   RefreshCcw,
   Reply,
   Sparkles,
+  ChevronDown,
+  Clock,
+  TrendingUp,
+  X,
+  SortAsc,
+  SortDesc,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function SearchPage() {
   const [publicTrends, setPublicTrends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sortBy, setSortBy] = useState<"likes" | "views" | "createdAt">(
-    "likes"
-  );
+  const [sortBy, setSortBy] = useState<"views" | "createdAt">("views");
+
+  // Separate filters for Top and New
+  const [topTimeFilter, setTopTimeFilter] = useState<string>("allTime");
+  const [newTimeFilter, setNewTimeFilter] = useState<string>("24h");
+  const [useTopFilter, setUseTopFilter] = useState(true);
+  const [useNewFilter, setUseNewFilter] = useState(false);
+
   const [searchPage, setSearchPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [resultsPerPage] = useState(10);
@@ -31,17 +48,27 @@ export default function SearchPage() {
     setSearchPage(1);
   }, [typeof window !== "undefined" && window.location.search]);
 
-  // Fetch public trends when filters or query change
+  // Fetch public trends when filters change
   useEffect(() => {
     setLoading(true);
     setError("");
-    fetch(
-      `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=${
-        sortBy == "createdAt" ? "desc" : "desc" // sortBy == "createdAt" ? "asc" : "desc"
-      }&page=1&limit=${resultsPerPage}${
-        sortBy == "likes" ? "&intelligentSort=true" : ""
-      }` // Always find from today for public trends
-    )
+
+    let apiUrl = `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=desc&page=1&limit=${resultsPerPage}`;
+
+    // Add both filters if enabled
+    if (useTopFilter) {
+      if (topTimeFilter === "today") {
+        apiUrl += "&findFromToday=true";
+      } else if (topTimeFilter === "thisWeek") {
+        apiUrl += "&findFromThisWeek=true";
+      }
+    }
+
+    if (useNewFilter) {
+      apiUrl += `&newTimeFilter=${newTimeFilter}`;
+    }
+
+    fetch(apiUrl)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -56,17 +83,35 @@ export default function SearchPage() {
         setError("Error fetching public trends: " + error);
         setLoading(false);
       });
-  }, [sortBy, resultsPerPage]);
+  }, [
+    sortBy,
+    topTimeFilter,
+    newTimeFilter,
+    useTopFilter,
+    useNewFilter,
+    resultsPerPage,
+  ]);
 
   // Load more public trends
   const loadMorePublicTrends = () => {
     setLoading(true);
     const nextPage = searchPage + 1;
-    fetch(
-      `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=${
-        sortBy == "createdAt" ? "desc" : "desc" // sortBy == "createdAt" ? "asc" : "desc"
-      }&page=${nextPage}&limit=${resultsPerPage}`
-    )
+
+    let apiUrl = `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=desc&page=${nextPage}&limit=${resultsPerPage}`;
+
+    if (useTopFilter) {
+      if (topTimeFilter === "today") {
+        apiUrl += "&findFromToday=true";
+      } else if (topTimeFilter === "thisWeek") {
+        apiUrl += "&findFromThisWeek=true";
+      }
+    }
+
+    if (useNewFilter) {
+      apiUrl += `&newTimeFilter=${newTimeFilter}`;
+    }
+
+    fetch(apiUrl)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -84,6 +129,48 @@ export default function SearchPage() {
     if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
     if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
     return num.toString();
+  };
+
+  // Get dropdown options for Top filter
+  const getTopDropdownOptions = () => [
+    { value: "allTime", label: "All Time" },
+    { value: "thisWeek", label: "This Week" },
+    { value: "today", label: "Today" },
+  ];
+
+  // Get dropdown options for New filter
+  const getNewDropdownOptions = () => [
+    { value: "5m", label: "5m" },
+    { value: "1h", label: "1h" },
+    { value: "6h", label: "6h" },
+    { value: "12h", label: "12h" },
+    { value: "24h", label: "24h" },
+  ];
+
+  // Get display label for Top filter
+  const getTopFilterLabel = () => {
+    const options = getTopDropdownOptions();
+    const current = options.find((opt) => opt.value === topTimeFilter);
+    return current?.label || topTimeFilter;
+  };
+
+  // Get display label for New filter
+  const getNewFilterLabel = () => {
+    const options = getNewDropdownOptions();
+    const current = options.find((opt) => opt.value === newTimeFilter);
+    return current?.label || newTimeFilter;
+  };
+
+  // Toggle Top filter
+  const toggleTopFilter = () => {
+    setUseTopFilter(!useTopFilter);
+    setSearchPage(1);
+  };
+
+  // Toggle New filter
+  const toggleNewFilter = () => {
+    setUseNewFilter(!useNewFilter);
+    setSearchPage(1);
   };
 
   return (
@@ -109,45 +196,178 @@ export default function SearchPage() {
         style={{ filter: "blur(150px)" }}
       />
       <div className="absolute top-0 left-0 flex gap-2 items-center px-0 py-5 z-10 text-center text-sm">
-        <button
-          className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300 ${
-            sortBy === "likes" ? "bg-white/20 text-white" : ""
-          }`}
-          type="button"
-          title="Hot"
-          onClick={() => {
-            setSortBy("likes");
-            setSearchPage(1);
-          }}
-        >
-          <Flame className="w-4 h-4 fill-yellow-500 stroke-orange-500" /> Hot
-        </button>
-        <button
-          className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300 ${
-            sortBy === "views" ? "bg-white/20 text-white" : ""
-          }`}
-          type="button"
-          title="Top"
-          onClick={() => {
-            setSortBy("views");
-            setSearchPage(1);
-          }}
-        >
-          Top
-        </button>
-        <button
-          className={`flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300 ${
-            sortBy === "createdAt" ? "bg-white/20 text-white" : ""
-          }`}
-          type="button"
-          title="New"
-          onClick={() => {
-            setSortBy("createdAt");
-            setSearchPage(1);
-          }}
-        >
-          <Sparkles className="w-4 h-4" /> New
-        </button>
+        {/* Sort By Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300"
+              type="button"
+              title="Sort By"
+            >
+              {sortBy === "views" ? (
+                <>
+                  <SortDesc className="w-4 h-4" />
+                  Views
+                </>
+              ) : (
+                <>
+                  <SortDesc className="w-4 h-4" />
+                  Newest
+                </>
+              )}
+              <ChevronDown className="w-3 h-3" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="bg-black/90 border-white/20"
+          >
+            <DropdownMenuItem
+              onClick={() => setSortBy("views")}
+              className={`text-white hover:bg-white/20 ${
+                sortBy === "views" ? "bg-white/10" : ""
+              }`}
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Sort by Views
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setSortBy("createdAt")}
+              className={`text-white hover:bg-white/20 ${
+                sortBy === "createdAt" ? "bg-white/10" : ""
+              }`}
+            >
+              <Clock className="w-4 h-4 mr-2" />
+              Sort by Newest
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Top Filter */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={`flex items-center justify-center px-4 gap-1 py-2 rounded-[8px] text-sm transition duration-300 ${
+                useTopFilter
+                  ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
+                  : "bg-white/10 text-white/80 hover:text-white hover:bg-white/20"
+              }`}
+              type="button"
+              title="Top Filter"
+            >
+              <TrendingUp className="w-4 h-4" />
+
+              {useTopFilter ? (
+                <span className="text-sm opacity-75">
+                  {getTopFilterLabel()}
+                </span>
+              ) : (
+                "Top"
+              )}
+              <ChevronDown className="w-3 h-3" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="bg-black/90 border-white/20"
+          >
+            <DropdownMenuItem
+              onClick={toggleTopFilter}
+              className="text-white hover:bg-white/20"
+            >
+              {useTopFilter ? (
+                <>
+                  <X className="w-4 h-4 mr-2" />
+                  Disable Top Filter
+                </>
+              ) : (
+                <>
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Enable Top Filter
+                </>
+              )}
+            </DropdownMenuItem>
+            {useTopFilter && (
+              <>
+                <div className="border-t border-white/20 my-1" />
+                {getTopDropdownOptions().map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() => setTopTimeFilter(option.value)}
+                    className={`text-white hover:bg-white/20 ${
+                      topTimeFilter === option.value ? "bg-white/10" : ""
+                    }`}
+                  >
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* New Filter */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={`flex items-center justify-center px-4 gap-1 py-2 rounded-[8px] text-sm transition duration-300 ${
+                useNewFilter
+                  ? "bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                  : "bg-white/10 text-white/80 hover:text-white hover:bg-white/20"
+              }`}
+              type="button"
+              title="New Filter"
+            >
+              <Clock className="w-4 h-4" />
+
+              {useNewFilter ? (
+                <span className="text-sm opacity-75">
+                  {getNewFilterLabel()}
+                </span>
+              ) : (
+                "New"
+              )}
+              <ChevronDown className="w-3 h-3" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="bg-black/90 border-white/20"
+          >
+            <DropdownMenuItem
+              onClick={toggleNewFilter}
+              className="text-white hover:bg-white/20"
+            >
+              {useNewFilter ? (
+                <>
+                  <X className="w-4 h-4 mr-2" />
+                  Disable New Filter
+                </>
+              ) : (
+                <>
+                  <Clock className="w-4 h-4 mr-2" />
+                  Enable New Filter
+                </>
+              )}
+            </DropdownMenuItem>
+            {useNewFilter && (
+              <>
+                <div className="border-t border-white/20 my-1" />
+                {getNewDropdownOptions().map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() => setNewTimeFilter(option.value)}
+                    className={`text-white hover:bg-white/20 ${
+                      newTimeFilter === option.value ? "bg-white/10" : ""
+                    }`}
+                  >
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="absolute top-0 right-0 hidden md:flex gap-2 items-center px-0 py-5 z-10 text-center text-sm"></div>
       <div className="w-full -mt-[30vh] z-1">
@@ -172,7 +392,7 @@ export default function SearchPage() {
                       {trend.name || "Untitled List"}
                     </div>
                     <div className="text-sm text-gray-200 mb-1 truncate">
-                      {trend.urls?.length || 0} tweets
+                      {trend.urls?.length || 0} posts
                     </div>
                     <div className="text-sm text-gray-200 mb-1 truncate">
                       {(() => {
@@ -182,23 +402,21 @@ export default function SearchPage() {
                         const diffSec = Math.floor(diffMs / 1000);
                         const diffMin = Math.floor(diffSec / 60);
                         const diffHour = Math.floor(diffMin / 60);
+                        const diffDay = Math.floor(diffHour / 24);
 
-                        if (diffMs < 24 * 60 * 60 * 1000) {
-                          if (diffHour > 0)
-                            return `${diffHour} hour${
-                              diffHour > 1 ? "s" : ""
-                            } ago`;
-                          if (diffMin > 0)
-                            return `${diffMin} minute${
-                              diffMin > 1 ? "s" : ""
-                            } ago`;
+                        if (diffDay > 0) {
+                          return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
+                        } else if (diffHour > 0) {
+                          return `${diffHour} hour${
+                            diffHour > 1 ? "s" : ""
+                          } ago`;
+                        } else if (diffMin > 0) {
+                          return `${diffMin} minute${
+                            diffMin > 1 ? "s" : ""
+                          } ago`;
+                        } else {
                           return "Just now";
                         }
-                        return created.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        });
                       })()}
                     </div>
                   </div>

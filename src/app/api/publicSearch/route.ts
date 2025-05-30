@@ -12,6 +12,8 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const findFromToday = searchParams.get("findFromToday") === "true";
+    const findFromThisWeek = searchParams.get("findFromThisWeek") === "true";
+    const newTimeFilter = searchParams.get("newTimeFilter"); // For new sort: 5m, 1h, 6h, 12h, 24h
     const intelligentSort = searchParams.get("intelligentSort") === "true";
 
     const offset = (page - 1) * limit;
@@ -29,16 +31,55 @@ export async function GET(request: Request) {
     const sortColumn = sortColumns[sortBy];
 
     // Build where conditions
-    const conditions = [and(eq(trendLists.isPublic, true), isNull(trendLists.newId))];
+    const conditions = [
+      and(eq(trendLists.isPublic, true), isNull(trendLists.newId)),
+    ];
 
     if (search) {
       conditions.push(like(trendLists.name, `%${search}%`));
     }
 
+    // Time filters based on createdAt (when trendscreen was first created)
+    // These can be applied together now
     if (findFromToday) {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Start of today
       conditions.push(gte(trendLists.createdAt, today.toISOString()));
+    }
+
+    if (findFromThisWeek) {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      oneWeekAgo.setHours(0, 0, 0, 0);
+      conditions.push(gte(trendLists.createdAt, oneWeekAgo.toISOString()));
+    }
+
+    // New time filters (can be combined with Top filters)
+    if (newTimeFilter) {
+      const now = new Date();
+      let timeAgo = new Date();
+
+      switch (newTimeFilter) {
+        case "5m":
+          timeAgo.setMinutes(now.getMinutes() - 5);
+          break;
+        case "1h":
+          timeAgo.setHours(now.getHours() - 1);
+          break;
+        case "6h":
+          timeAgo.setHours(now.getHours() - 6);
+          break;
+        case "12h":
+          timeAgo.setHours(now.getHours() - 12);
+          break;
+        case "24h":
+          timeAgo.setHours(now.getHours() - 24);
+          break;
+        default:
+          timeAgo.setHours(now.getHours() - 24); // Default to 24h
+      }
+
+      conditions.push(gte(trendLists.createdAt, timeAgo.toISOString()));
     }
 
     let trends;
