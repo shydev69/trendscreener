@@ -148,11 +148,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
         <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4">
           Twitter <span className="text-green-400 ml-1">●</span>
-        </h2>
-        <h2 className="text-sm text-gray-600 dark:text-neutral-400 opacity-40 font-semibold mb-4 px-4 flex items-center">
-          Instagram
-          <Lock className="inline-block w-3.5 h-3.5 ml-2" />
         </h2>{" "}
+        <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4">
+          Instagram <span className="text-green-400 ml-1">●</span>
+        </h2>
         <h2 className="text-sm text-gray-600 dark:text-neutral-400 opacity-40 font-semibold mb-4 px-4 flex items-center">
           TikTok
           <Lock className="inline-block w-3.5 h-3.5 ml-2" />

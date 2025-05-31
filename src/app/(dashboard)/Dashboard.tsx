@@ -3,28 +3,14 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDown,
-  Bookmark,
   Eye,
-  Flame,
   Heart,
-  Instagram,
-  RefreshCcw,
-  Reply,
-  Sparkles,
   ChevronDown,
   Clock,
   TrendingUp,
-  X,
-  SortAsc,
   SortDesc,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export default function SearchPage() {
   const [publicTrends, setPublicTrends] = useState<any[]>([]);
@@ -32,11 +18,10 @@ export default function SearchPage() {
   const [error, setError] = useState("");
   const [sortBy, setSortBy] = useState<"views" | "createdAt">("views");
 
-  // Separate filters for Top and New
+  // Only one filter can be active at a time: "top", "new", or null
+  const [activeFilter, setActiveFilter] = useState<"top" | "new" | null>("top");
   const [topTimeFilter, setTopTimeFilter] = useState<string>("allTime");
   const [newTimeFilter, setNewTimeFilter] = useState<string>("24h");
-  const [useTopFilter, setUseTopFilter] = useState(true);
-  const [useNewFilter, setUseNewFilter] = useState(false);
 
   const [searchPage, setSearchPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -55,8 +40,8 @@ export default function SearchPage() {
 
     let apiUrl = `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=desc&page=1&limit=${resultsPerPage}`;
 
-    // Add both filters if enabled
-    if (useTopFilter) {
+    // Add filter based on active filter
+    if (activeFilter === "top") {
       if (topTimeFilter === "today") {
         apiUrl += "&findFromToday=true";
       } else if (topTimeFilter === "thisWeek") {
@@ -64,7 +49,7 @@ export default function SearchPage() {
       }
     }
 
-    if (useNewFilter) {
+    if (activeFilter === "new") {
       apiUrl += `&newTimeFilter=${newTimeFilter}`;
     }
 
@@ -83,14 +68,7 @@ export default function SearchPage() {
         setError("Error fetching public trends: " + error);
         setLoading(false);
       });
-  }, [
-    sortBy,
-    topTimeFilter,
-    newTimeFilter,
-    useTopFilter,
-    useNewFilter,
-    resultsPerPage,
-  ]);
+  }, [sortBy, topTimeFilter, newTimeFilter, activeFilter, resultsPerPage]);
 
   // Load more public trends
   const loadMorePublicTrends = () => {
@@ -99,7 +77,7 @@ export default function SearchPage() {
 
     let apiUrl = `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=desc&page=${nextPage}&limit=${resultsPerPage}`;
 
-    if (useTopFilter) {
+    if (activeFilter === "top") {
       if (topTimeFilter === "today") {
         apiUrl += "&findFromToday=true";
       } else if (topTimeFilter === "thisWeek") {
@@ -107,7 +85,7 @@ export default function SearchPage() {
       }
     }
 
-    if (useNewFilter) {
+    if (activeFilter === "new") {
       apiUrl += `&newTimeFilter=${newTimeFilter}`;
     }
 
@@ -147,32 +125,6 @@ export default function SearchPage() {
     { value: "24h", label: "24h" },
   ];
 
-  // Get display label for Top filter
-  const getTopFilterLabel = () => {
-    const options = getTopDropdownOptions();
-    const current = options.find((opt) => opt.value === topTimeFilter);
-    return current?.label || topTimeFilter;
-  };
-
-  // Get display label for New filter
-  const getNewFilterLabel = () => {
-    const options = getNewDropdownOptions();
-    const current = options.find((opt) => opt.value === newTimeFilter);
-    return current?.label || newTimeFilter;
-  };
-
-  // Toggle Top filter
-  const toggleTopFilter = () => {
-    setUseTopFilter(!useTopFilter);
-    setSearchPage(1);
-  };
-
-  // Toggle New filter
-  const toggleNewFilter = () => {
-    setUseNewFilter(!useNewFilter);
-    setSearchPage(1);
-  };
-
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
@@ -188,189 +140,126 @@ export default function SearchPage() {
         {loading && (
           <div style={{ color: "#ffffff55", marginTop: 8 }}>loading...</div>
         )}
-      </div>{" "}
+      </div>
+
       <img
         src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
         alt="Goku"
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover"
         style={{ filter: "blur(150px)" }}
       />
-      <div className="absolute top-0 left-0 flex gap-2 items-center px-0 py-5 z-10 text-center text-sm">
-        {/* Sort By Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex items-center justify-center bg-white/10 px-5 gap-1 py-2 rounded-[8px] text-white/80 text-sm hover:text-white hover:bg-white/20 transition duration-300"
-              type="button"
-              title="Sort By"
-            >
-              {sortBy === "views" ? (
-                <>
-                  <SortDesc className="w-4 h-4" />
-                  Views
-                </>
-              ) : (
-                <>
-                  <SortDesc className="w-4 h-4" />
-                  Newest
-                </>
-              )}
-              <ChevronDown className="w-3 h-3" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="bg-black/90 border-white/20"
+
+      <div className="absolute top-0 left-0 flex flex-wrap gap-2 items-center px-0 py-5 z-10 text-center text-sm">
+        {/* Sort By */}
+        <div className="flex items-center bg-white/10 rounded-[8px] overflow-hidden">
+          <button
+            onClick={() => setSortBy("views")}
+            className={`flex items-center gap-1 px-3 py-2 text-sm transition duration-200 ${
+              sortBy === "views"
+                ? "bg-white/20 text-white"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+            }`}
           >
-            <DropdownMenuItem
-              onClick={() => setSortBy("views")}
-              className={`text-white hover:bg-white/20 ${
-                sortBy === "views" ? "bg-white/10" : ""
-              }`}
-            >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Sort by Views
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setSortBy("createdAt")}
-              className={`text-white hover:bg-white/20 ${
-                sortBy === "createdAt" ? "bg-white/10" : ""
-              }`}
-            >
-              <Clock className="w-4 h-4 mr-2" />
-              Sort by Newest
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <TrendingUp className="w-4 h-4" />
+            Views
+          </button>
+          <button
+            onClick={() => setSortBy("createdAt")}
+            className={`flex items-center gap-1 px-3 py-2 text-sm transition duration-200 ${
+              sortBy === "createdAt"
+                ? "bg-white/20 text-white"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            Newest
+          </button>
+        </div>
 
         {/* Top Filter */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className={`flex items-center justify-center px-4 gap-1 py-2 rounded-[8px] text-sm transition duration-300 ${
-                useTopFilter
-                  ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
-                  : "bg-white/10 text-white/80 hover:text-white hover:bg-white/20"
-              }`}
-              type="button"
-              title="Top Filter"
-            >
-              <TrendingUp className="w-4 h-4" />
-
-              {useTopFilter ? (
-                <span className="text-sm opacity-75">
-                  {getTopFilterLabel()}
-                </span>
-              ) : (
-                "Top"
-              )}
-              <ChevronDown className="w-3 h-3" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="bg-black/90 border-white/20"
+        <div
+          className={`flex items-center rounded-[8px] overflow-hidden transition duration-200 ${
+            activeFilter === "top"
+              ? "bg-blue-500/20 border border-blue-500/30"
+              : "bg-white/10"
+          }`}
+        >
+          <button
+            onClick={() =>
+              setActiveFilter(activeFilter === "top" ? null : "top")
+            }
+            className={`flex items-center gap-1 px-3 py-2 text-sm transition duration-200 ${
+              activeFilter === "top"
+                ? "text-blue-300"
+                : "text-white/80 hover:text-white"
+            }`}
           >
-            <DropdownMenuItem
-              onClick={toggleTopFilter}
-              className="text-white hover:bg-white/20"
-            >
-              {useTopFilter ? (
-                <>
-                  <X className="w-4 h-4 mr-2" />
-                  Disable Top Filter
-                </>
-              ) : (
-                <>
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Enable Top Filter
-                </>
-              )}
-            </DropdownMenuItem>
-            {useTopFilter && (
-              <>
-                <div className="border-t border-white/20 my-1" />
-                {getTopDropdownOptions().map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    onClick={() => setTopTimeFilter(option.value)}
-                    className={`text-white hover:bg-white/20 ${
-                      topTimeFilter === option.value ? "bg-white/10" : ""
-                    }`}
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <TrendingUp className="w-4 h-4" />
+            Top
+          </button>
+          {activeFilter === "top" && (
+            <>
+              <div className="w-px h-4 bg-blue-500/30" />
+              {getTopDropdownOptions().map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setTopTimeFilter(option.value)}
+                  className={`px-3 py-2 text-sm transition duration-200 ${
+                    topTimeFilter === option.value
+                      ? "bg-blue-500/30 text-blue-200"
+                      : "text-blue-300/80 hover:text-blue-200 hover:bg-blue-500/20"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
 
         {/* New Filter */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className={`flex items-center justify-center px-4 gap-1 py-2 rounded-[8px] text-sm transition duration-300 ${
-                useNewFilter
-                  ? "bg-green-500/20 text-green-300 hover:bg-green-500/30"
-                  : "bg-white/10 text-white/80 hover:text-white hover:bg-white/20"
-              }`}
-              type="button"
-              title="New Filter"
-            >
-              <Clock className="w-4 h-4" />
-
-              {useNewFilter ? (
-                <span className="text-sm opacity-75">
-                  {getNewFilterLabel()}
-                </span>
-              ) : (
-                "New"
-              )}
-              <ChevronDown className="w-3 h-3" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="bg-black/90 border-white/20"
+        <div
+          className={`flex items-center rounded-[8px] overflow-hidden transition duration-200 ${
+            activeFilter === "new"
+              ? "bg-green-500/20 border border-green-500/30"
+              : "bg-white/10"
+          }`}
+        >
+          <button
+            onClick={() =>
+              setActiveFilter(activeFilter === "new" ? null : "new")
+            }
+            className={`flex items-center gap-1 px-3 py-2 text-sm transition duration-200 ${
+              activeFilter === "new"
+                ? "text-green-300"
+                : "text-white/80 hover:text-white"
+            }`}
           >
-            <DropdownMenuItem
-              onClick={toggleNewFilter}
-              className="text-white hover:bg-white/20"
-            >
-              {useNewFilter ? (
-                <>
-                  <X className="w-4 h-4 mr-2" />
-                  Disable New Filter
-                </>
-              ) : (
-                <>
-                  <Clock className="w-4 h-4 mr-2" />
-                  Enable New Filter
-                </>
-              )}
-            </DropdownMenuItem>
-            {useNewFilter && (
-              <>
-                <div className="border-t border-white/20 my-1" />
-                {getNewDropdownOptions().map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    onClick={() => setNewTimeFilter(option.value)}
-                    className={`text-white hover:bg-white/20 ${
-                      newTimeFilter === option.value ? "bg-white/10" : ""
-                    }`}
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <Clock className="w-4 h-4" />
+            New
+          </button>
+          {activeFilter === "new" && (
+            <>
+              <div className="w-px h-4 bg-green-500/30" />
+              {getNewDropdownOptions().map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setNewTimeFilter(option.value)}
+                  className={`px-3 py-2 text-sm transition duration-200 ${
+                    newTimeFilter === option.value
+                      ? "bg-green-500/30 text-green-200"
+                      : "text-green-300/80 hover:text-green-200 hover:bg-green-500/20"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
       </div>
-      <div className="absolute top-0 right-0 hidden md:flex gap-2 items-center px-0 py-5 z-10 text-center text-sm"></div>
-      <div className="w-full -mt-[30vh] z-1">
+
+      <div className="w-full -mt-[26vh] lg:-mt-[30vh] z-1">
         {publicTrends && publicTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
             {loading ? "Loading..." : "No trends found."}
