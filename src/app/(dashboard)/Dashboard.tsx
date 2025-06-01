@@ -277,8 +277,10 @@ export default function SearchPage() {
                   onClick={() => router.push(`/trendscreen/${trend.id}`)}
                 >
                   <div className="col-span-6 xl:col-span-2">
-                    <div className="text-xl font-semibold mb-1 truncate text-white">
-                      {trend.name || "Untitled List"}
+                    
+                    <div className="text-xl font-semibold mb-2 truncate text-white flex items-center gap-2">
+                     <img src={"https://solana.com/src/img/branding/solanaLogoMark.svg"} alt={trend.name} 
+                    className="w-5 h-5" /> {trend.name || "Untitled List"}
                     </div>
                     <div className="text-sm text-gray-200 mb-1 truncate">
                       {trend.urls?.length || 0} posts
