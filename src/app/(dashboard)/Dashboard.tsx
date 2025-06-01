@@ -259,7 +259,7 @@ export default function SearchPage() {
         </div>
       </div>
 
-      <div className="w-full -mt-[26vh] lg:-mt-[30vh] z-1">
+      <div className="w-full -mt-[19vh] md:-mt-[26vh] lg:-mt-[30vh] z-1">
         {publicTrends && publicTrends.length === 0 ? (
           <div className="text-center text-gray-300 bg-white/10 rounded-2xl py-8 px-4 backdrop-blur-md">
             {loading ? "Loading..." : "No trends found."}
