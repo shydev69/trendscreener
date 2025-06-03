@@ -19,6 +19,7 @@ import Analysis from "@/components/Analysis";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import TrendImage from "@/components/trendimage";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -423,10 +424,14 @@ export default function TrendsListPage() {
           style={{ filter: "blur(150px)" }}
         />
         <div className="w-full max-w-2xl -mt-[10vh] z-1">
+          <TrendImage
+            trendId={listId}
+            className="w-10 h-10 mx-4 my-4 rounded-[10px]"
+          />{" "}
           <input
             type="text"
             placeholder="Enter CA"
-            className="w-full rounded-[8px] overflow-y-hidden h-14 placeholder:opacity-60 opacity-50 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
+            className="w-full geist-mono rounded-[8px] overflow-y-hidden h-14 placeholder:opacity-60 opacity-50 py-0 px-4 text-black dark:text-white focus:outline-none text-base transition"
             value={listId}
             onChange={handleCAChange}
             onKeyDown={handleCAKeyDown}

@@ -9,10 +9,16 @@ import {
   GoogleOneTap,
 } from "@clerk/clerk-react";
 import Sidebar from "./sidebar";
-import { Ham, Instagram, List } from "lucide-react";
+import { Copy, Ham, Instagram, List } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  React.useEffect(() => {
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
+  }, [copied]);
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -55,7 +61,17 @@ const Header: React.FC = () => {
       </div>
       {/* User profile on right */}
       <div className="w-full md:w-2/4 lg:w-1/4 flex justify-end items-center p-2">
-        {" "}
+        <button
+          className={`flex items-center geist-mono justify-center px-3 gap-1 py-2.5 rounded-[8px] text-white/80 text-sm hover:text-white transition duration-300 `}
+          onClick={() => {
+            navigator.clipboard.writeText(
+              "2GBQQ4mS6DwFwXBSxS4uz7ZN3pBBat8BSYKEF48Epump"
+            );
+            setCopied(true);
+          }}
+        >
+          <Copy className="w-4 h-4" /> {!copied ? "2GBQ...pump" : "Copied!"}
+        </button>{" "}
         <button
           className={`flex items-center justify-center px-3 gap-1 py-2.5 rounded-[8px] text-white/80 text-sm hover:text-white transition duration-300 `}
           onClick={() => {

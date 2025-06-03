@@ -26,4 +26,5 @@ export const trendLists = pgTable("trend_lists", {
 	bookmarks: bigint({ mode: "number" }).default(sql`'0'`),
 	description: text(),
 	newId: text(),
+	imageUrl: text("image_url"),
 });

@@ -17,6 +17,7 @@ import Analysis from "@/components/Analysis";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import TrendImage from "@/components/trendimage";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -710,10 +711,14 @@ export default function TrendsListIdPage() {
         style={{ filter: "blur(150px)" }}
       />
       <div className="w-full max-w-2xl -mt-[10vh] z-1">
+        <TrendImage
+          trendId={newListId}
+          className="w-10 h-10 mx-4 my-4 rounded-[10px]"
+        />
         {currentUser === userId && (
           <>
             <div
-              className="flex w-full items-center h-14"
+              className="flex w-full items-center h-14 geist-mono"
               onClick={() => {
                 const idToCopy = listId ? listId : newListId;
                 currentUser !== userId
@@ -785,7 +790,7 @@ export default function TrendsListIdPage() {
         {currentUser !== userId && (
           <>
             <div
-              className="flex w-full items-center h-14 truncate !text-ellipsis"
+              className="flex w-full geist-mono items-center h-14 truncate !text-ellipsis"
               onClick={() => {
                 const idToCopy = listId ? listId : newListId;
                 console.log("Copying CA:", idToCopy);
