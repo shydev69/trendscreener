@@ -98,7 +98,7 @@ const Header: React.FC = () => {
         </button>
         <SignedOut>
           <SignInButton>
-            <button className="ml-2 px-4 py-1 rounded-[8px] bg-gradient-to-br from-[#34353C] to-black/90 dark:to-white/10 border text-white/80 text-sm hover:text-white transition">
+            <button className="md:ml-2 px-4 py-1 min-w-20 rounded-[8px] bg-gradient-to-br from-[#34353C] to-black/90 dark:to-white/10 border text-white/80 text-sm hover:text-white transition">
               Sign In
             </button>
           </SignInButton>

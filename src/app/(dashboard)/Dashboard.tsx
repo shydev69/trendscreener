@@ -277,41 +277,45 @@ export default function SearchPage() {
                   }}
                   onClick={() => router.push(`/trendscreen/${trend.id}`)}
                 >
-                  <div className="col-span-6 xl:col-span-2">
-                    <div className="text-xl font-semibold mb-2 truncate text-white flex items-center gap-2">
-                      
-                        <TrendImage trendId={trend.id} className="w-5 h-5" />
-                     
+                  <div className="col-span-6 xl:col-span-2 flex items-start gap-4">
+                    <TrendImage
+                      trendId={trend.id}
+                      className="w-10 h-10 rounded-[10px]"
+                    />
+                    <div>
+                      <div className="text-xl font-semibold mb-2 truncate text-white flex items-center gap-2">
+                        {trend.name || "Untitled List"}
+                      </div>
+                      <div className="text-sm text-gray-200 mb-1 truncate">
+                        {trend.urls?.length || 0} posts
+                      </div>
+                      <div className="text-sm text-gray-200 mb-1 truncate">
+                        {(() => {
+                          const now = new Date();
+                          const created = new Date(trend.createdAt);
+                          const diffMs = now.getTime() - created.getTime();
+                          const diffSec = Math.floor(diffMs / 1000);
+                          const diffMin = Math.floor(diffSec / 60);
+                          const diffHour = Math.floor(diffMin / 60);
+                          const diffDay = Math.floor(diffHour / 24);
 
-                      {trend.name || "Untitled List"}
-                    </div>
-                    <div className="text-sm text-gray-200 mb-1 truncate">
-                      {trend.urls?.length || 0} posts
-                    </div>
-                    <div className="text-sm text-gray-200 mb-1 truncate">
-                      {(() => {
-                        const now = new Date();
-                        const created = new Date(trend.createdAt);
-                        const diffMs = now.getTime() - created.getTime();
-                        const diffSec = Math.floor(diffMs / 1000);
-                        const diffMin = Math.floor(diffSec / 60);
-                        const diffHour = Math.floor(diffMin / 60);
-                        const diffDay = Math.floor(diffHour / 24);
-
-                        if (diffDay > 0) {
-                          return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
-                        } else if (diffHour > 0) {
-                          return `${diffHour} hour${
-                            diffHour > 1 ? "s" : ""
-                          } ago`;
-                        } else if (diffMin > 0) {
-                          return `${diffMin} minute${
-                            diffMin > 1 ? "s" : ""
-                          } ago`;
-                        } else {
-                          return "Just now";
-                        }
-                      })()}
+                          if (diffDay > 0) {
+                            return `${diffDay} day${
+                              diffDay > 1 ? "s" : ""
+                            } ago`;
+                          } else if (diffHour > 0) {
+                            return `${diffHour} hour${
+                              diffHour > 1 ? "s" : ""
+                            } ago`;
+                          } else if (diffMin > 0) {
+                            return `${diffMin} minute${
+                              diffMin > 1 ? "s" : ""
+                            } ago`;
+                          } else {
+                            return "Just now";
+                          }
+                        })()}
+                      </div>
                     </div>
                   </div>
                   <div className="col-span-2 xl:col-span-1">
