@@ -277,15 +277,15 @@ export default function SearchPage() {
                   }}
                   onClick={() => router.push(`/trendscreen/${trend.id}`)}
                 >
-                  <div className="col-span-6 xl:col-span-2 flex items-start gap-4">
+                  <div className="col-span-6 xl:col-span-3 flex flex-col md:flex-row items-start gap-4">
                     <TrendImage
                       trendId={trend.id}
-                      className="w-10 h-10 rounded-[10px]"
+                      className="w-auto h-full rounded-[10px]"
                     />
-                    <div>
-                      <div className="text-xl font-semibold mb-2 truncate text-white flex items-center gap-2">
+                    <div className="w-full lg:truncate lg:text-ellipsis lg:overflow-hidden">
+                      <p className="text-xl line-clamp-1 font-semibold mb-2 w-full max-w-full lg:overflow-hidden lg:truncate overflow-auto text-white items-center gap-2">
                         {trend.name || "Untitled List"}
-                      </div>
+                      </p>
                       <div className="text-sm text-gray-200 mb-1 truncate">
                         {trend.urls?.length || 0} posts
                       </div>
@@ -330,7 +330,7 @@ export default function SearchPage() {
                       </span>
                     </div>
                   </div>
-                  <div className="col-span-5">
+                  <div className="col-span-8 xl:col-span-4">
                     <div className="flex items-center gap-6 gap-y-2 text-sm opacity-90 flex-wrap w-full">
                       {trend.description ? (
                         <span className="flex items-center gap-1 text-white/80">
