@@ -478,7 +478,7 @@ export default function TrendsListPage() {
             >
               <input
                 type="url"
-                placeholder="Paste a Twitter link and hit enter"
+                placeholder="Paste a Twitter or Instagram link and hit enter"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
