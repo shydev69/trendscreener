@@ -107,7 +107,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Make request to your local Instagram API server
-    const response = await fetch("http://localhost:8000/get_likes", {
+    // const response = await fetch("http://localhost:8000/get_likes", {
+    const response = await fetch("https://trendscreener-py.onrender.com/get_likes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
