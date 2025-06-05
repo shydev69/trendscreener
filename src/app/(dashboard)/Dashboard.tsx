@@ -280,7 +280,7 @@ export default function SearchPage() {
                   <div className="col-span-6 xl:col-span-3 flex flex-col md:flex-row items-start gap-4">
                     <TrendImage
                       trendId={trend.id}
-                      className="w-auto h-full rounded-[10px]"
+                      className="w-auto h-full max-w-20 max-h-20 aspect-square object-cover rounded-[10px]"
                     />
                     <div className="w-full lg:truncate lg:text-ellipsis lg:overflow-hidden">
                       <p className="text-xl line-clamp-1 font-semibold mb-2 w-full max-w-full lg:overflow-hidden lg:truncate overflow-auto text-white items-center gap-2">
