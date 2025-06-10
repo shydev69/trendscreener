@@ -1,7 +1,7 @@
 import { SiteConfig } from "@/types";
 export const siteConfig: SiteConfig = {
   name: "TrendScreener",
-  title: "TrendScreener",
+  title: "TrendScreener - Discover & Share Trending Social Media Content",
   description:
     "Discover and share trending content from across social media platforms. Create custom trend screens featuring popular tweets, Instagram reels, and other viral content in a shareable social feed.",
   origin: "https://trendscreener.com",
@@ -15,14 +15,43 @@ export const siteConfig: SiteConfig = {
     "Content Curation",
     "Trend Aggregation",
     "Social Sharing",
+    "Twitter Cards",
+    "Social Media Analytics",
+    "Content Discovery",
+    "Trend Analysis",
+    "Social Media Dashboard",
+    "Viral Posts",
+    "Trending Topics",
+    "Social Media Monitoring",
+    "Content Aggregator",
   ],
-  og: "",
-  creator: {
-    name: "",
-    url: "",
+  og: "https://trendscreener.com/og-image.png",
+  twitter: {
+    card: "summary_large_image",
+    site: "@trendscreener",
+    title: "TrendScreener - Discover & Share Trending Social Media Content",
+    description:
+      "Discover and share trending content from across social media platforms. Create custom trend screens featuring popular tweets, Instagram reels, and other viral content.",
+    image: "https://trendscreener.com//logo.png",
+    imageAlt: "TrendScreener - Social Media Trend Discovery Platform",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://trendscreener.com",
+    siteName: "TrendScreener",
+    title: "TrendScreener - Discover & Share Trending Social Media Content",
+    description:
+      "Discover and share trending content from across social media platforms. Create custom trend screens featuring popular tweets, Instagram reels, and other viral content.",
+    image: "https://trendscreener.com/og-image.png",
+    imageWidth: 1200,
+    imageHeight: 630,
+    imageAlt: "TrendScreener - Social Media Trend Discovery Platform",
   },
   socials: {
-    github: "",
-    x: "",
+    x: "https://x.com/trendscreener",
   },
+  manifest: "/manifest.json",
+  themeColor: "#000000",
+  backgroundColor: "#ffffff",
 };

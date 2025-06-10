@@ -7,57 +7,65 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 
 import {
   ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  UserButton,
 } from "@clerk/nextjs";
-import Sidebar from "@/components/sidebar";
 import "./globals.css";
 import Header from "@/components/header";
 import { dark } from "@clerk/themes";
-import Script from "next/script";
-import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.origin),
   title: siteConfig.title,
   description: siteConfig.description,
   keywords: siteConfig.keywords,
+  applicationName: siteConfig.name,
   creator: siteConfig.name,
+  publisher: siteConfig.name,
+  robots: "index, follow",
+  manifest: siteConfig.manifest,
   icons: {
     icon: "/logobig.png",
     shortcut: "/logobig.png",
+    apple: "/logobig.png",
   },
   openGraph: {
-    title: siteConfig.title,
-    description: siteConfig.description,
-    url: siteConfig.origin,
-    siteName: siteConfig.name,
+    title: siteConfig.openGraph.title,
+    description: siteConfig.openGraph.description,
+    url: siteConfig.openGraph.url,
+    siteName: siteConfig.openGraph.siteName,
     images: [
       {
-        url: siteConfig.og,
-        width: 2880,
-        height: 1800,
-        alt: siteConfig.name,
+        url: siteConfig.openGraph.image,
+        width: siteConfig.openGraph.imageWidth,
+        height: siteConfig.openGraph.imageHeight,
+        alt: siteConfig.openGraph.imageAlt,
       },
     ],
     type: "website",
-    locale: "en_US",
+    locale: siteConfig.openGraph.locale,
   },
   twitter: {
     card: "summary_large_image",
-    site: siteConfig.socials.x,
-    title: siteConfig.title,
-    description: siteConfig.description,
-    images: {
-      url: siteConfig.og,
-      width: 2880,
-      height: 1800,
-      alt: siteConfig.name,
-    },
+    site: siteConfig.twitter.site,
+    title: siteConfig.twitter.title,
+    description: siteConfig.twitter.description,
+    images: [
+      {
+        url: siteConfig.twitter.image,
+        alt: siteConfig.twitter.imageAlt,
+      },
+    ],
   },
+  alternates: {
+    canonical: siteConfig.origin,
+  },
+  category: "Social Media",
+};
+
+export const viewport = {
+  themeColor: siteConfig.themeColor,
+  colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
