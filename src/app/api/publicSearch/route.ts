@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq, and, like, desc, gte, sql, isNull } from "drizzle-orm";
+import { eq, and, ilike, desc, gte, sql, isNull } from "drizzle-orm";
 
 export async function GET(request: Request) {
   try {
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     ];
 
     if (search) {
-      conditions.push(like(trendLists.name, `%${search}%`));
+      conditions.push(ilike(trendLists.name, `%${search}%`));
     }
 
     // Time filters based on createdAt (when trendscreen was first created)

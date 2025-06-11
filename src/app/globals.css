@@ -1,14 +1,44 @@
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap");
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 .geist,
 .geist * {
   font-family: "geist", sans-serif !important;
 }
 
+* {
+  font-family: "geist";
+}
+
 .geist-mono,
 .geist-mono * {
   font-family: "geist mono", monospace !important;
+}
+
+.text-shine {
+  background: linear-gradient(
+    120deg,
+    #ffffffaa 25%,
+    #ffffff 50%,
+    #ffffffaa 75%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-size: 200%;
+  background-position: 0%;
+  animation: shine 5s infinite;
+}
+
+@keyframes shine {
+  0% {
+    background-position: 100%;
+  }
+  100% {
+    background-position: -100%;
+  }
 }
 
 :is([data-theme="dark"], .dark) :where(.react-tweet-theme) {
@@ -55,4 +85,42 @@ iframe > div.Content.EmbedFrame > a > img.EmbeddedMediaImage {
   border-radius: 0.5rem !important;
   background-color: #00000066 !important;
   backdrop-filter: blur(10px) !important;
+}
+
+.hide-x-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+.animate-in-faq {
+  animation: roll-in 0.5s ease-in-out;
+}
+
+@keyframes roll-in {
+  0% {
+    margin-top: -8%;
+    opacity: 0;
+    filter: blur(20px);
+  }
+  100% {
+    margin-top: -0.5rem;
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.geist-class,
+.geist-class * {
+  font-family: "Geist", sans-serif;
+}
+
+@theme inline {
+  --animate-aurora: aurora 60s linear infinite;
+  @keyframes aurora {
+    from {
+      background-position: 50% 50%, 50% 50%;
+    }
+    to {
+      background-position: 350% 50%, 350% 50%;
+    }
+  }
 }

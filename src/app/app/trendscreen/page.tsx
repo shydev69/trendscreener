@@ -12,7 +12,6 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Tweet as TweetComponent } from "react-tweet";
-import { trendLists } from "../../../drizzle/migrations/schema";
 //import returnCurrentUserId from "./returnCurrentUserId";
 import { useRouter } from "next/navigation";
 import Analysis from "@/components/Analysis";
@@ -314,7 +313,7 @@ export default function TrendsListPage() {
         throw new Error(data.error || "Failed to save trends list");
       }
 
-      window.location.href = `/trendscreen/${data.listId}`;
+      window.location.href = `/app/trendscreen/${data.listId}`;
     } catch (err) {
       console.error("Failed to save trendscreen:", err);
       setError("Failed to save trends list. Please try again.");

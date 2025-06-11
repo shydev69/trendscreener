@@ -1,15 +1,18 @@
-import Dashboard from "./(dashboard)/Dashboard";
-// import { currentUser } from "@clerk/nextjs/server";
+import { HeroSection } from "./(landing)/_sections/HeroSection";
+import { Header } from "./(landing)/header";
+import { InfoCardsSection } from "./(landing)/_sections/InfoCardsSection";
+import FAQSection from "./(landing)/_sections/FaqSection";
+import FooterSection from "./(landing)/footer";
 
-export default async function Home() {
-  // const user = await currentUser();
-  // console.log(user);
-  // if (!user) {
-  //   return (
-  //     <div className="w-full text-center mt-10 h-screen flex items-center justify-center">
-  //       Please log in to view your trends.
-  //     </div>
-  //   );
-  // }
-  return <Dashboard />;
+export default function Landing() {
+  return (
+    <div className="overflow-x-hidden max-w-screen bg-[#000000] min-h-screen geist-class">
+      <Header />
+      <HeroSection />
+      <InfoCardsSection />
+      {/* <PricingSection /> */}
+      <FAQSection />
+      <FooterSection />
+    </div>
+  );
 }

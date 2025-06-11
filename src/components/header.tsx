@@ -43,7 +43,7 @@ const Header: React.FC = () => {
               "search"
             ) as HTMLInputElement;
             if (input.value.trim()) {
-              window.location.href = `/search?q=${encodeURIComponent(
+              window.location.href = `/app/search?q=${encodeURIComponent(
                 input.value.trim()
               )}`;
             }

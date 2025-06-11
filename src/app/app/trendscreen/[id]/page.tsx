@@ -226,7 +226,7 @@ export default function TrendsListIdPage() {
       .then((list) => {
         // Handle redirect if the list has moved to a new CA
         if (list.trendscreen.newId) {
-          window.location.href = `/trendscreen/${list.trendscreen.newId}`;
+          window.location.href = `/app/trendscreen/${list.trendscreen.newId}`;
           return;
         }
 
@@ -473,7 +473,7 @@ export default function TrendsListIdPage() {
         }
 
         // Redirect to the new list
-        window.location.href = `/trendscreen/${newListId}`;
+        window.location.href = `/app/trendscreen/${newListId}`;
       } else {
         // Normal update - no CA change
         const response = await fetch(`/api/trends/${listId}`, {
@@ -514,7 +514,7 @@ export default function TrendsListIdPage() {
       if (!data.success) {
         throw new Error(data.error || "Failed to delete trends list");
       }
-      window.location.href = "/trendscreen";
+      window.location.href = "/app/trendscreen";
     } catch (err) {
       setError("Failed to delete trends list. Please try again.");
     } finally {

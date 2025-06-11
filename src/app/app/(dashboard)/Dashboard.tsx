@@ -9,6 +9,9 @@ import {
   Clock,
   TrendingUp,
   SortDesc,
+  Share,
+  Atom,
+  BadgeDollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TrendImage from "@/components/trendimage";
@@ -20,9 +23,9 @@ export default function SearchPage() {
   const [sortBy, setSortBy] = useState<"views" | "createdAt">("views");
 
   // Only one filter can be active at a time: "top", "new", or null
-  const [activeFilter, setActiveFilter] = useState<"top" | "new" | null>("top");
+  const [activeFilter, setActiveFilter] = useState<"top" | "new" | null>("new");
   const [topTimeFilter, setTopTimeFilter] = useState<string>("allTime");
-  const [newTimeFilter, setNewTimeFilter] = useState<string>("24h");
+  const [newTimeFilter, setNewTimeFilter] = useState<string>("allTime");
 
   const [searchPage, setSearchPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -50,7 +53,7 @@ export default function SearchPage() {
       }
     }
 
-    if (activeFilter === "new") {
+    if (activeFilter === "new" && newTimeFilter !== "allTime") {
       apiUrl += `&newTimeFilter=${newTimeFilter}`;
     }
 
@@ -86,7 +89,7 @@ export default function SearchPage() {
       }
     }
 
-    if (activeFilter === "new") {
+    if (activeFilter === "new" && newTimeFilter !== "allTime") {
       apiUrl += `&newTimeFilter=${newTimeFilter}`;
     }
 
@@ -124,6 +127,7 @@ export default function SearchPage() {
     { value: "6h", label: "6h" },
     { value: "12h", label: "12h" },
     { value: "24h", label: "24h" },
+    { value: "allTime", label: "All Time" },
   ];
 
   return (
@@ -149,6 +153,14 @@ export default function SearchPage() {
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover"
         style={{ filter: "blur(150px)" }}
       />
+      <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1">
+        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/70 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/70 -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/70 -rotate-45 to-transparent top-[20vh] left-[60%]"></div>
+        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa]/70 to-transparent top-[100vh] rounded-full blur-3xl left-[-20%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/70 -rotate-45 to-transparent top-[20vh] left-[40%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/70 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
+      </div>
 
       <div className="absolute top-0 left-0 flex flex-wrap gap-2 items-center px-0 py-5 z-10 text-center text-sm">
         {/* Sort By */}
@@ -275,7 +287,7 @@ export default function SearchPage() {
                   style={{
                     border: "none",
                   }}
-                  onClick={() => router.push(`/trendscreen/${trend.id}`)}
+                  onClick={() => router.push(`/app/trendscreen/${trend.id}`)}
                 >
                   <div className="col-span-6 xl:col-span-3 flex flex-col md:flex-row items-start gap-4">
                     <TrendImage

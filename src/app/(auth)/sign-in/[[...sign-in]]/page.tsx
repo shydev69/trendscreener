@@ -3,5 +3,5 @@
 import { SignIn } from "@clerk/nextjs";
 
 export default function SignInPage() {
-  return <SignIn withSignUp={false} />;
+  return <SignIn withSignUp={false} fallbackRedirectUrl={"/app"} />;
 }

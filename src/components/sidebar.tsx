@@ -23,12 +23,12 @@ const links = [
   {
     icon: Plus,
     label: "Make a Trendscreen",
-    href: "/trendscreen",
+    href: "/app/trendscreen",
   },
   {
     icon: HelpCircle,
     label: "FAQ",
-    href: "/faq",
+    href: "/app/faq",
   },
 ];
 
@@ -106,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               "search"
             ) as HTMLInputElement;
             if (input.value.trim()) {
-              window.location.href = `/search?q=${encodeURIComponent(
+              window.location.href = `/app/search?q=${encodeURIComponent(
                 input.value.trim()
               )}`;
             }
@@ -161,14 +161,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           {userTrends.map((item) => (
             <Link
               key={item.id}
-              href={`/trendscreen/${item.id}`}
+              href={`/app/trendscreen/${item.id}`}
               onClick={() => {
-                handleLinkClick(`/trendscreen/${item.id}`);
+                handleLinkClick(`/app/trendscreen/${item.id}`);
                 toggleSidebar?.();
               }}
               className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
               ${
-                activeLink === `/trendscreen/${item.id}` &&
+                activeLink === `/app/trendscreen/${item.id}` &&
                 "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
               }
               px-6 py-3 md:px-4 md:py-3

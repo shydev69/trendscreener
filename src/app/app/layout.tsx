@@ -4,9 +4,8 @@ import { siteConfig } from "@/config/site.config";
 import { cn } from "@/lib/utils";
 import RootProviders from "@/components/providers";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { Geist, Geist_Mono } from "next/font/google";
+
 import { ClerkProvider, SignedIn } from "@clerk/nextjs";
-import "./globals.css";
 import Header from "@/components/header";
 import { dark } from "@clerk/themes";
 
@@ -59,15 +58,6 @@ export const metadata: Metadata = {
   category: "Social Media",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 export const viewport = {
   themeColor: siteConfig.themeColor,
   colorScheme: "dark",
@@ -81,33 +71,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-      }}
+    <div
+      className={cn(
+        "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden font-sans antialiased geist-class"
+      )}
+      style={{ minHeight: "calc(100vh - 2.5rem)" }}
     >
-      <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
-        {/* <head>
-          <Script
-            src="https://www.googletagmanager.com/gtag/js?id=G-9L0JYJ4G7M"
-            strategy="afterInteractive"
-          />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-9L0JYJ4G7M');
-            `}
-          </Script>
-        </head> */}
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <RootProviders>{children}</RootProviders>
-        </body>
-        <GoogleAnalytics gaId="G-9L0JYJ4G7M" />
-      </html>
-    </ClerkProvider>
+      {" "}
+      <Header />
+      <div
+        className="md:ml-64 mt-14 pb-40 md:mt-10 px-5 flex flex-col items-center bg-white dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-auto"
+        style={{ height: "calc(100vh - 2.5rem)" }}
+      >
+        {children}
+      </div>
+    </div>
   );
 }

@@ -105,7 +105,7 @@ export default function SearchPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(`/search?q=${encodeURIComponent(query)}`);
+    router.push(`/app/search?q=${encodeURIComponent(query)}`);
   };
 
   const returnReadableNumber = (num: number) => {
@@ -226,7 +226,7 @@ export default function SearchPage() {
                 style={{
                   border: "none",
                 }}
-                onClick={() => router.push(`/trendscreen/${trend.id}`)}
+                onClick={() => router.push(`/app/trendscreen/${trend.id}`)}
               >
                 <div className="col-span-6 xl:col-span-2">
                   <div className="text-xl font-semibold mb-2 truncate text-white flex items-center gap-2">
