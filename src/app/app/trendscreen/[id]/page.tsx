@@ -631,6 +631,16 @@ export default function TrendsListIdPage() {
 
   return (
     <div className="w-full mx-auto flex flex-col relative items-center">
+      {/* Blue gradient background effects */}
+      <div className="relative antialiased w-full justify-center items-center fixed inset-0 -top-[50vh] blur-xl z-0">
+        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/30 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[60%]"></div>
+        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa]/30 to-transparent top-[100vh] rounded-full blur-3xl left-[-20%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[40%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
+      </div>
+
       <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
         {updating && (
@@ -652,29 +662,27 @@ export default function TrendsListIdPage() {
 
       <div className="absolute top-0 right-0 flex gap-5 items-center px-5 py-5 z-10 text-center text-sm">
         {currentUser === userId && (
-          <div className="flex items-center gap-2 bg-white/10 rounded-[8px] px-3 py-2">
+          <div className="flex items-center gap-2 bg-[#ffffff11] backdrop-blur-3xl rounded-3xl px-3 py-2 border border-[#e5eae6]/10">
             <Switch
               id="is-public"
-              checked={isPublic} // 4. Bind to state
-              onCheckedChange={setIsPublic} // 5. Update state
+              checked={isPublic}
+              onCheckedChange={setIsPublic}
             />
-            <Label htmlFor="is-public">{isPublic ? "Public" : "Private"}</Label>
+            <Label
+              htmlFor="is-public"
+              className="text-[#e5eae6] pt-1 opacity-80 font-normal"
+            >
+              {isPublic ? "Public" : "Private"}
+            </Label>
           </div>
         )}
         <button
           onClick={() => {
             const url =
               typeof window !== "undefined" ? window.location.href : "";
-            // if (navigator.share) {
-            //   navigator.share({
-            //     title: listName || "Trends List",
-            //     url,
-            //   });
-            // } else {
             navigator.clipboard.writeText(url);
             setCopied(true);
             setTimeout(() => setCopied(false), 3000);
-            // }
           }}
           className="flex items-center justify-center gap-2 py-2 rounded-[8px] text-white/80 text-sm hover:text-white transition"
           type="button"
@@ -710,7 +718,7 @@ export default function TrendsListIdPage() {
         className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
         style={{ filter: "blur(150px)" }}
       />
-      <div className="w-full max-w-2xl -mt-[10vh] z-1">
+      <div className="w-full max-w-2xl -mt-[10vh] z-1 relative">
         <TrendImage
           trendId={newListId}
           className="w-14 h-14 mx-4 my-4 rounded-[10px]"

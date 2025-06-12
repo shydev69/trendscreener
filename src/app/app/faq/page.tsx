@@ -36,26 +36,34 @@ const faqs = [
 
 export default function FAQPage() {
   return (
-    <div className="w-full mx-auto flex flex-col items-center">
-      <img
-        src="https://imgs.search.brave.com/qcOifdTjOMr7cRj_GmNOUnWlIA1iFsG9wjUqlehoyqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJjYXZlLmNv/bS93cC9qUFRGdE10/LmpwZw"
-        alt="Goku"
-        className="mx-auto w-full h-[40vh] pointer-events-none select-none object-cover shadow-lg"
-        style={{ filter: "blur(150px)" }}
-      />
-      <div className="w-full max-w-2xl -mt-[10vh] z-1">
-        <h1 className="text-3xl mb-8 text-white text-center">FAQ</h1>
-        <ul className="flex flex-col gap-6">
-          {faqs.map((faq, idx) => (
-            <li
-              key={idx}
-              className="rounded-3xl bg-white/10 dark:bg-[#1a1a1a]/30 p-6 pt-8 transition-all duration-200 backdrop-blur-lg border-none"
-            >
-              <div className="text-xl mb-2 text-white">{faq.question}</div>
-              <div className="text-sm opacity-80 text-gray-200">{faq.answer}</div>
-            </li>
-          ))}
-        </ul>
+    <div className="w-full mx-auto flex flex-col items-center min-h-screen">
+      {/* Blue gradient background effects */}
+      <div className="relative antialiased w-full justify-center items-center fixed inset-0 -top-[50vh] blur-xl z-0">
+        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/30 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[60%]"></div>
+        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa]/30 to-transparent top-[100vh] rounded-full blur-3xl left-[-20%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[40%]"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="w-full max-w-2xl mx-auto mt-20">
+          <h1 className="text-3xl mb-8 text-[#e5eae6] text-center">FAQ</h1>
+          <ul className="flex flex-col gap-6">
+            {faqs.map((faq, idx) => (
+              <li
+                key={idx}
+                className="rounded-3xl bg-[#ffffff11] backdrop-blur-3xl p-6 pt-8 transition-all duration-200 border border-[#e5eae6]/10"
+              >
+                <div className="text-xl mb-2 text-[#e5eae6]">
+                  {faq.question}
+                </div>
+                <div className="text-sm text-[#e5eae6]/70">{faq.answer}</div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

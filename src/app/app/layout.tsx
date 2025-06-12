@@ -73,7 +73,7 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden font-sans antialiased geist-class"
+        "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden h-screen font-sans antialiased geist-class"
       )}
       style={{ minHeight: "calc(100vh - 2.5rem)" }}
     >
