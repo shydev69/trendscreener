@@ -20,9 +20,9 @@ export const metadata: Metadata = {
   robots: "index, follow",
   manifest: siteConfig.manifest,
   icons: {
-    icon: "/logobig.png",
-    shortcut: "/logobig.png",
-    apple: "/logobig.png",
+    icon: "/logobigt.png",
+    shortcut: "/logobigt.png",
+    apple: "/logobigt.png",
   },
   openGraph: {
     title: siteConfig.openGraph.title,

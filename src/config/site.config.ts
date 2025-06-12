@@ -32,7 +32,7 @@ export const siteConfig: SiteConfig = {
     title: "TrendScreener - Discover & Share Trending Social Media Content",
     description:
       "Discover and share trending content from across social media platforms. Create custom trend screens featuring popular tweets, Instagram reels, and other viral content.",
-    image: "https://trendscreener.com//logo.png",
+    image: "https://trendscreener.com/logo.png",
     imageAlt: "TrendScreener - Social Media Trend Discovery Platform",
   },
   openGraph: {
