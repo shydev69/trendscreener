@@ -15,7 +15,7 @@ const myFont = localFont({
 
 export const HeroSection = () => {
   return (
-    <section className="w-[94vw] md:h-[82vh] rounded-4xl overflow-hidden bg-black text-white flex mx-auto flex-col items-center text-center relative sm:px-6 lg:px-8 z-1">
+    <section className="w-[94vw] md:h-[88vh] rounded-4xl overflow-hidden bg-black text-white flex mx-auto flex-col items-center text-center relative sm:px-6 lg:px-8 z-1">
       <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1">
         <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa] to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
         <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
@@ -42,7 +42,7 @@ export const HeroSection = () => {
         <div className="absolute bg-gradient-to-b from-transparent to-[#e5eae6] w-[3px] h-[10vh] rounded-[70px] top-[60vh] left-[45%]"></div>
         <div className="absolute bg-gradient-to-b from-transparent to-[#e5eae6] w-[3px] h-[10vh] rounded-[70px] top-[70vh] left-[55%]"></div>
       </div>
-      <div className="w-full flex flex-col items-center justify-center pt-[14vh] pb-20 z-10 px-10 relative">
+      <div className="w-full flex flex-col items-center justify-center pt-[17vh] pb-20 z-10 px-10 relative">
         <p className="text-sm bg-[#00000055] text-[#e5eae6] gap-4 rounded-xl px-4 py-0.5 rounded-full transition-transform duration-300 group-hover:scale-105">
           Social Media Analytics <ArrowUpRight className="inline w-4 h-4" />
         </p>
@@ -51,20 +51,26 @@ export const HeroSection = () => {
         >
           Analyse and Trade Social Trends Like Never Before.
         </h1>
-      <h1
-        className={`text-xl sm:text-xl md:text-xl lg:text-xl text-shine font-medium text-[#e5eae6] w-full max-w-4xl mt-8 ${myFont.className}`}
-      >
-        One trend = One CA
-      </h1>
-      <p className="text-base text-[#e5eae6]/50 mt-8 sm:mt-12 max-w-3xl px-4">
-        <span className="text-[#e5eae6]">Track unique viral trends instantly</span> from
-        our dashboard. Get valuable insights on engagement, views and find original CA.{" "}
-        <span className="text-[#e5eae6]">
-          Remove the headache of ticker PvP
-        </span>{" "}
-      </p>
+        <h1
+          className={`text-xl sm:text-xl md:text-xl lg:text-xl text-shine font-medium text-[#e5eae6] w-full max-w-4xl mt-8 ${myFont.className}`}
+        >
+          One trend = One CA
+        </h1>
+        <p className="text-base text-[#e5eae6]/50 mt-8 sm:mt-12 max-w-3xl px-4">
+          <span className="text-[#e5eae6]">
+            Track unique viral trends instantly
+          </span>{" "}
+          from our dashboard. Get valuable insights on engagement, views and
+          find original CA.{" "}
+          <span className="text-[#e5eae6]">
+            Remove the headache of ticker PvP
+          </span>{" "}
+        </p>
         <div className="flex flex-col sm:flex-row gap-4 hover:gap-10 mt-8 sm:mt-12">
-          <Link href="/app" className="font-semibold bg-[#ffffff22] px-2 py-2 text-[#e5eae6] flex justify-center items-center gap-4 hover:gap-6 hover:pl-8 hover:pr-4 pl-6 rounded-full">
+          <Link
+            href="/app"
+            className="font-semibold bg-[#ffffff22] px-2 py-2 text-[#e5eae6] flex justify-center items-center gap-4 hover:gap-6 hover:pl-8 hover:pr-4 pl-6 rounded-full"
+          >
             Launch App
             <ArrowRight className="w-8 h-8 translate-x-0 transition-all duration-200 p-2 rounded-full text-white bg-[#2563eb] shadow shadow-[#2563eb]/80 shadow-xl" />
           </Link>

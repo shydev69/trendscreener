@@ -9,7 +9,7 @@ export const Header = () => {
 
   return (
     <div
-      className="h-content w-[94vw] mx-auto py-2 md:py-10 z-10000"
+      className="h-content w-[94vw] mx-auto py-2 md:py-3 z-10000"
       style={{ zIndex: 10000 }}
     >
       <div className="flex flex-col items-center backdrop-blur-3xl rounded-[28px] w-full h-full relative">
@@ -24,7 +24,7 @@ export const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex justify-between items-center p-4 bg-white/5 rounded-full px-6">
+          <div className="hidden lg:flex justify-between items-center p-3 bg-white/5 rounded-full px-6">
             <nav>
               <ul className="flex space-x-4">
                 {[
@@ -84,24 +84,24 @@ export const Header = () => {
           </button>
 
           {/* Desktop Download Button */}
-             <SignedOut>
-                {" "}   <div className="hidden md:flex items-center justify-end px-1 hover:p-0">
-            <div className="rounded-full bg-gradient-to-br from-neutral-800 via-black to-neutral-800 !p-0.5 transition-transform duration-300">
-        
+          <SignedOut>
+            {" "}
+            <div className="hidden md:flex items-center justify-end px-1 hover:p-0">
+              <div className="rounded-full bg-gradient-to-br from-neutral-800 via-black to-neutral-800 !p-0.5 transition-transform duration-300">
                 <button
                   onClick={() => (window.location.href = "/sign-in")}
                   className="px-6 hover:px-7 sm:hover:px-7 py-2 sm:py-2 group flex justify-center backdrop-blur-md items-center gap-0 shadow shadow-inner shadow-neutral-800/30 hover:shadow-neutral-700/50 drop-shadow drop-shadow-neutral-800/20 drop-shadow-xl hover:drop-shadow-neutral-700/30 bg-black hover:bg-neutral-900 rounded-full font-medium text-sm sm:text-base transition-all text-white duration-200"
                 >
                   Sign In
                 </button>
+              </div>
             </div>
-          </div>
-              </SignedOut>
-              <SignedIn>
-                <div className="px-0 pt-2">
-                  <UserButton />
-                </div>
-              </SignedIn>
+          </SignedOut>
+          <SignedIn>
+            <div className="hidden md:flex items-center justify-end">
+              <UserButton />
+            </div>
+          </SignedIn>
         </div>
 
         {/* Mobile Menu Content */}
@@ -132,21 +132,22 @@ export const Header = () => {
                   </li>
                 ))}
                 <li className="w-full max-w-[300px]">
-                    <SignedOut>
-                      <div className="rounded-full w-full bg-gradient-to-br from-neutral-800 via-black to-neutral-800 !p-0.5 transition-transform duration-300">
-                  <button
+                  <SignedOut>
+                    <div className="rounded-full w-full bg-gradient-to-br from-neutral-800 via-black to-neutral-800 !p-0.5 transition-transform duration-300">
+                      <button
                         onClick={() => (window.location.href = "/sign-in")}
                         className="px-6 hover:px-7 w-full sm:hover:px-7 py-3 sm:py-2 group flex justify-center backdrop-blur-md items-center gap-0 hover:gap-2 shadow shadow-inner shadow-neutral-800/30 hover:shadow-neutral-700/50 drop-shadow drop-shadow-neutral-800/20 drop-shadow-xl hover:drop-shadow-neutral-700/30 bg-black hover:bg-neutral-900 rounded-full font-medium text-sm sm:text-base transition-all text-white duration-200"
                       >
                         Sign In
                       </button>
-                  </div>
-                    </SignedOut>
-                    <SignedIn>
-                      <div className="px-0 pt-2">
-                        <UserButton />
-                      </div>
-                    </SignedIn>
+                    </div>
+                  </SignedOut>
+                  <SignedIn>
+                    {" "}
+                    <div className="rounded-full w-full bg-gradient-to-br !p-0.5 transition-transform duration-300 flex items-center justify-center">
+                      <UserButton />
+                    </div>
+                  </SignedIn>
                 </li>
               </ul>
             </nav>
