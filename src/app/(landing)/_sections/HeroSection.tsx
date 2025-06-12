@@ -43,9 +43,6 @@ export const HeroSection = () => {
         <div className="absolute bg-gradient-to-b from-transparent to-[#e5eae6] w-[3px] h-[10vh] rounded-[70px] top-[70vh] left-[55%]"></div>
       </div>
       <div className="w-full flex flex-col items-center justify-center pt-[17vh] pb-20 z-10 px-10 relative">
-        <p className="text-sm bg-[#00000055] text-[#e5eae6] gap-4 rounded-xl px-4 py-0.5 rounded-full transition-transform duration-300 group-hover:scale-105">
-          Social Media Analytics <ArrowUpRight className="inline w-4 h-4" />
-        </p>
         <h1
           className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-shine font-medium text-[#e5eae6] w-full max-w-4xl mt-8 ${myFont.className}`}
         >
@@ -58,13 +55,12 @@ export const HeroSection = () => {
         </h1>
         <p className="text-base text-[#e5eae6]/50 mt-8 sm:mt-12 max-w-3xl px-4">
           <span className="text-[#e5eae6]">
-            Track unique viral trends instantly
+            Create and analyze trends with advanced metrics
           </span>{" "}
-          from our dashboard. Get valuable insights on engagement, views and
-          find original CA.{" "}
+          that track engagement across platforms. Our tools are built for{" "}
           <span className="text-[#e5eae6]">
-            Remove the headache of ticker PvP
-          </span>{" "}
+            Traders seeking an edge in trading Tokenized Trends.
+          </span>
         </p>
         <div className="flex flex-col sm:flex-row gap-4 hover:gap-10 mt-8 sm:mt-12">
           <Link

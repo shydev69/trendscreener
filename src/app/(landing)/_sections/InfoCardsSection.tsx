@@ -13,6 +13,7 @@ import {
   Share,
   Atom,
   BadgeDollarSign,
+  Instagram,
 } from "lucide-react";
 
 const World = dynamic(
@@ -557,38 +558,60 @@ export const InfoCardsSection = () => {
           <div className="col-span-1 text-start lg:col-span-5 flex flex-col items-start justify-end overflow-hidden bg-[#ffffff11] backdrop-blur-3xl p-10 rounded-3xl min-h-[500px]">
             <div className="absolute top-[20%] left-10 flex items-start gap-5">
               <div className="p-6 px-9 bg-[#ffffff22] rounded-2xl">
-                <div className="flex items-center h-6 gap-2 mb-2">
-                  <div className="w-1.5 h-6 bg-[#93c5fd] rounded-full"></div>
-                  <span className="text-[#e5eae6]/50 text-sm">Analytics</span>
+                <div className="flex items-center h-6 gap-2 mb-2 py-6">
+                  <span className="text-[#60a5fa]/80 text-xl">
+                    {" "}
+                    <Instagram className="w-8 h-8" />
+                  </span>
                 </div>
-                <span className="text-[#60a5fa]/80 text-xl">Growth</span>
-                <h3 className="font-light text-5xl text-[#e5eae6] mt-2">84%</h3>
+
+                <h3 className="font-light text-5xl text-[#e5eae6] mt-2">84M</h3>
                 <p className="text-[#60a5fa]/80 text-xl mt-2">+3.1M</p>
               </div>
               <div className="p-6 px-9 bg-[#ffffff22] opacity-40 rounded-2xl">
-                <div className="flex items-center h-6 gap-2 mb-2">
-                  <div className="w-1.5 h-6 bg-[#60a5fa] rounded-full"></div>
-                  <span className="text-[#e5eae6]/50 text-sm">Tracking</span>
+                <div className="flex items-center h-6 gap-2 mb-2 py-6">
+                  <span className="text-[#60a5fa]/80 text-xl">
+                    {" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      className="bi bi-tiktok w-8 h-8"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z" />
+                    </svg>
+                  </span>
                 </div>
-                <span className="text-[#60a5fa]/80 text-xl">Lists</span>
-                <h3 className="font-light text-5xl text-[#e5eae6] mt-2">546</h3>
-                <p className="text-[#60a5fa]/80 text-xl mt-2">+1.9K</p>
+
+                <h3 className="font-light text-5xl text-[#e5eae6] mt-2">54M</h3>
+                <p className="text-[#60a5fa]/80 text-xl mt-2">+1.9M</p>
               </div>
               <div className="p-6 px-9 bg-[#ffffff22] opacity-10 rounded-2xl">
-                <div className="flex items-center h-6 gap-2 mb-2">
-                  <div className="w-1.5 h-6 bg-[#93c5fd] rounded-full"></div>
-                  <span className="text-[#e5eae6]/50 text-sm">Trending</span>
-                </div>
-                <span className="text-[#60a5fa]/80 text-xl">Posts</span>
-                <h3 className="font-light text-5xl text-[#e5eae6] mt-2">92</h3>
+                <div className="flex items-center h-6 gap-2 mb-2 py-6">
+                  <span className="text-[#60a5fa]/80 text-xl">
+                    {" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-telegram"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906q-1.168.486-4.666 2.01-.567.225-.595.442c-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294q.39.01.868-.32 3.269-2.206 3.374-2.23c.05-.012.12-.026.166.016s.042.12.037.141c-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8 8 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629q.14.092.27.187c.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.4 1.4 0 0 0-.013-.315.34.34 0 0 0-.114-.217.53.53 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09" />
+                    </svg>
+                  </span>
+                </div>{" "}
+                <h3 className="font-light text-5xl text-[#e5eae6] mt-2">92K</h3>
                 <p className="text-[#60a5fa]/80 text-xl mt-2">+4.5K</p>
               </div>
             </div>
             <div className="w-full mt-auto">
-              <h2 className="text-xl text-[#e5eae6]">Your Analytics ROI</h2>
+              <h2 className="text-xl text-[#e5eae6]">
+                Launch a trend anywhere
+              </h2>
               <p className="text-sm text-[#e5eae6]/50 mt-2">
-                Watch your content performance grow with advanced trend tracking
-                in a robust ecosystem that's easy to monitor
+                Launch via Telegram, Instagram, TikTok support coming soon.
               </p>
             </div>
           </div>
