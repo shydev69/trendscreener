@@ -187,4 +187,3 @@ The application includes several API routes for:
 - Social media data fetching
 - User authentication
 - Trend list management
-- Analytics data processing
