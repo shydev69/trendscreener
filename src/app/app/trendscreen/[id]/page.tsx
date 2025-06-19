@@ -25,7 +25,7 @@ const TIKTOK_URL_REGEX = /tiktok\.com\/@[\w.-]+\/video\/(\d+)/;
 
 const extractTweetId = (url: string) => url.match(TWEET_URL_REGEX)?.[5] ?? null;
 const isInstagramUrl = (url: string) =>
-  /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
+  /instagram\.com\/(?:p|reel|reels)\/[A-Za-z0-9_-]+/.test(url);
 const isTiktokUrl = (url: string) => TIKTOK_URL_REGEX.test(url);
 const extractTiktokId = (url: string) => {
   const match = url.match(TIKTOK_URL_REGEX);
@@ -138,6 +138,41 @@ async function fetchInstagramStats(
     }
   } catch (error) {
     console.error("Failed to fetch Instagram stats:", error);
+    return null;
+  }
+}
+
+// Add TikTok stats type
+type TiktokStats = {
+  videoId: string;
+  likes: number;
+  comments: number;
+  views: number;
+  shares: number;
+  description: string | null;
+};
+
+// Function to fetch TikTok stats
+async function fetchTiktokStats(videoId: string): Promise<TiktokStats | null> {
+  try {
+    const response = await fetch(`/api/tiktokData?videoId=${videoId}`);
+    const result = await response.json();
+
+    if (result.success) {
+      return {
+        videoId: result.data.videoId,
+        likes: result.data.likes || 0,
+        comments: result.data.comments || 0,
+        views: result.data.views || 0,
+        shares: result.data.shares || 0,
+        description: result.data.description,
+      };
+    } else {
+      console.error("TikTok API error:", result.error);
+      return null;
+    }
+  } catch (error) {
+    console.error("Failed to fetch TikTok stats:", error);
     return null;
   }
 }
@@ -310,26 +345,26 @@ export default function TrendsListIdPage() {
               );
             }
           }
-        }
-
-        // Fetch TikTok stats (placeholder - you'll need to implement TikTok API)
+        } // Fetch TikTok stats
         if (tiktokLinks.length > 0) {
           console.log("Fetching TikTok stats for", tiktokLinks);
 
           for (const tiktokId of tiktokLinks) {
             try {
-              // For now, add placeholder stats for TikTok
-              // You can implement actual TikTok API later
-              const tiktokStats: TweetStats = {
-                id: tiktokId,
-                likes: 0, // TikTok API needed
-                views: 0, // TikTok API needed
-                replies: 0, // TikTok comments
-                reposts: 0, // TikTok shares
-                quotes: 0,
-                bookmarks: 0,
-              };
-              newStats.push(tiktokStats);
+              const tiktokData = await fetchTiktokStats(tiktokId);
+              if (tiktokData) {
+                // Convert TikTok stats to TweetStats format
+                const convertedStats: TweetStats = {
+                  id: tiktokData.videoId,
+                  likes: tiktokData.likes,
+                  views: tiktokData.views,
+                  replies: tiktokData.comments, // TikTok comments = Twitter replies
+                  reposts: tiktokData.shares, // TikTok shares = Twitter reposts
+                  quotes: 0, // TikTok doesn't have quotes
+                  bookmarks: 0, // TikTok doesn't have bookmarks (we don't track saves)
+                };
+                newStats.push(convertedStats);
+              }
             } catch (error) {
               console.error(
                 `Failed to fetch TikTok stats for ${tiktokId}:`,

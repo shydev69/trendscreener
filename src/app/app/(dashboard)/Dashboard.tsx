@@ -20,7 +20,7 @@ export default function SearchPage() {
   const [publicTrends, setPublicTrends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sortBy, setSortBy] = useState<"views" | "createdAt">("views");
+  const [sortBy, setSortBy] = useState<"views" | "createdAt">("createdAt");
 
   // Only one filter can be active at a time: "top", "new", or null
   const [activeFilter, setActiveFilter] = useState<"top" | "new" | null>("new");

@@ -24,7 +24,7 @@ const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
 const extractTweetId = (url: string) => url.match(TWEET_URL_REGEX)?.[5] ?? null;
 const isInstagramUrl = (url: string) =>
-  /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
+  /instagram\.com\/(?:p|reel|reels)\/[A-Za-z0-9_-]+/.test(url);
 
 // Add TikTok support to the main creation page as well
 const TIKTOK_URL_REGEX = /tiktok\.com\/@[\w.-]+\/video\/(\d+)/;
@@ -117,6 +117,41 @@ const extractInstagramShortcode = (url: string) => {
   return match ? match[1] : null;
 };
 
+// Add TikTok stats type
+type TiktokStats = {
+  videoId: string;
+  likes: number;
+  comments: number;
+  views: number;
+  shares: number;
+  description: string | null;
+};
+
+// Function to fetch TikTok stats
+async function fetchTiktokStats(videoId: string): Promise<TiktokStats | null> {
+  try {
+    const response = await fetch(`/api/tiktokData?videoId=${videoId}`);
+    const result = await response.json();
+
+    if (result.success) {
+      return {
+        videoId: result.data.videoId,
+        likes: result.data.likes || 0,
+        comments: result.data.comments || 0,
+        views: result.data.views || 0,
+        shares: result.data.shares || 0,
+        description: result.data.description,
+      };
+    } else {
+      console.error("TikTok API error:", result.error);
+      return null;
+    }
+  } catch (error) {
+    console.error("Failed to fetch TikTok stats:", error);
+    return null;
+  }
+}
+
 export default function TrendsListPage() {
   const router = useRouter();
   const [input, setInput] = useState(""),
@@ -137,20 +172,22 @@ export default function TrendsListPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const newStats: TweetStats[] = [];
-
-      // Separate Twitter and Instagram links
+      const newStats: TweetStats[] = []; // Separate Twitter and Instagram links
       const twitterLinks: string[] = [];
       const instagramLinks: string[] = [];
+      const tiktokLinks: string[] = [];
 
       links.forEach((link) => {
         const tweetId = extractTweetId(link);
         const instaShortcode = extractInstagramShortcode(link);
+        const tiktokId = extractTiktokId(link);
 
         if (tweetId) {
           twitterLinks.push(tweetId);
         } else if (instaShortcode) {
           instagramLinks.push(instaShortcode);
+        } else if (tiktokId) {
+          tiktokLinks.push(tiktokId);
         }
       });
 
@@ -170,9 +207,7 @@ export default function TrendsListPage() {
               );
             }
           }
-        }
-
-        // Fetch Instagram stats
+        } // Fetch Instagram stats
         if (instagramLinks.length > 0) {
           console.log("Fetching Instagram stats for", instagramLinks);
 
@@ -195,6 +230,35 @@ export default function TrendsListPage() {
             } catch (error) {
               console.error(
                 `Failed to fetch Instagram stats for ${shortcode}:`,
+                error
+              );
+            }
+          }
+        }
+
+        // Fetch TikTok stats
+        if (tiktokLinks.length > 0) {
+          console.log("Fetching TikTok stats for", tiktokLinks);
+
+          for (const videoId of tiktokLinks) {
+            try {
+              const tiktokData = await fetchTiktokStats(videoId);
+              if (tiktokData) {
+                // Convert TikTok stats to TweetStats format
+                const convertedStats: TweetStats = {
+                  id: tiktokData.videoId,
+                  likes: tiktokData.likes,
+                  views: tiktokData.views,
+                  replies: tiktokData.comments, // TikTok comments = Twitter replies
+                  reposts: tiktokData.shares, // TikTok shares = Twitter reposts
+                  quotes: 0, // TikTok doesn't have quotes
+                  bookmarks: 0, // TikTok doesn't have bookmarks
+                };
+                newStats.push(convertedStats);
+              }
+            } catch (error) {
+              console.error(
+                `Failed to fetch TikTok stats for ${videoId}:`,
                 error
               );
             }
@@ -381,6 +445,55 @@ export default function TrendsListPage() {
     );
   };
 
+  // Add TikTok embed component
+  const TiktokEmbed = ({ tiktokId }: { tiktokId: string }) => {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    useEffect(() => {
+      // Listen for postMessage from iframe
+      const handleMessage = (event: MessageEvent) => {
+        if (
+          event.data &&
+          event.data.type === "tiktok-height" &&
+          event.data.tiktokId === tiktokId &&
+          iframeRef.current
+        ) {
+          console.log(
+            `Received height for TikTok ${tiktokId}:`,
+            event.data.height
+          );
+          iframeRef.current.style.height = `${event.data.height}px`;
+        }
+      };
+
+      window.addEventListener("message", handleMessage);
+
+      // Clean up event listener
+      return () => {
+        window.removeEventListener("message", handleMessage);
+      };
+    }, [tiktokId]);
+
+    return (
+      <div className="w-full">
+        <iframe
+          ref={iframeRef}
+          src={`/api/tiktokEmbed?tiktokId=${tiktokId}`}
+          className="w-full border-0 rounded-lg"
+          style={{
+            borderRadius: "20px",
+            height: "600px", // Default height
+            minHeight: "400px",
+          }}
+          frameBorder="0"
+          scrolling="no"
+          allowFullScreen={true}
+          title={`TikTok video ${tiktokId}`}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="w-full mx-auto relative flex flex-col items-center">
       <SignedOut>
@@ -492,7 +605,7 @@ export default function TrendsListPage() {
             >
               <input
                 type="url"
-                placeholder="Paste a Twitter or Instagram link and hit enter"
+                placeholder="Paste a Twitter, Instagram, or TikTok link and hit enter"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="w-full rounded-[8px] bg-black/10 focus:bg-black/30 placeholder:opacity-60 opacity-90 py-2 mt-4 px-4 text-black dark:text-white focus:outline-none"
@@ -551,9 +664,7 @@ export default function TrendsListPage() {
                       >
                         <Trash className="w-4 h-4" />
                       </div>
-                      <div className="bg-blue-900/20 text-blue-400 rounded-lg p-4 text-center">
-                        TikTok videos cannot be previewed yet.
-                      </div>
+                      <TiktokEmbed tiktokId={tiktokId} />
                     </div>
                   ) : (
                     <div className="flex flex-col items-end relative">
@@ -562,9 +673,9 @@ export default function TrendsListPage() {
                         onClick={() => removeUrlAtIndex(idx)}
                       >
                         <Trash className="w-4 h-4" />
-                      </div>
+                      </div>{" "}
                       <div className="bg-red-900/20 text-red-400 rounded-lg p-4 text-center">
-                        Invalid Tweet or Instagram Link
+                        Invalid Tweet, Instagram, or TikTok Link
                       </div>
                     </div>
                   )}
