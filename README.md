@@ -12,7 +12,6 @@ Next.js 15 fullstack template with better-auth for authentication and drizzle-or
 - Full-stack framework: Next.js 15-canary
 - UI: Tailwind CSS v4
 - Component library: Shadcn UI
-- Authentication: better-auth
 - Database: postgres
 - ORM: drizzle-orm
 
