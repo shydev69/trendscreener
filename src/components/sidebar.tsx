@@ -15,6 +15,8 @@ import {
   HelpCircle,
   Plus,
   TriangleRight,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -56,9 +58,43 @@ const Sidebar: React.FC<SidebarProps> = ({
     usePathname() ? "/" + usePathname().split("/")[1] : null
   );
   const [userTrends, setUserTrends] = React.useState<userTrend[]>([]);
+  const [dropdownStates, setDropdownStates] = React.useState({
+    twitter: true,
+    instagram: true,
+    tiktok: true,
+  });
+
   const handleLinkClick = (link: string) => {
     setActiveLink(link);
   };
+
+  const toggleDropdown = (platform: "twitter" | "instagram" | "tiktok") => {
+    setDropdownStates((prev) => ({
+      ...prev,
+      [platform]: !prev[platform],
+    }));
+  };
+
+  const filterTrendsByPlatform = (platform: string) => {
+    return userTrends.filter((trend) => {
+      return trend.urls.some((url) => {
+        const lowerUrl = url.toLowerCase();
+        switch (platform) {
+          case "twitter":
+            return (
+              lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")
+            );
+          case "instagram":
+            return lowerUrl.includes("instagram.com");
+          case "tiktok":
+            return lowerUrl.includes("tiktok.com");
+          default:
+            return false;
+        }
+      });
+    });
+  };
+
   function getUserTrends() {
     fetch(`/api/getUserTrends`)
       .then((response) => response.json())
@@ -146,39 +182,136 @@ const Sidebar: React.FC<SidebarProps> = ({
           </Link>
         ))}
         <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
-        <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4">
-          Twitter <span className="text-green-400 ml-1">●</span>
-        </h2>{" "}
-        <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4 flex items-center">
-          Instagram
-          <span className="text-green-400 ml-2">●</span>
-        </h2>{" "}
-        <h2 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-4 px-4 flex items-center">
-          TikTok
-          <span className="text-green-400 ml-2">●</span>
-        </h2>{" "}
         <SignedIn>
-          {userTrends.map((item) => (
-            <Link
-              key={item.id}
-              href={`/app/trendscreen/${item.id}`}
-              onClick={() => {
-                handleLinkClick(`/app/trendscreen/${item.id}`);
-                toggleSidebar?.();
-              }}
-              className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
-              ${
-                activeLink === `/app/trendscreen/${item.id}` &&
-                "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
-              }
-              px-6 py-3 md:px-4 md:py-3
-            `}
+          {/* Twitter Section */}
+          <div>
+            <button
+              onClick={() => toggleDropdown("twitter")}
+              className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] transition"
             >
-              <span className="text-sm w-full truncate text-ellipsis">
-                {item.name || item.urls[0]}
-              </span>
-            </Link>
-          ))}{" "}
+              <div className="flex items-center">
+                Twitter
+                <span className="text-green-400 ml-2">●</span>
+              </div>
+              {dropdownStates.twitter ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+            {dropdownStates.twitter && (
+              <div className="ml-2 space-y-1">
+                {filterTrendsByPlatform("twitter").map((item) => (
+                  <Link
+                    key={`twitter-${item.id}`}
+                    href={`/app/trendscreen/${item.id}`}
+                    onClick={() => {
+                      handleLinkClick(`/app/trendscreen/${item.id}`);
+                      toggleSidebar?.();
+                    }}
+                    className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
+                    ${
+                      activeLink === `/app/trendscreen/${item.id}` &&
+                      "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+                    }
+                    px-6 py-3 md:px-4 md:py-3
+                  `}
+                  >
+                    <span className="text-sm w-full truncate text-ellipsis">
+                      {item.name || item.urls[0]}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Instagram Section */}
+          <div>
+            <button
+              onClick={() => toggleDropdown("instagram")}
+              className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] transition"
+            >
+              <div className="flex items-center">
+                Instagram
+                <span className="text-green-400 ml-2">●</span>
+              </div>
+              {dropdownStates.instagram ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+            {dropdownStates.instagram && (
+              <div className="ml-2 space-y-1">
+                {filterTrendsByPlatform("instagram").map((item) => (
+                  <Link
+                    key={`instagram-${item.id}`}
+                    href={`/app/trendscreen/${item.id}`}
+                    onClick={() => {
+                      handleLinkClick(`/app/trendscreen/${item.id}`);
+                      toggleSidebar?.();
+                    }}
+                    className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
+                    ${
+                      activeLink === `/app/trendscreen/${item.id}` &&
+                      "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+                    }
+                    px-6 py-3 md:px-4 md:py-3
+                  `}
+                  >
+                    <span className="text-sm w-full truncate text-ellipsis">
+                      {item.name || item.urls[0]}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* TikTok Section */}
+          <div>
+            <button
+              onClick={() => toggleDropdown("tiktok")}
+              className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] transition"
+            >
+              <div className="flex items-center">
+                TikTok
+                <span className="text-green-400 ml-2">●</span>
+              </div>
+              {dropdownStates.tiktok ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+            {dropdownStates.tiktok && (
+              <div className="ml-2 space-y-1">
+                {filterTrendsByPlatform("tiktok").map((item) => (
+                  <Link
+                    key={`tiktok-${item.id}`}
+                    href={`/app/trendscreen/${item.id}`}
+                    onClick={() => {
+                      handleLinkClick(`/app/trendscreen/${item.id}`);
+                      toggleSidebar?.();
+                    }}
+                    className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
+                    ${
+                      activeLink === `/app/trendscreen/${item.id}` &&
+                      "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+                    }
+                    px-6 py-3 md:px-4 md:py-3
+                  `}
+                  >
+                    <span className="text-sm w-full truncate text-ellipsis">
+                      {item.name || item.urls[0]}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
         </SignedIn>
         <SignedOut>
@@ -189,27 +322,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </SignedOut>
       </nav>
-      {/*<nav className="flex-1 flex flex-col space-y-2 mt-2 px-4"></nav>
-      <div className="px-4 py-6 flex flex-col gap-y-1">
-        <SignedOut>
-          <SignInButton>
-            <button className="overflow-hidden flex items-center my-0 px-4 py-2 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:underline hover:text-black dark:hover:text-white transition justify-center text-center">
-              Sign In
-            </button>
-          </SignInButton>
-          <SignUpButton>
-            <button className="overflow-hidden flex items-center my-0 px-4 py-2 rounded-[8px] bg-gradient-to-br from-[#000000] to-black/90 dark:to-white/10 border text-white/80 text-sm hover:text-white transition justify-center text-center">
-              Sign Up <ArrowRightCircle className="w-4 h-4 ml-2" />
-            </button>
-          </SignUpButton>
-        </SignedOut>
-        <SignedIn>
-          <div className="w-full flex items-center justify-end my-2 px-8">
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        </SignedIn>
-        
-      </div>*/}
     </aside>
   );
 };
