@@ -188,5 +188,3 @@ The application includes several API routes for:
 - User authentication
 - Trend list management
 - Analytics data processing
-
----
