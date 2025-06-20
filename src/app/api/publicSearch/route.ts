@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
 import { queryDb } from "@/lib/db";
 import { trendLists } from "../../../../drizzle/migrations/schema";
-import { eq, and, ilike, desc, gte, sql, isNull } from "drizzle-orm";
+import {
+  eq,
+  and,
+  ilike,
+  desc,
+  gte,
+  sql,
+  isNull,
+  or,
+  like,
+  SQL,
+} from "drizzle-orm";
 
 export async function GET(request: Request) {
   try {
@@ -15,6 +26,11 @@ export async function GET(request: Request) {
     const findFromThisWeek = searchParams.get("findFromThisWeek") === "true";
     const newTimeFilter = searchParams.get("newTimeFilter"); // For new sort: 5m, 1h, 6h, 12h, 24h
     const intelligentSort = searchParams.get("intelligentSort") === "true";
+    const platforms = searchParams.get("platforms")?.split(",") || [
+      "twitter",
+      "instagram",
+      "tiktok",
+    ];
 
     const offset = (page - 1) * limit;
 
@@ -76,9 +92,8 @@ export async function GET(request: Request) {
           timeAgo.setHours(now.getHours() - 24);
           break;
         default:
-          timeAgo.setHours(now.getHours() - 24); // Default to 24h
+          break;
       }
-
       conditions.push(gte(trendLists.createdAt, timeAgo.toISOString()));
     }
 
@@ -114,6 +129,33 @@ export async function GET(request: Request) {
           .orderBy(sortOrder === "asc" ? sortColumn : desc(sortColumn))
           .limit(limit)
           .offset(offset);
+      });
+    }
+
+    // Apply platform filtering after database fetch (since urls is JSON array)
+    if (platforms.length > 0 && platforms.length < 3) {
+      trends = trends.filter((trend: any) => {
+        const urls = Array.isArray(trend.urls)
+          ? trend.urls
+          : JSON.parse(trend.urls || "[]");
+
+        return platforms.some((platform) => {
+          return urls.some((url: string) => {
+            const lowerUrl = url.toLowerCase();
+            switch (platform) {
+              case "twitter":
+                return (
+                  lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")
+                );
+              case "instagram":
+                return lowerUrl.includes("instagram.com");
+              case "tiktok":
+                return lowerUrl.includes("tiktok.com");
+              default:
+                return false;
+            }
+          });
+        });
       });
     }
 

@@ -31,18 +31,53 @@ export default function SearchPage() {
   const [hasMore, setHasMore] = useState(true);
   const [resultsPerPage] = useState(10);
   const router = useRouter();
-
+  const [platforms, setPlatforms] = useState<string[]>([
+    "twitter",
+    "instagram",
+    "tiktok",
+  ]);
   // Get query param from URL
   useEffect(() => {
     setSearchPage(1);
+
+    // Check for platform filters in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const platformsParam = urlParams.get("platforms");
+    if (platformsParam) {
+      setPlatforms(platformsParam.split(","));
+    }
   }, [typeof window !== "undefined" && window.location.search]);
 
+  // Listen for platform filter changes from sidebar
+  useEffect(() => {
+    const handlePlatformFiltersChanged = (event: CustomEvent) => {
+      setPlatforms(event.detail.platforms);
+      setSearchPage(1); // Reset to first page when filters change
+    };
+
+    window.addEventListener(
+      "platformFiltersChanged",
+      handlePlatformFiltersChanged as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "platformFiltersChanged",
+        handlePlatformFiltersChanged as EventListener
+      );
+    };
+  }, []);
   // Fetch public trends when filters change
   useEffect(() => {
     setLoading(true);
     setError("");
 
     let apiUrl = `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=desc&page=1&limit=${resultsPerPage}`;
+
+    // Add platform filters
+    if (platforms.length > 0 && platforms.length < 3) {
+      apiUrl += `&platforms=${platforms.join(",")}`;
+    }
 
     // Add filter based on active filter
     if (activeFilter === "top") {
@@ -72,14 +107,25 @@ export default function SearchPage() {
         setError("Error fetching public trends: " + error);
         setLoading(false);
       });
-  }, [sortBy, topTimeFilter, newTimeFilter, activeFilter, resultsPerPage]);
-
+  }, [
+    sortBy,
+    topTimeFilter,
+    newTimeFilter,
+    activeFilter,
+    resultsPerPage,
+    platforms,
+  ]);
   // Load more public trends
   const loadMorePublicTrends = () => {
     setLoading(true);
     const nextPage = searchPage + 1;
 
     let apiUrl = `/api/publicSearch?search=&sortBy=${sortBy}&sortOrder=desc&page=${nextPage}&limit=${resultsPerPage}`;
+
+    // Add platform filters
+    if (platforms.length > 0 && platforms.length < 3) {
+      apiUrl += `&platforms=${platforms.join(",")}`;
+    }
 
     if (activeFilter === "top") {
       if (topTimeFilter === "today") {
@@ -142,7 +188,6 @@ export default function SearchPage() {
         <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
       </div>
 
-      
       <div className="relative z-10 w-full max-w-7xl mx-auto px-0 pb-40 sm:px-6 lg:px-8 pt-8">
         <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
           {error && (

@@ -35,15 +35,45 @@ export default function SearchPage() {
   const [searchPage, setSearchPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [personal, setPersonal] = useState(false); // Switch for user/public
+  const [platforms, setPlatforms] = useState<string[]>([
+    "twitter",
+    "instagram",
+    "tiktok",
+  ]);
   const router = useRouter();
-
   // Helper to get query param from URL
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const q = searchParams.get("q") || "";
     setQuery(q);
     setSearchPage(1);
+
+    // Check for platform filters in URL
+    const platformsParam = searchParams.get("platforms");
+    if (platformsParam) {
+      setPlatforms(platformsParam.split(","));
+    }
   }, [typeof window !== "undefined" && window.location.search]);
+
+  // Listen for platform filter changes from sidebar
+  useEffect(() => {
+    const handlePlatformFiltersChanged = (event: CustomEvent) => {
+      setPlatforms(event.detail.platforms);
+      setSearchPage(1); // Reset to first page when filters change
+    };
+
+    window.addEventListener(
+      "platformFiltersChanged",
+      handlePlatformFiltersChanged as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "platformFiltersChanged",
+        handlePlatformFiltersChanged as EventListener
+      );
+    };
+  }, []);
 
   // Fetch trends when filters or query change
   useEffect(() => {
@@ -56,13 +86,19 @@ export default function SearchPage() {
     setError("");
     const endpoint = personal ? "/api/userSearch" : "/api/publicSearch";
     setTrends([]);
-    fetch(
-      `${endpoint}?search=${encodeURIComponent(
-        query
-      )}&sortBy=${sortBy}&sortOrder=${
-        sortBy == "createdAt" ? "asc" : isDesc ? "desc" : "asc"
-      }&page=1&limit=${resultsPerPage}`
-    )
+
+    let apiUrl = `${endpoint}?search=${encodeURIComponent(
+      query
+    )}&sortBy=${sortBy}&sortOrder=${
+      sortBy == "createdAt" ? "asc" : isDesc ? "desc" : "asc"
+    }&page=1&limit=${resultsPerPage}`;
+
+    // Add platform filters
+    if (platforms.length > 0 && platforms.length < 3) {
+      apiUrl += `&platforms=${platforms.join(",")}`;
+    }
+
+    fetch(apiUrl)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -78,20 +114,25 @@ export default function SearchPage() {
         setError("Error fetching trends: " + error);
         setLoading(false);
       });
-  }, [query, sortBy, isDesc, resultsPerPage, personal]);
-
+  }, [query, sortBy, isDesc, resultsPerPage, personal, platforms]);
   // Load more trends
   const loadMoreTrends = () => {
     setLoading(true);
     const nextPage = searchPage + 1;
     const endpoint = personal ? "/api/userSearch" : "/api/publicSearch";
-    fetch(
-      `${endpoint}?search=${encodeURIComponent(
-        query
-      )}&sortBy=${sortBy}&sortOrder=${
-        sortBy == "createdAt" ? "asc" : isDesc ? "desc" : "asc"
-      }&page=${nextPage}&limit=${resultsPerPage}`
-    )
+
+    let apiUrl = `${endpoint}?search=${encodeURIComponent(
+      query
+    )}&sortBy=${sortBy}&sortOrder=${
+      sortBy == "createdAt" ? "asc" : isDesc ? "desc" : "asc"
+    }&page=${nextPage}&limit=${resultsPerPage}`;
+
+    // Add platform filters
+    if (platforms.length > 0 && platforms.length < 3) {
+      apiUrl += `&platforms=${platforms.join(",")}`;
+    }
+
+    fetch(apiUrl)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {

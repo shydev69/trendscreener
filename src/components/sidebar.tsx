@@ -21,6 +21,7 @@ import {
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useTrend } from "@/contexts/TrendContext";
+import { Switch } from "@/components/ui/switch";
 
 const links = [
   {
@@ -65,6 +66,13 @@ const Sidebar: React.FC<SidebarProps> = ({
     React.useState<userTrend | null>(null);
   const [isLoadingTrends, setIsLoadingTrends] = React.useState(true);
   const [platformFilters, setPlatformFilters] = React.useState({
+    twitter: true,
+    instagram: true,
+    tiktok: true,
+  });
+
+  // State for platform filtering on dashboard/search pages
+  const [platformSwitches, setPlatformSwitches] = React.useState({
     twitter: true,
     instagram: true,
     tiktok: true,
@@ -147,12 +155,69 @@ const Sidebar: React.FC<SidebarProps> = ({
       return currentTrendHasPlatform(platform)
         ? "text-green-400"
         : "text-red-400";
-    }
-
-    // For all other pages (dashboard, FAQ, etc.), show all green
+    } // For all other pages (dashboard, FAQ, etc.), show all green
     return "text-green-400";
   };
-  // Load platform filters from localStorage on component mount
+
+  // Check if current page should show switches instead of dots
+  const shouldShowSwitches = () => {
+    return pathname === "/app" || pathname === "/app/search";
+  };
+
+  // Toggle platform switch for filtering
+  const togglePlatformSwitch = (
+    platform: "twitter" | "instagram" | "tiktok"
+  ) => {
+    setPlatformSwitches((prev) => {
+      const newSwitches = {
+        ...prev,
+        [platform]: !prev[platform],
+      };
+
+      // Trigger URL update for dashboard/search pages
+      if (shouldShowSwitches()) {
+        updatePageWithFilters(newSwitches);
+      }
+
+      return newSwitches;
+    });
+  };
+
+  // Update page URL with platform filters
+  const updatePageWithFilters = (switches: typeof platformSwitches) => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const platforms = Object.entries(switches)
+        .filter(([_, enabled]) => enabled)
+        .map(([platform, _]) => platform);
+
+      if (platforms.length === 3) {
+        // All platforms selected, remove filter
+        url.searchParams.delete("platforms");
+      } else if (platforms.length > 0) {
+        // Some platforms selected
+        url.searchParams.set("platforms", platforms.join(","));
+      } else {
+        // No platforms selected, show all (fallback)
+        url.searchParams.delete("platforms");
+      }
+
+      // Update URL without page reload
+      window.history.replaceState({}, "", url.toString());
+
+      // Trigger a custom event to notify pages about filter change
+      window.dispatchEvent(
+        new CustomEvent("platformFiltersChanged", {
+          detail: {
+            platforms:
+              platforms.length > 0
+                ? platforms
+                : ["twitter", "instagram", "tiktok"],
+          },
+        })
+      );
+    }
+  }; // Load platform filters from localStorage on component mount
   React.useEffect(() => {
     const savedFilters = localStorage.getItem("platformFilters");
     if (savedFilters) {
@@ -166,12 +231,46 @@ const Sidebar: React.FC<SidebarProps> = ({
         );
       }
     }
+
+    // Load platform switches from localStorage and URL params
+    const savedSwitches = localStorage.getItem("platformSwitches");
+    if (savedSwitches) {
+      try {
+        const parsedSwitches = JSON.parse(savedSwitches);
+        setPlatformSwitches(parsedSwitches);
+      } catch (error) {
+        console.error(
+          "Error parsing platform switches from localStorage:",
+          error
+        );
+      }
+    }
+
+    // Check URL params for platform filters
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const platformsParam = url.searchParams.get("platforms");
+      if (platformsParam) {
+        const enabledPlatforms = platformsParam.split(",");
+        const newSwitches = {
+          twitter: enabledPlatforms.includes("twitter"),
+          instagram: enabledPlatforms.includes("instagram"),
+          tiktok: enabledPlatforms.includes("tiktok"),
+        };
+        setPlatformSwitches(newSwitches);
+      }
+    }
   }, []);
 
   // Save platform filters to localStorage whenever they change
   React.useEffect(() => {
     localStorage.setItem("platformFilters", JSON.stringify(platformFilters));
   }, [platformFilters]);
+
+  // Save platform switches to localStorage whenever they change
+  React.useEffect(() => {
+    localStorage.setItem("platformSwitches", JSON.stringify(platformSwitches));
+  }, [platformSwitches]);
 
   const handleLinkClick = (link: string) => {
     setActiveLink(link);
@@ -334,24 +433,49 @@ const Sidebar: React.FC<SidebarProps> = ({
         ))}
         <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
         <SignedIn>
-          {/* Twitter Section */}
+          {" "}          {/* Twitter Section */}
           <div>
-            <button
-              onClick={() => togglePlatformFilter("twitter")}
-              className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] transition"
-            >
-              <div className="flex items-center">
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px] transition">
+              <div 
+                className={`flex items-center flex-1 ${
+                  !shouldShowSwitches() ? "cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] px-2 py-1 -mx-2 -my-1" : ""
+                }`}
+                onClick={() => !shouldShowSwitches() && togglePlatformFilter("twitter")}
+              >
                 Twitter
-                <span className={`ml-2 ${getPlatformDotColor("twitter")}`}>
-                  ●
-                </span>
+                {shouldShowSwitches() ? (
+                  <Switch
+                    checked={platformSwitches.twitter}
+                    onCheckedChange={() => togglePlatformSwitch("twitter")}
+                    className="ml-2 scale-75"
+                  />
+                ) : (
+                  <span className={`ml-2 ${getPlatformDotColor("twitter")}`}>
+                    ●
+                  </span>
+                )}
               </div>
-              {platformFilters.twitter ? (
-                <ChevronDown className="w-4 h-4" />
+              {shouldShowSwitches() ? (
+                <div 
+                  className="cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] p-1"
+                  onClick={() => togglePlatformFilter("twitter")}
+                >
+                  {platformFilters.twitter ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </div>
               ) : (
-                <ChevronRight className="w-4 h-4" />
+                <>
+                  {platformFilters.twitter ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </>
               )}
-            </button>
+            </div>
             {platformFilters.twitter && (
               <div className="ml-2 space-y-1">
                 {isLoadingTrends ? (
@@ -391,26 +515,49 @@ const Sidebar: React.FC<SidebarProps> = ({
                 )}
               </div>
             )}
-          </div>
-
-          {/* Instagram Section */}
+          </div>{" "}          {/* Instagram Section */}
           <div>
-            <button
-              onClick={() => togglePlatformFilter("instagram")}
-              className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] transition"
-            >
-              <div className="flex items-center">
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px] transition">
+              <div 
+                className={`flex items-center flex-1 ${
+                  !shouldShowSwitches() ? "cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] px-2 py-1 -mx-2 -my-1" : ""
+                }`}
+                onClick={() => !shouldShowSwitches() && togglePlatformFilter("instagram")}
+              >
                 Instagram
-                <span className={`ml-2 ${getPlatformDotColor("instagram")}`}>
-                  ●
-                </span>
+                {shouldShowSwitches() ? (
+                  <Switch
+                    checked={platformSwitches.instagram}
+                    onCheckedChange={() => togglePlatformSwitch("instagram")}
+                    className="ml-2 scale-75"
+                  />
+                ) : (
+                  <span className={`ml-2 ${getPlatformDotColor("instagram")}`}>
+                    ●
+                  </span>
+                )}
               </div>
-              {platformFilters.instagram ? (
-                <ChevronDown className="w-4 h-4" />
+              {shouldShowSwitches() ? (
+                <div 
+                  className="cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] p-1"
+                  onClick={() => togglePlatformFilter("instagram")}
+                >
+                  {platformFilters.instagram ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </div>
               ) : (
-                <ChevronRight className="w-4 h-4" />
+                <>
+                  {platformFilters.instagram ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </>
               )}
-            </button>
+            </div>
             {platformFilters.instagram && (
               <div className="ml-2 space-y-1">
                 {isLoadingTrends ? (
@@ -450,26 +597,49 @@ const Sidebar: React.FC<SidebarProps> = ({
                 )}
               </div>
             )}
-          </div>
-
-          {/* TikTok Section */}
+          </div>{" "}          {/* TikTok Section */}
           <div>
-            <button
-              onClick={() => togglePlatformFilter("tiktok")}
-              className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] transition"
-            >
-              <div className="flex items-center">
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px] transition">
+              <div 
+                className={`flex items-center flex-1 ${
+                  !shouldShowSwitches() ? "cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] px-2 py-1 -mx-2 -my-1" : ""
+                }`}
+                onClick={() => !shouldShowSwitches() && togglePlatformFilter("tiktok")}
+              >
                 TikTok
-                <span className={`ml-2 ${getPlatformDotColor("tiktok")}`}>
-                  ●
-                </span>
+                {shouldShowSwitches() ? (
+                  <Switch
+                    checked={platformSwitches.tiktok}
+                    onCheckedChange={() => togglePlatformSwitch("tiktok")}
+                    className="ml-2 scale-75"
+                  />
+                ) : (
+                  <span className={`ml-2 ${getPlatformDotColor("tiktok")}`}>
+                    ●
+                  </span>
+                )}
               </div>
-              {platformFilters.tiktok ? (
-                <ChevronDown className="w-4 h-4" />
+              {shouldShowSwitches() ? (
+                <div 
+                  className="cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] p-1"
+                  onClick={() => togglePlatformFilter("tiktok")}
+                >
+                  {platformFilters.tiktok ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </div>
               ) : (
-                <ChevronRight className="w-4 h-4" />
+                <>
+                  {platformFilters.tiktok ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </>
               )}
-            </button>
+            </div>
             {platformFilters.tiktok && (
               <div className="ml-2 space-y-1">
                 {isLoadingTrends ? (
@@ -510,7 +680,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
           </div>
-
           <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
         </SignedIn>
         <SignedOut>
