@@ -15,8 +15,6 @@ import {
   HelpCircle,
   Plus,
   TriangleRight,
-  ChevronDown,
-  ChevronRight,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -65,11 +63,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [currentTrendData, setCurrentTrendData] =
     React.useState<userTrend | null>(null);
   const [isLoadingTrends, setIsLoadingTrends] = React.useState(true);
-  const [platformFilters, setPlatformFilters] = React.useState({
-    twitter: true,
-    instagram: true,
-    tiktok: true,
-  });
 
   // State for platform filtering on dashboard/search pages
   const [platformSwitches, setPlatformSwitches] = React.useState({
@@ -217,21 +210,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         })
       );
     }
-  }; // Load platform filters from localStorage on component mount
+  }; // Load platform switches from localStorage on component mount
   React.useEffect(() => {
-    const savedFilters = localStorage.getItem("platformFilters");
-    if (savedFilters) {
-      try {
-        const parsedFilters = JSON.parse(savedFilters);
-        setPlatformFilters(parsedFilters);
-      } catch (error) {
-        console.error(
-          "Error parsing platform filters from localStorage:",
-          error
-        );
-      }
-    }
-
     // Load platform switches from localStorage and URL params
     const savedSwitches = localStorage.getItem("platformSwitches");
     if (savedSwitches) {
@@ -262,47 +242,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, []);
 
-  // Save platform filters to localStorage whenever they change
-  React.useEffect(() => {
-    localStorage.setItem("platformFilters", JSON.stringify(platformFilters));
-  }, [platformFilters]);
-
   // Save platform switches to localStorage whenever they change
   React.useEffect(() => {
     localStorage.setItem("platformSwitches", JSON.stringify(platformSwitches));
   }, [platformSwitches]);
-
   const handleLinkClick = (link: string) => {
     setActiveLink(link);
-  };
-
-  const togglePlatformFilter = (
-    platform: "twitter" | "instagram" | "tiktok"
-  ) => {
-    setPlatformFilters((prev) => ({
-      ...prev,
-      [platform]: !prev[platform],
-    }));
-  };
-
-  const filterTrendsByPlatform = (platform: string) => {
-    return userTrends.filter((trend) => {
-      return trend.urls.some((url) => {
-        const lowerUrl = url.toLowerCase();
-        switch (platform) {
-          case "twitter":
-            return (
-              lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")
-            );
-          case "instagram":
-            return lowerUrl.includes("instagram.com");
-          case "tiktok":
-            return lowerUrl.includes("tiktok.com");
-          default:
-            return false;
-        }
-      });
-    });
   };
 
   // Fetch individual trend data if not found in cached lists
@@ -431,17 +376,13 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span className="text-sm">{item.label}</span>
           </Link>
         ))}
-        <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
+        <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />{" "}
         <SignedIn>
-          {" "}          {/* Twitter Section */}
-          <div>
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px] transition">
-              <div 
-                className={`flex items-center flex-1 ${
-                  !shouldShowSwitches() ? "cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] px-2 py-1 -mx-2 -my-1" : ""
-                }`}
-                onClick={() => !shouldShowSwitches() && togglePlatformFilter("twitter")}
-              >
+          {/* Platform Status Section */}
+          <div className="space-y-2">
+            {/* Twitter */}
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px]">
+              <div className="flex items-center">
                 Twitter
                 {shouldShowSwitches() ? (
                   <Switch
@@ -455,75 +396,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                 )}
               </div>
-              {shouldShowSwitches() ? (
-                <div 
-                  className="cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] p-1"
-                  onClick={() => togglePlatformFilter("twitter")}
-                >
-                  {platformFilters.twitter ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </div>
-              ) : (
-                <>
-                  {platformFilters.twitter ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </>
-              )}
             </div>
-            {platformFilters.twitter && (
-              <div className="ml-2 space-y-1">
-                {isLoadingTrends ? (
-                  <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
-                    <span className="text-xs text-gray-500 dark:text-neutral-500">
-                      Loading trendscreens...
-                    </span>
-                  </div>
-                ) : filterTrendsByPlatform("twitter").length > 0 ? (
-                  filterTrendsByPlatform("twitter").map((item) => (
-                    <Link
-                      key={`twitter-${item.id}`}
-                      href={`/app/trendscreen/${item.id}`}
-                      onClick={() => {
-                        handleLinkClick(`/app/trendscreen/${item.id}`);
-                        toggleSidebar?.();
-                      }}
-                      className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
-                      ${
-                        activeLink === `/app/trendscreen/${item.id}` &&
-                        "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
-                      }
-                      px-6 py-3 md:px-4 md:py-3
-                    `}
-                    >
-                      <span className="text-sm w-full truncate text-ellipsis">
-                        {item.name || item.urls[0]}
-                      </span>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
-                    <span className="text-xs text-gray-500 dark:text-neutral-500">
-                      No trendscreens
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>{" "}          {/* Instagram Section */}
-          <div>
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px] transition">
-              <div 
-                className={`flex items-center flex-1 ${
-                  !shouldShowSwitches() ? "cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] px-2 py-1 -mx-2 -my-1" : ""
-                }`}
-                onClick={() => !shouldShowSwitches() && togglePlatformFilter("instagram")}
-              >
+
+            {/* Instagram */}
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px]">
+              <div className="flex items-center">
                 Instagram
                 {shouldShowSwitches() ? (
                   <Switch
@@ -537,75 +414,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                 )}
               </div>
-              {shouldShowSwitches() ? (
-                <div 
-                  className="cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] p-1"
-                  onClick={() => togglePlatformFilter("instagram")}
-                >
-                  {platformFilters.instagram ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </div>
-              ) : (
-                <>
-                  {platformFilters.instagram ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </>
-              )}
             </div>
-            {platformFilters.instagram && (
-              <div className="ml-2 space-y-1">
-                {isLoadingTrends ? (
-                  <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
-                    <span className="text-xs text-gray-500 dark:text-neutral-500">
-                      Loading trendscreens...
-                    </span>
-                  </div>
-                ) : filterTrendsByPlatform("instagram").length > 0 ? (
-                  filterTrendsByPlatform("instagram").map((item) => (
-                    <Link
-                      key={`instagram-${item.id}`}
-                      href={`/app/trendscreen/${item.id}`}
-                      onClick={() => {
-                        handleLinkClick(`/app/trendscreen/${item.id}`);
-                        toggleSidebar?.();
-                      }}
-                      className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
-                      ${
-                        activeLink === `/app/trendscreen/${item.id}` &&
-                        "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
-                      }
-                      px-6 py-3 md:px-4 md:py-3
-                    `}
-                    >
-                      <span className="text-sm w-full truncate text-ellipsis">
-                        {item.name || item.urls[0]}
-                      </span>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
-                    <span className="text-xs text-gray-500 dark:text-neutral-500">
-                      No trendscreens
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>{" "}          {/* TikTok Section */}
-          <div>
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px] transition">
-              <div 
-                className={`flex items-center flex-1 ${
-                  !shouldShowSwitches() ? "cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] px-2 py-1 -mx-2 -my-1" : ""
-                }`}
-                onClick={() => !shouldShowSwitches() && togglePlatformFilter("tiktok")}
-              >
+
+            {/* TikTok */}
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px]">
+              <div className="flex items-center">
                 TikTok
                 {shouldShowSwitches() ? (
                   <Switch
@@ -619,67 +432,50 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                 )}
               </div>
-              {shouldShowSwitches() ? (
-                <div 
-                  className="cursor-pointer hover:bg-[#E9E9EA] hover:text-black hover:dark:bg-[#000000] hover:dark:text-white rounded-[8px] p-1"
-                  onClick={() => togglePlatformFilter("tiktok")}
-                >
-                  {platformFilters.tiktok ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </div>
-              ) : (
-                <>
-                  {platformFilters.tiktok ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </>
-              )}
             </div>
-            {platformFilters.tiktok && (
-              <div className="ml-2 space-y-1">
-                {isLoadingTrends ? (
-                  <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
-                    <span className="text-xs text-gray-500 dark:text-neutral-500">
-                      Loading trendscreens...
-                    </span>
-                  </div>
-                ) : filterTrendsByPlatform("tiktok").length > 0 ? (
-                  filterTrendsByPlatform("tiktok").map((item) => (
-                    <Link
-                      key={`tiktok-${item.id}`}
-                      href={`/app/trendscreen/${item.id}`}
-                      onClick={() => {
-                        handleLinkClick(`/app/trendscreen/${item.id}`);
-                        toggleSidebar?.();
-                      }}
-                      className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
-                      ${
-                        activeLink === `/app/trendscreen/${item.id}` &&
-                        "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
-                      }
-                      px-6 py-3 md:px-4 md:py-3
-                    `}
-                    >
-                      <span className="text-sm w-full truncate text-ellipsis">
-                        {item.name || item.urls[0]}
-                      </span>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
-                    <span className="text-xs text-gray-500 dark:text-neutral-500">
-                      No trendscreens
-                    </span>
-                  </div>
-                )}
+          </div>
+          <hr className="border-t border-gray-300 dark:border-neutral-700 my-4 mx-2" />
+          {/* All User Trends Section */}
+          <div className="space-y-2">
+            <h3 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold px-4 mb-2">
+              Your Trendscreens
+            </h3>
+            {isLoadingTrends ? (
+              <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
+                <span className="text-xs text-gray-500 dark:text-neutral-500">
+                  Loading trendscreens...
+                </span>
+              </div>
+            ) : userTrends.length > 0 ? (
+              userTrends.map((item) => (
+                <Link
+                  key={`all-${item.id}`}
+                  href={`/app/trendscreen/${item.id}`}
+                  onClick={() => {
+                    handleLinkClick(`/app/trendscreen/${item.id}`);
+                    toggleSidebar?.();
+                  }}
+                  className={`overflow-hidden flex items-center my-0 px-4 py-1.5 rounded-[8px] text-gray-600 dark:text-neutral-400 text-sm hover:bg-[#E9E9EA] hover:text-black hover:dark:!bg-[#000000] hover:dark:!text-white transition
+                    ${
+                      activeLink === `/app/trendscreen/${item.id}` &&
+                      "!bg-[#E9E9EA] !text-black dark:!bg-[#000000] dark:!text-white"
+                    }
+                    px-6 py-3 md:px-4 md:py-3
+                  `}
+                >
+                  <span className="text-sm w-full truncate text-ellipsis">
+                    {item.name || item.urls[0]}
+                  </span>
+                </Link>
+              ))
+            ) : (
+              <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
+                <span className="text-xs text-gray-500 dark:text-neutral-500">
+                  No trendscreens yet
+                </span>
               </div>
             )}
-          </div>
+          </div>{" "}
           <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />
         </SignedIn>
         <SignedOut>
