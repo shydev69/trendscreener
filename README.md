@@ -182,7 +182,7 @@ src/
 
 ## API Endpoints
 
-The application includes several API routes for:
+The application includes several API routes for: 
 
 - Social media data fetching
 - User authentication
