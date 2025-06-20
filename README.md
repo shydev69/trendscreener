@@ -1,6 +1,6 @@
 # Trendscreener
 
-A powerful social media analytics platform that lets you create, save, and analyze lists of trending content across multiple platforms. Built for content creators, social media professionals, and traders seeking insights into social media trends.
+A powerful social media analytics platform that lets you create, save, and analyze lists of trending content across multiple platforms. Built for content creators, social media professionals, and traders seeking insights into social media trends. 
 
 ![Trendscreener](./public/logo.png)
 
