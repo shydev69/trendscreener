@@ -180,7 +180,7 @@ src/
 └── styles/               # Additional styling
 ```
 
-## API Endpoints
+## API Endpoints 
 
 The application includes several API routes for: 
 
