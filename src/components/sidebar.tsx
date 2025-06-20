@@ -381,7 +381,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Platform Status Section */}
           <div className="space-y-2">
             {/* Twitter */}
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px]">
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
               <div className="flex items-center">
                 Twitter
                 {shouldShowSwitches() ? (
@@ -399,7 +399,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* Instagram */}
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px]">
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
               <div className="flex items-center">
                 Instagram
                 {shouldShowSwitches() ? (
@@ -417,7 +417,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* TikTok */}
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-2 rounded-[8px]">
+            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
               <div className="flex items-center">
                 TikTok
                 {shouldShowSwitches() ? (
@@ -434,12 +434,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           </div>
-          <hr className="border-t border-gray-300 dark:border-neutral-700 my-4 mx-2" />
           {/* All User Trends Section */}
           <div className="space-y-2">
-            <h3 className="text-sm text-gray-600 dark:text-neutral-400 font-semibold px-4 mb-2">
-              Your Trendscreens
-            </h3>
             {isLoadingTrends ? (
               <div className="mx-4 my-2 px-3 py-2 bg-white/10 dark:bg-white/10 rounded-[8px] text-center">
                 <span className="text-xs text-gray-500 dark:text-neutral-500">
