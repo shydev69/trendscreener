@@ -8,6 +8,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { ClerkProvider, SignedIn } from "@clerk/nextjs";
 import Header from "@/components/header";
 import { dark } from "@clerk/themes";
+import { TrendProvider } from "@/contexts/TrendContext";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.origin),
@@ -71,20 +72,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div
-      className={cn(
-        "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden h-screen font-sans antialiased geist-class"
-      )}
-      style={{ minHeight: "calc(100vh - 2.5rem)" }}
-    >
-      {" "}
-      <Header />
+    <TrendProvider>
       <div
-        className="md:ml-64 mt-14 pb-40 md:mt-10 px-5 flex flex-col items-center bg-white dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-auto"
-        style={{ height: "calc(100vh - 2.5rem)" }}
+        className={cn(
+          "bg-[#F7F7F8] dark:bg-[#000000] overflow-y-hidden h-screen font-sans antialiased geist-class"
+        )}
+        style={{ minHeight: "calc(100vh - 2.5rem)" }}
       >
-        {children}
+        {" "}
+        <Header />
+        <div
+          className="md:ml-64 mt-14 pb-40 md:mt-10 px-5 flex flex-col items-center bg-white dark:bg-[#131316]/30 rounded-[8px] inset-shadow-sm overflow-x-hidden overflow-y-auto"
+          style={{ height: "calc(100vh - 2.5rem)" }}
+        >
+          {children}
+        </div>
       </div>
-    </div>
+    </TrendProvider>
   );
 }

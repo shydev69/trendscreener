@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useTrend } from "@/contexts/TrendContext";
 
 const links = [
   {
@@ -54,10 +55,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen = false,
   toggleSidebar,
 }) => {
+  const { currentUrls } = useTrend();
   const [activeLink, setActiveLink] = React.useState<string | null>(
     usePathname() ? "/" + usePathname().split("/")[1] : null
   );
   const [userTrends, setUserTrends] = React.useState<userTrend[]>([]);
+  const [publicTrends, setPublicTrends] = React.useState<userTrend[]>([]);
+  const [currentTrendData, setCurrentTrendData] =
+    React.useState<userTrend | null>(null);
   const [isLoadingTrends, setIsLoadingTrends] = React.useState(true);
   const [platformFilters, setPlatformFilters] = React.useState({
     twitter: true,
@@ -65,6 +70,88 @@ const Sidebar: React.FC<SidebarProps> = ({
     tiktok: true,
   });
 
+  // Get current trend ID from pathname
+  const pathname = usePathname();
+  const currentTrendId =
+    pathname.includes("/app/trendscreen/") &&
+    pathname.split("/app/trendscreen/")[1]?.split("?")[0]
+      ? pathname.split("/app/trendscreen/")[1].split("?")[0]
+      : null;
+
+  // Get current trend data from cached lists or individual fetch
+  const allTrends = [...userTrends, ...publicTrends];
+  const currentTrend = currentTrendId
+    ? allTrends.find((trend) => trend.id === currentTrendId) || currentTrendData
+    : null;
+
+  // Check if current trend has posts from specific platform
+  const currentTrendHasPlatform = (platform: string) => {
+    if (!currentTrend) return false;
+
+    const hasPlatform = currentTrend.urls.some((url) => {
+      const lowerUrl = url.toLowerCase();
+      switch (platform) {
+        case "twitter":
+          return lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com");
+        case "instagram":
+          return lowerUrl.includes("instagram.com");
+        case "tiktok":
+          return lowerUrl.includes("tiktok.com");
+        default:
+          return false;
+      }
+    });
+
+    // Debug logging - remove this later
+    console.log(`Platform ${platform}:`, hasPlatform, currentTrend.urls);
+
+    return hasPlatform;
+  };
+
+  // Check if current URLs (from create page) have posts from specific platform
+  const currentUrlsHasPlatform = (platform: string) => {
+    if (!currentUrls.length) return false;
+
+    return currentUrls.some((url) => {
+      const lowerUrl = url.toLowerCase();
+      switch (platform) {
+        case "twitter":
+          return lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com");
+        case "instagram":
+          return lowerUrl.includes("instagram.com");
+        case "tiktok":
+          return lowerUrl.includes("tiktok.com");
+        default:
+          return false;
+      }
+    });
+  };
+  // Get platform dot color
+  const getPlatformDotColor = (
+    platform: "twitter" | "instagram" | "tiktok"
+  ) => {
+    // If we're on the create trendscreen page
+    if (pathname === "/app/trendscreen") {
+      // If there are URLs, show based on current URLs
+      if (currentUrls.length > 0) {
+        return currentUrlsHasPlatform(platform)
+          ? "text-green-400"
+          : "text-red-400";
+      }
+      // If create page is empty, show all dots as red
+      return "text-red-400";
+    }
+
+    // If we're viewing a specific trend, show based on that trend's platforms
+    if (currentTrend) {
+      return currentTrendHasPlatform(platform)
+        ? "text-green-400"
+        : "text-red-400";
+    }
+
+    // For all other pages (dashboard, FAQ, etc.), show all green
+    return "text-green-400";
+  };
   // Load platform filters from localStorage on component mount
   React.useEffect(() => {
     const savedFilters = localStorage.getItem("platformFilters");
@@ -119,19 +206,55 @@ const Sidebar: React.FC<SidebarProps> = ({
     });
   };
 
+  // Fetch individual trend data if not found in cached lists
+  React.useEffect(() => {
+    if (
+      currentTrendId &&
+      !allTrends.find((trend) => trend.id === currentTrendId)
+    ) {
+      fetch(`/api/getTrend/${currentTrendId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success && data.trend) {
+            setCurrentTrendData(data.trend);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching individual trend:", error);
+        });
+    } else {
+      setCurrentTrendData(null);
+    }
+  }, [currentTrendId, allTrends.length]);
+
   function getUserTrends() {
     setIsLoadingTrends(true);
-    fetch(`/api/getUserTrends`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setUserTrends(data.trends);
+    Promise.all([
+      fetch(`/api/getUserTrends`).then((response) => response.json()),
+      fetch(`/api/getPublicTrends`).then((response) => response.json()),
+    ])
+      .then(([userData, publicData]) => {
+        console.log("User trends:", userData);
+        console.log("Public trends:", publicData);
+
+        if (userData.success) {
+          setUserTrends(userData.trends || []);
         } else {
-          console.error("Error fetching user trends:", data.error);
+          console.error("Error fetching user trends:", userData.error);
+          setUserTrends([]);
+        }
+
+        if (publicData.success) {
+          setPublicTrends(publicData.trends || []);
+        } else {
+          console.error("Error fetching public trends:", publicData.error);
+          setPublicTrends([]);
         }
       })
       .catch((error) => {
-        console.error("Error fetching user trends:", error);
+        console.error("Error fetching trends:", error);
+        setUserTrends([]);
+        setPublicTrends([]);
       })
       .finally(() => {
         setIsLoadingTrends(false);
@@ -151,7 +274,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div
         className="flex text-center cursor-pointer text-blue-400 items-center justify-start w-full font-medium text-shadow-xs dark:text-shadow-white/10 mt-3 h-16 px-8 text-xl"
         onClick={() => {
-          window.location.href = "/";
+          window.location.href = "/app";
           toggleSidebar?.();
         }}
       >
@@ -219,11 +342,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex items-center">
                 Twitter
-                <span
-                  className={`ml-2 ${
-                    platformFilters.twitter ? "text-green-400" : "text-red-400"
-                  }`}
-                >
+                <span className={`ml-2 ${getPlatformDotColor("twitter")}`}>
                   ●
                 </span>
               </div>
@@ -282,13 +401,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex items-center">
                 Instagram
-                <span
-                  className={`ml-2 ${
-                    platformFilters.instagram
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
-                >
+                <span className={`ml-2 ${getPlatformDotColor("instagram")}`}>
                   ●
                 </span>
               </div>
@@ -347,11 +460,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex items-center">
                 TikTok
-                <span
-                  className={`ml-2 ${
-                    platformFilters.tiktok ? "text-green-400" : "text-red-400"
-                  }`}
-                >
+                <span className={`ml-2 ${getPlatformDotColor("tiktok")}`}>
                   ●
                 </span>
               </div>

@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import TrendImage from "@/components/trendimage";
+import { useTrend } from "@/contexts/TrendContext";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -154,6 +155,7 @@ async function fetchTiktokStats(videoId: string): Promise<TiktokStats | null> {
 
 export default function TrendsListPage() {
   const router = useRouter();
+  const { setCurrentUrls } = useTrend();
   const [input, setInput] = useState(""),
     [links, setLinks] = useState<string[]>([]),
     [error, setError] = useState(""),
@@ -166,6 +168,17 @@ export default function TrendsListPage() {
     [listIdExists, setListIdExists] = useState(false),
     [listIdChecked, setListIdChecked] = useState(false); // Track if CA was checked
   const [isPublic, setIsPublic] = useState(false);
+  // Update context with current URLs whenever links change
+  useEffect(() => {
+    setCurrentUrls(links);
+  }, [links, setCurrentUrls]);
+
+  // Clear context URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      setCurrentUrls([]);
+    };
+  }, [setCurrentUrls]);
 
   // Update stats when links change - now handles both Twitter and Instagram
   useEffect(() => {
@@ -503,13 +516,13 @@ export default function TrendsListPage() {
       </SignedOut>
       <SignedIn>
         {/* Blue gradient background effects */}
-        <div className="relative antialiased w-full justify-center items-center fixed inset-0 -top-[50vh] blur-xl z-0">
+        <div className="antialiased w-full justify-center items-center fixed inset-0 -top-[50vh] blur-xl z-0">
           <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/30 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
           <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
           <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[60%]"></div>
           <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa]/30 to-transparent top-[100vh] rounded-full blur-3xl left-[-20%]"></div>
           <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[40%]"></div>
-          <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
+          <div className="absolute w-[10vh] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
         </div>
 
         <div className="absolute top-0 left-0 w-full z-10 text-center text-sm">
