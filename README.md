@@ -4,7 +4,7 @@ A powerful social media analytics platform that lets you create, save, and analy
 
 ![Trendscreener](./public/logo.png)
 
-## Features
+## Features 
 
 ### 🔍 **Trend Analysis**
 
