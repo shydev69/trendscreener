@@ -33,7 +33,7 @@ const Header: React.FC = () => {
           onClick={toggleSidebar}
           className="w-6 h-6 text-white cursor-pointer md:hidden"
         />
-      </div>
+      </div>{" "}
       {/* Centered input */}
       <div className="w-0 md:w-full lg:w-3/4 flex justify-center">
         <form
@@ -43,9 +43,37 @@ const Header: React.FC = () => {
               "search"
             ) as HTMLInputElement;
             if (input.value.trim()) {
-              window.location.href = `/app/search?q=${encodeURIComponent(
-                input.value.trim()
-              )}`;
+              // Get platform switches from localStorage for search filtering
+              let enabledPlatforms = ["twitter", "instagram", "tiktok"]; // default all enabled
+
+              try {
+                const savedSwitches = localStorage.getItem("platformSwitches");
+                if (savedSwitches) {
+                  const platformSwitches = JSON.parse(savedSwitches);
+                  enabledPlatforms = Object.entries(platformSwitches)
+                    .filter(([_, enabled]) => enabled)
+                    .map(([platform, _]) => platform);
+                }
+              } catch (error) {
+                console.error(
+                  "Error reading platform switches from localStorage:",
+                  error
+                );
+              }
+
+              // Build search URL with platform filters
+              const searchUrl = new URL(`/app/search`, window.location.origin);
+              searchUrl.searchParams.set("q", input.value.trim());
+
+              // Add platform filters to search URL if not all platforms are enabled
+              if (enabledPlatforms.length > 0 && enabledPlatforms.length < 3) {
+                searchUrl.searchParams.set(
+                  "platforms",
+                  enabledPlatforms.join(",")
+                );
+              }
+
+              window.location.href = searchUrl.toString();
             }
           }}
           className="w-full max-w-xl"

@@ -63,13 +63,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [currentTrendData, setCurrentTrendData] =
     React.useState<userTrend | null>(null);
   const [isLoadingTrends, setIsLoadingTrends] = React.useState(true);
-
   // State for platform filtering on dashboard/search pages
   const [platformSwitches, setPlatformSwitches] = React.useState({
     twitter: true,
     instagram: true,
     tiktok: true,
   });
+  const [isInitialized, setIsInitialized] = React.useState(false);
 
   // Get current trend ID from pathname
   const pathname = usePathname();
@@ -84,7 +84,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const currentTrend = currentTrendId
     ? allTrends.find((trend) => trend.id === currentTrendId) || currentTrendData
     : null;
-
   // Check if current trend has posts from specific platform
   const currentTrendHasPlatform = (platform: string) => {
     if (!currentTrend) return false;
@@ -102,9 +101,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           return false;
       }
     });
-
-    // Debug logging - remove this later
-    console.log(`Platform ${platform}:`, hasPlatform, currentTrend.urls);
 
     return hasPlatform;
   };
@@ -126,38 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           return false;
       }
     });
-  };
-  // Get platform dot color
-  const getPlatformDotColor = (
-    platform: "twitter" | "instagram" | "tiktok"
-  ) => {
-    // If we're on the create trendscreen page
-    if (pathname === "/app/trendscreen") {
-      // If there are URLs, show based on current URLs
-      if (currentUrls.length > 0) {
-        return currentUrlsHasPlatform(platform)
-          ? "text-green-400"
-          : "text-red-400";
-      }
-      // If create page is empty, show all dots as red
-      return "text-red-400";
-    }
-
-    // If we're viewing a specific trend, show based on that trend's platforms
-    if (currentTrend) {
-      return currentTrendHasPlatform(platform)
-        ? "text-green-400"
-        : "text-red-400";
-    } // For all other pages (dashboard, FAQ, etc.), show all green
-    return "text-green-400";
-  };
-
-  // Check if current page should show switches instead of dots
-  const shouldShowSwitches = () => {
-    return pathname === "/app" || pathname === "/app/search";
-  };
-
-  // Toggle platform switch for filtering
+  }; // Toggle platform switch for filtering
   const togglePlatformSwitch = (
     platform: "twitter" | "instagram" | "tiktok"
   ) => {
@@ -165,87 +130,158 @@ const Sidebar: React.FC<SidebarProps> = ({
       const newSwitches = {
         ...prev,
         [platform]: !prev[platform],
-      };
+      }; // Save to localStorage immediately
+      localStorage.setItem("platformSwitches", JSON.stringify(newSwitches));
+      console.log("Platform switches updated:", newSwitches);
 
-      // Trigger URL update for dashboard/search pages
-      if (shouldShowSwitches()) {
-        updatePageWithFilters(newSwitches);
-      }
+      // Always trigger URL update for dashboard/search pages
+      updatePageWithFilters(newSwitches);
 
       return newSwitches;
     });
   };
 
-  // Update page URL with platform filters
+  // Update page URL with platform filters (only for dashboard/search pages)
   const updatePageWithFilters = (switches: typeof platformSwitches) => {
     if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      const platforms = Object.entries(switches)
-        .filter(([_, enabled]) => enabled)
-        .map(([platform, _]) => platform);
+      const currentPath = window.location.pathname;
 
-      if (platforms.length === 3) {
-        // All platforms selected, remove filter
-        url.searchParams.delete("platforms");
-      } else if (platforms.length > 0) {
-        // Some platforms selected
-        url.searchParams.set("platforms", platforms.join(","));
-      } else {
-        // No platforms selected, show all (fallback)
-        url.searchParams.delete("platforms");
+      // Only update URL params for dashboard and search pages
+      if (currentPath === "/app" || currentPath === "/app/search") {
+        const url = new URL(window.location.href);
+        const platforms = Object.entries(switches)
+          .filter(([_, enabled]) => enabled)
+          .map(([platform, _]) => platform);
+
+        if (platforms.length === 3) {
+          // All platforms selected, remove filter
+          url.searchParams.delete("platforms");
+        } else if (platforms.length > 0) {
+          // Some platforms selected
+          url.searchParams.set("platforms", platforms.join(","));
+        } else {
+          // No platforms selected, show all (fallback)
+          url.searchParams.delete("platforms");
+        }
+
+        // Update URL without page reload
+        window.history.replaceState({}, "", url.toString());
+
+        // Trigger a custom event to notify pages about filter change
+        window.dispatchEvent(
+          new CustomEvent("platformFiltersChanged", {
+            detail: {
+              platforms:
+                platforms.length > 0
+                  ? platforms
+                  : ["twitter", "instagram", "tiktok"],
+            },
+          })
+        );
       }
-
-      // Update URL without page reload
-      window.history.replaceState({}, "", url.toString());
-
-      // Trigger a custom event to notify pages about filter change
-      window.dispatchEvent(
-        new CustomEvent("platformFiltersChanged", {
-          detail: {
-            platforms:
-              platforms.length > 0
-                ? platforms
-                : ["twitter", "instagram", "tiktok"],
-          },
-        })
-      );
     }
-  }; // Load platform switches from localStorage on component mount
+  };
+  // Load platform switches from localStorage on component mount
   React.useEffect(() => {
-    // Load platform switches from localStorage and URL params
+    // Always try to load from localStorage first
     const savedSwitches = localStorage.getItem("platformSwitches");
     if (savedSwitches) {
       try {
         const parsedSwitches = JSON.parse(savedSwitches);
+        console.log(
+          "Loaded platform switches from localStorage:",
+          parsedSwitches
+        );
         setPlatformSwitches(parsedSwitches);
+        setIsInitialized(true);
+
+        // After setting from localStorage, sync URL if we're on dashboard/search page
+        setTimeout(() => {
+          if (typeof window !== "undefined") {
+            const currentPath = window.location.pathname;
+            if (currentPath === "/app" || currentPath === "/app/search") {
+              updatePageWithFilters(parsedSwitches);
+            }
+          }
+        }, 0);
       } catch (error) {
         console.error(
           "Error parsing platform switches from localStorage:",
           error
         );
+        setIsInitialized(true);
       }
-    }
+    } else {
+      // If no localStorage data, save the default state and check URL params as fallback
+      const defaultSwitches = {
+        twitter: true,
+        instagram: true,
+        tiktok: true,
+      };
 
-    // Check URL params for platform filters
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      const platformsParam = url.searchParams.get("platforms");
-      if (platformsParam) {
-        const enabledPlatforms = platformsParam.split(",");
-        const newSwitches = {
-          twitter: enabledPlatforms.includes("twitter"),
-          instagram: enabledPlatforms.includes("instagram"),
-          tiktok: enabledPlatforms.includes("tiktok"),
-        };
-        setPlatformSwitches(newSwitches);
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        const platformsParam = url.searchParams.get("platforms");
+        if (platformsParam) {
+          const enabledPlatforms = platformsParam.split(",");
+          const urlSwitches = {
+            twitter: enabledPlatforms.includes("twitter"),
+            instagram: enabledPlatforms.includes("instagram"),
+            tiktok: enabledPlatforms.includes("tiktok"),
+          };
+          setPlatformSwitches(urlSwitches);
+          localStorage.setItem("platformSwitches", JSON.stringify(urlSwitches));
+        } else {
+          localStorage.setItem(
+            "platformSwitches",
+            JSON.stringify(defaultSwitches)
+          );
+        }
       }
+      setIsInitialized(true);
     }
-  }, []);
-
-  // Save platform switches to localStorage whenever they change
+  }, []); // Save platform switches to localStorage whenever they change (only after initialization)
   React.useEffect(() => {
-    localStorage.setItem("platformSwitches", JSON.stringify(platformSwitches));
-  }, [platformSwitches]);
+    if (isInitialized) {
+      localStorage.setItem(
+        "platformSwitches",
+        JSON.stringify(platformSwitches)
+      );
+    }
+  }, [platformSwitches, isInitialized]);
+  // Sync URL with localStorage state when pathname changes (auto-redirect with filters)
+  React.useEffect(() => {
+    if (isInitialized && typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      if (currentPath === "/app" || currentPath === "/app/search") {
+        const platforms = Object.entries(platformSwitches)
+          .filter(([_, enabled]) => enabled)
+          .map(([platform, _]) => platform);
+
+        // Check if filters need to be applied (not all platforms enabled)
+        if (platforms.length < 3 && platforms.length > 0) {
+          const url = new URL(window.location.href);
+          const currentPlatformsParam = url.searchParams.get("platforms");
+          const expectedPlatformsParam = platforms.join(",");
+
+          // If URL doesn't match expected filters, redirect
+          if (currentPlatformsParam !== expectedPlatformsParam) {
+            url.searchParams.set("platforms", expectedPlatformsParam);
+            window.history.replaceState({}, "", url.toString());
+          }
+        } else if (platforms.length === 3) {
+          // All platforms enabled, remove filter from URL
+          const url = new URL(window.location.href);
+          if (url.searchParams.has("platforms")) {
+            url.searchParams.delete("platforms");
+            window.history.replaceState({}, "", url.toString());
+          }
+        }
+
+        updatePageWithFilters(platformSwitches);
+      }
+    }
+  }, [pathname, platformSwitches, isInitialized]);
   const handleLinkClick = (link: string) => {
     setActiveLink(link);
   };
@@ -337,9 +373,24 @@ const Sidebar: React.FC<SidebarProps> = ({
               "search"
             ) as HTMLInputElement;
             if (input.value.trim()) {
-              window.location.href = `/app/search?q=${encodeURIComponent(
-                input.value.trim()
-              )}`;
+              // Get enabled platforms for search filtering
+              const enabledPlatforms = Object.entries(platformSwitches)
+                .filter(([_, enabled]) => enabled)
+                .map(([platform, _]) => platform);
+
+              // Build search URL with platform filters
+              const searchUrl = new URL(`/app/search`, window.location.origin);
+              searchUrl.searchParams.set("q", input.value.trim());
+
+              // Add platform filters to search URL if not all platforms are enabled
+              if (enabledPlatforms.length > 0 && enabledPlatforms.length < 3) {
+                searchUrl.searchParams.set(
+                  "platforms",
+                  enabledPlatforms.join(",")
+                );
+              }
+
+              window.location.href = searchUrl.toString();
             }
             toggleSidebar?.();
           }}
@@ -384,17 +435,11 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
               <div className="flex items-center">
                 Twitter
-                {shouldShowSwitches() ? (
-                  <Switch
-                    checked={platformSwitches.twitter}
-                    onCheckedChange={() => togglePlatformSwitch("twitter")}
-                    className="ml-2 scale-75"
-                  />
-                ) : (
-                  <span className={`ml-2 ${getPlatformDotColor("twitter")}`}>
-                    ●
-                  </span>
-                )}
+                <Switch
+                  checked={platformSwitches.twitter}
+                  onCheckedChange={() => togglePlatformSwitch("twitter")}
+                  className="ml-2 scale-75"
+                />
               </div>
             </div>
 
@@ -402,17 +447,11 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
               <div className="flex items-center">
                 Instagram
-                {shouldShowSwitches() ? (
-                  <Switch
-                    checked={platformSwitches.instagram}
-                    onCheckedChange={() => togglePlatformSwitch("instagram")}
-                    className="ml-2 scale-75"
-                  />
-                ) : (
-                  <span className={`ml-2 ${getPlatformDotColor("instagram")}`}>
-                    ●
-                  </span>
-                )}
+                <Switch
+                  checked={platformSwitches.instagram}
+                  onCheckedChange={() => togglePlatformSwitch("instagram")}
+                  className="ml-2 scale-75"
+                />
               </div>
             </div>
 
@@ -420,17 +459,11 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
               <div className="flex items-center">
                 TikTok
-                {shouldShowSwitches() ? (
-                  <Switch
-                    checked={platformSwitches.tiktok}
-                    onCheckedChange={() => togglePlatformSwitch("tiktok")}
-                    className="ml-2 scale-75"
-                  />
-                ) : (
-                  <span className={`ml-2 ${getPlatformDotColor("tiktok")}`}>
-                    ●
-                  </span>
-                )}
+                <Switch
+                  checked={platformSwitches.tiktok}
+                  onCheckedChange={() => togglePlatformSwitch("tiktok")}
+                  className="ml-2 scale-75"
+                />
               </div>
             </div>
           </div>
