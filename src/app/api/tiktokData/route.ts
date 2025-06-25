@@ -7,9 +7,8 @@ const ipRequests = new Map<string, { count: number; timestamp: number }>();
 
 // RapidAPI configuration for TikTok
 const RAPIDAPI_KEY =
-  process.env.RAPIDAPI_KEY ||
-  process.env.RAPIDAPI_KEY_BACKUP ||
-  "9707a123d7mshe432c4216c34521p135753jsnadd255e63470";
+  process.env.RAPIDAPI_KEY! ||
+  process.env.RAPIDAPI_KEY_BACKUP!;
 const RAPIDAPI_HOST = "tiktok-api23.p.rapidapi.com";
 
 export async function GET(req: NextRequest) {

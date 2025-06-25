@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import TrendImage from "@/components/trendimage";
+import { trackTrendscreenVisit } from "@/actions/trackVisit";
 
 const TWEET_URL_REGEX =
   /^https?:\/\/(www\.)?(x|twitter)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/i;
@@ -273,6 +274,16 @@ export default function TrendsListIdPage() {
           setUserId(list.trendscreen.creatorId);
           setIsPublic(!!list.trendscreen.isPublic);
           setNewListId(listId); // Set current CA as default
+
+          // Track trendscreen visit and update stats in background
+          if (list.trendscreen.urls && list.trendscreen.urls.length > 0) {
+            trackTrendscreenVisit(listId, list.trendscreen.urls).catch(
+              (error) => {
+                console.error("Failed to track trendscreen visit:", error);
+                // Don't show error to user as this is background functionality
+              }
+            );
+          }
         }
         setInitialLoading(false);
       });
