@@ -428,45 +428,45 @@ const Sidebar: React.FC<SidebarProps> = ({
           </Link>
         ))}
         <hr className="border-t border-gray-300 dark:border-neutral-700 my-2 mx-2 opacity-0" />{" "}
-        <SignedIn>
-          {/* Platform Status Section */}
-          <div className="space-y-2">
-            {/* Twitter */}
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
-              <div className="flex items-center">
-                Twitter
-                <Switch
-                  checked={platformSwitches.twitter}
-                  onCheckedChange={() => togglePlatformSwitch("twitter")}
-                  className="ml-2 scale-75"
-                />
-              </div>
-            </div>
-
-            {/* Instagram */}
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
-              <div className="flex items-center">
-                Instagram
-                <Switch
-                  checked={platformSwitches.instagram}
-                  onCheckedChange={() => togglePlatformSwitch("instagram")}
-                  className="ml-2 scale-75"
-                />
-              </div>
-            </div>
-
-            {/* TikTok */}
-            <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
-              <div className="flex items-center">
-                TikTok
-                <Switch
-                  checked={platformSwitches.tiktok}
-                  onCheckedChange={() => togglePlatformSwitch("tiktok")}
-                  className="ml-2 scale-75"
-                />
-              </div>
+        {/* Platform Status Section */}
+        <div className="space-y-2">
+          {/* Twitter */}
+          <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
+            <div className="flex items-center">
+              Twitter
+              <Switch
+                checked={platformSwitches.twitter}
+                onCheckedChange={() => togglePlatformSwitch("twitter")}
+                className="ml-2 scale-75"
+              />
             </div>
           </div>
+
+          {/* Instagram */}
+          <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
+            <div className="flex items-center">
+              Instagram
+              <Switch
+                checked={platformSwitches.instagram}
+                onCheckedChange={() => togglePlatformSwitch("instagram")}
+                className="ml-2 scale-75"
+              />
+            </div>
+          </div>
+
+          {/* TikTok */}
+          <div className="w-full flex items-center justify-between text-sm text-gray-600 dark:text-neutral-400 font-semibold mb-2 px-4 py-1.5 rounded-[8px]">
+            <div className="flex items-center">
+              TikTok
+              <Switch
+                checked={platformSwitches.tiktok}
+                onCheckedChange={() => togglePlatformSwitch("tiktok")}
+                className="ml-2 scale-75"
+              />
+            </div>
+          </div>
+        </div>
+        <SignedIn>
           {/* All User Trends Section */}
           <div className="space-y-2">
             {isLoadingTrends ? (
