@@ -767,7 +767,7 @@ export default function TrendsListIdPage() {
       <div className="w-full max-w-2xl -mt-[10vh] z-1 relative">
         <TrendImage
           trendId={newListId}
-          className="w-14 h-14 mx-4 my-4 rounded-[10px]"
+          className="w-full h-96 object-cover mx-4 my-4 rounded-[20px]"
         />
         {currentUser === userId && (
           <>
