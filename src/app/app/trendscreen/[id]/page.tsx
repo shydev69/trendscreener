@@ -897,7 +897,7 @@ export default function TrendsListIdPage() {
           onChange={(e) => setListName(e.target.value)}
         />
         <div className="flex items-center justify-start gap-10 mt-6 mb-4 px-4">
-          <Analysis total={total} />
+          <Analysis total={total} links={links} />
           <div className="flex-1" />
         </div>{" "}
         <textarea
