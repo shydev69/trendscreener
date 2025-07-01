@@ -12,13 +12,13 @@ const myFont = localFont({
 const FooterSection = () => {
   return (
     <footer className="w-[94vw] mx-auto my-[3vh] rounded-4xl overflow-hidden bg-black text-[#e5eae6] flex flex-col items-center relative sm:px-6 lg:px-8 z-1">
-      <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1">
-        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/50 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
-        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
-        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[25vh] left-[70%]"></div>
-        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa] to-transparent top-[100vh] rounded-full blur-3xl left-[-20%]"></div>
-        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[10vh] left-[40%]"></div>
-        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] blur-[80px] left-[35%]"></div>
+      <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1 pointer-events-none">
+        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/50 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[45vh] left-[95%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[25vh] left-[70%] pointer-events-none"></div>
+        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa] to-transparent top-[100vh] rounded-full blur-3xl left-[-20%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[10vh] left-[40%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-2xl h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] blur-[80px] left-[35%] pointer-events-none"></div>
       </div>
       <div className="w-full flex flex-col items-center justify-center pt-[8vh] pb-12 z-10 px-5 md:px-10 relative">
         <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-4 gap-8">

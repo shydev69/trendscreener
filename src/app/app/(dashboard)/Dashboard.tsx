@@ -179,13 +179,13 @@ export default function SearchPage() {
   return (
     <div className="w-full mx-auto flex flex-col relative items-center min-h-screen">
       {/* Blue gradient background effects */}
-      <div className="relative antialiased w-full justify-center items-center fixed inset-0 -top-[50vh] blur-xl z-0">
-        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/30 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[60%]"></div>
-        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa]/30 to-transparent top-[100vh] rounded-full blur-3xl left-[-20%]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[40%]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
+      <div className="relative antialiased w-full justify-center items-center fixed inset-0 -top-[50vh] blur-xl z-0 pointer-events-none">
+        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa]/30 to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[45vh] left-[95%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[60%] pointer-events-none"></div>
+        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa]/30 to-transparent top-[100vh] rounded-full blur-3xl left-[-20%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] left-[40%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa]/30 -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%] pointer-events-none"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-0 pb-40 sm:px-6 lg:px-8 pt-8">
@@ -374,14 +374,47 @@ export default function SearchPage() {
                     </div>
                     <div className="col-span-2 xl:col-span-1">
                       <div className="flex flex-col items-center gap-6 gap-y-2 items-end xl:items-start text-sm opacity-90 flex-wrap w-full">
-                        <span className="flex items-center gap-1 text-[#e5eae6]/70">
-                          <Eye className="w-4 h-4" />
-                          {returnReadableNumber(trend.analysis?.views ?? 0)}
-                        </span>
-                        <span className="flex items-center gap-1 text-[#e5eae6]/70">
-                          <Heart className="w-4 h-4" />
-                          {returnReadableNumber(trend.analysis?.likes ?? 0)}
-                        </span>
+                        {(() => {
+                          // Check if trendscreen has Instagram or TikTok posts (and no Twitter posts)
+                          const hasTwitterPosts = trend.urls?.some(
+                            (url: string) =>
+                              url.toLowerCase().includes("twitter.com") ||
+                              url.toLowerCase().includes("x.com")
+                          );
+                          const hasInstagramPosts = trend.urls?.some(
+                            (url: string) =>
+                              url.toLowerCase().includes("instagram.com")
+                          );
+                          const hasTiktokPosts = trend.urls?.some(
+                            (url: string) =>
+                              url.toLowerCase().includes("tiktok.com")
+                          );
+
+                          // Hide views if it's 0 and only has Instagram or TikTok posts
+                          const shouldHideViews =
+                            (trend.analysis?.views ?? 0) === 0 &&
+                            !hasTwitterPosts &&
+                            (hasInstagramPosts || hasTiktokPosts);
+
+                          return (
+                            <>
+                              {!shouldHideViews && (
+                                <span className="flex items-center gap-1 text-[#e5eae6]/70">
+                                  <Eye className="w-4 h-4" />
+                                  {returnReadableNumber(
+                                    trend.analysis?.views ?? 0
+                                  )}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1 text-[#e5eae6]/70">
+                                <Heart className="w-4 h-4" />
+                                {returnReadableNumber(
+                                  trend.analysis?.likes ?? 0
+                                )}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                     <div className="col-span-8 xl:col-span-4">

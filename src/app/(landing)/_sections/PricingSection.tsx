@@ -15,10 +15,10 @@ const PricingSection = () => {
       id="pricing"
       className="w-[94vw] h-full md:min-h-[94vh] my-[3vh] lg:pb-10 rounded-4xl overflow-hidden bg-black text-white flex mx-auto flex-col items-center text-center relative sm:px-6 lg:px-8 z-1"
     >
-      <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1">
-        <div className="absolute w-[100vh] h-[70vh] bg-radial from-[#60a5fa] to-transparent top-[5vh] left-[-30%] rounded-full blur-3xl"></div>
-        <div className="absolute w-[50vh] h-[50vh] bg-radial from-[#60a5fa]/40 to-transparent top-[100vh] left-[40%] rounded-full blur-[200px]"></div>
-        <div className="absolute w-[70vh] h-[100vh] bg-radial from-[#60a5fa] to-transparent top-[140vh] rounded-full blur-3xl left-[85%]"></div>
+      <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1 pointer-events-none">
+        <div className="absolute w-[100vh] h-[70vh] bg-radial from-[#60a5fa] to-transparent top-[5vh] left-[-30%] rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute w-[50vh] h-[50vh] bg-radial from-[#60a5fa]/40 to-transparent top-[100vh] left-[40%] rounded-full blur-[200px] pointer-events-none"></div>
+        <div className="absolute w-[70vh] h-[100vh] bg-radial from-[#60a5fa] to-transparent top-[140vh] rounded-full blur-3xl left-[85%] pointer-events-none"></div>
       </div>
 
       <div className="w-full flex flex-col items-center justify-center pt-[14vh] pb-20 z-10 px-5 md:px-10 relative">

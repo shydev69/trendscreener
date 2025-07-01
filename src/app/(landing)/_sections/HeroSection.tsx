@@ -16,13 +16,13 @@ const myFont = localFont({
 export const HeroSection = () => {
   return (
     <section className="w-[94vw] md:h-[88vh] rounded-4xl overflow-hidden bg-black text-white flex mx-auto flex-col items-center text-center relative sm:px-6 lg:px-8 z-1">
-      <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1">
-        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa] to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[45vh] left-[95%]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] left-[60%]"></div>
-        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa] to-transparent top-[100vh] rounded-full blur-3xl left-[-20%]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] left-[40%]"></div>
-        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%]"></div>
+      <div className="relative antialiased w-full justify-center items-center absolute inset -top-[50vh] blur-xl z-1 pointer-events-none">
+        <div className="absolute w-full h-[200vh] bg-radial from-[#60a5fa] to-transparent -top-[70vh] left-[40%] rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[45vh] left-[95%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] left-[60%] pointer-events-none"></div>
+        <div className="absolute w-[70vh] h-[70vh] bg-radial from-[#60a5fa] to-transparent top-[100vh] rounded-full blur-3xl left-[-20%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] left-[40%] pointer-events-none"></div>
+        <div className="absolute w-[10vh] blur-[80px] h-[100vh] bg-radial from-[#60a5fa] -rotate-45 to-transparent top-[20vh] blur-3xl left-[30%] pointer-events-none"></div>
       </div>
       <div className="relative antialiased w-full justify-center items-center absolute inset z-1">
         <div className="absolute border border-[#e5eae6] w-[40vw] h-[40vh] rounded-[70px] -top-[12.5vh] -left-[22vw] opacity-0 md:opacity-30"></div>
