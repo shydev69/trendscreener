@@ -119,7 +119,7 @@ const Header: React.FC = () => {
         <button
           className={`flex items-center justify-center px-3 gap-1 py-2.5 mr-5 rounded-[8px] text-white/80 text-sm hover:text-white transition duration-300`}
           onClick={() => {
-            window.location.href = "http://instagram.com/trendscreenerai";
+            window.location.href = "http://instagram.com/launchscreener";
           }}
         >
           <Instagram className="w-4 h-4" />

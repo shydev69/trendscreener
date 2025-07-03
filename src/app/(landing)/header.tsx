@@ -33,7 +33,7 @@ export const Header = () => {
                   { name: "X", href: "https://x.com/trendscreener" },
                   {
                     name: "Instagram",
-                    href: "https://www.instagram.com/trendscreenerai/",
+                    href: "http://instagram.com/launchscreener",
                   },
                 ].map((item) => (
                   <li key={item.name}>
@@ -119,7 +119,7 @@ export const Header = () => {
                   { name: "X", url: "https://x.com/trendscreener" },
                   {
                     name: "Instagram",
-                    url: "https://www.instagram.com/trendscreenerai/",
+                    url: "http://instagram.com/launchscreener",
                   },
                 ].map((item) => (
                   <li key={item.name} className="w-full text-center">
